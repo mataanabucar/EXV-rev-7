@@ -273,8 +273,9 @@ def lever_hub(name):
     handle_v, drum_v = ex.LEVERS[name]
     off = handle_v - drum_v
     pitch, width = ex.DRUM["lever"]["pitch"], ex.DRUM["lever"]["width"]
-    rim, rc, rf = control_drum_rim(pitch, width, 17.0)
-    web = z_cyl(17.5, -width / 2, -width / 2 + 4.0)
+    r_in = pitch / 2 - ROPE / 2 - 6.0                 # 6 mm rim under the groove
+    rim, rc, rf = control_drum_rim(pitch, width, r_in)
+    web = z_cyl(r_in + 0.5, -width / 2, -width / 2 + 4.0)
     hub = rim.union(web).union(z_cyl(10.0, -width / 2, width / 2))
     blk_h = 20.0
     zc = off
@@ -287,7 +288,7 @@ def lever_hub(name):
                   .translate((0, 34 - LEVER_SOCKET_DEPTH, zc)))
     hub = hub.cut(x_hole(M3, 30, 24.0, zc))
     hub = hub.cut(z_cyl(BORE / 2, -200, 200))
-    hub = tail_anchors(hub, rc, 11.5, 16.0, -width / 2 + 4.0, width)
+    hub = tail_anchors(hub, rc, 12.0, r_in - 3.0, -width / 2 + 4.0, width)
     return hub
 
 

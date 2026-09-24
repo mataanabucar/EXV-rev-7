@@ -287,6 +287,9 @@ def ears():
     sh = ex.load_stl_shells()
     af = bp.AXLE_HEX_AF + 0.3
     hexp = mf.Manifold.cylinder(80, af / 2 / math.cos(math.pi / 6), af / 2 / math.cos(math.pi / 6), 6, True)
+    # match the drum-axle's hex: its print-frame X maps to (stick angle - 90 deg) in the u-z plane
+    phase = (math.degrees(rt.STICK_ANG) - 90.0) % 60.0
+    hexp = hexp.rotate([0, 0, phase])
     hexp = hexp.transform([[1, 0, 0, ex.P_BUCKET0[0]], [0, 0, -1, 0], [0, 1, 0, ex.P_BUCKET0[1]]])
     out = []
     for lab in ("G", "H"):

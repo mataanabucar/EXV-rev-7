@@ -32,6 +32,9 @@ BASE_CX, BASE_CY = 55.72, 50.59                     # slew axis in STL / 3MF pla
 
 # ---------------------------------------------------------------- design constants
 TURRET_DZ = -13.0                  # turret + arm lowered (green ring removed)
+# working ranges (deg from the EX-MA pose, + raises); limited by the lever slots, not the joints.
+# Each keeps >= 20 deg of rope wrap on its drum at both ends (crimp anchored at mid-range).
+WORKING = dict(boom=(-40.0, 45.0), stick=(-50.0, 70.0), bucket=(-55.0, 85.0), slew=(-90.0, 90.0))
 # pivots in the ORIGINAL EX-MA position (u, z); add TURRET_DZ for the built position
 P_BOOM0 = (0.0, 102.0)
 P_STICK0 = (186.19, 196.86)
@@ -53,7 +56,7 @@ DRUM = dict(boom=dict(pitch=30.0, width=14.0),      # boom root free radius 19.0
             stick=dict(pitch=26.0, width=10.0),     # stick root free radius 17.6
             bucket=dict(pitch=17.0, width=10.0),    # stick nose free radius 11.5 (drum turns vs nose)
             slew=dict(pitch=110.0, width=14.0),
-            lever=dict(pitch=48.0, width=14.0))
+            lever=dict(pitch=60.0, width=14.0))     # lever swing 40-52 deg over the working ranges
 
 # printed slewing ring
 FLANGE_R = 59.5                    # circular turret flange radius (inner race)
@@ -65,7 +68,7 @@ RET_RING_Z = (21.0, 27.0)
 BALL_D = 6.0                       # airsoft BB
 BALL_CIRCLE_R = 59.0
 BALL_Z = 21.0
-RACE_CLEAR = 0.25                  # per side, ball to race
+RACE_CLEAR = 0.15                  # per side, ball to race (tune with shims under the retaining ring)
 
 # pedestal / conduit / rotating tube
 TUBE_Z = (-98.0, 75.0 + TURRET_DZ)

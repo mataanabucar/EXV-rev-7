@@ -38,8 +38,9 @@ ARC2_R = 30.0                    # boom -> stick turn radius (bucket tubes, over
 ARC2_APEX = 8.0                  # arc apex height above the stick pin
 BOOM_STOP_S = 150.0 / math.cos(BOOM_ANG)
 STICK_STOP_S = 131.1
-FLEX_BOOM = 30.0                 # half-length of the free window at the boom joint (arc length)
-FLEX_STICK = 30.0
+# free (unclamped) tube zones: the tube is only held by its end stops and the rib channels
+FREE_BOOM_S = 45.0               # boom-joint zone: from the PVC top to the first boom rib channel
+FREE_STICK = (160.0, 35.0)       # stick-joint zone: from boom s=160 to stick s=35
 
 # tube: (circuit, PVC slot (u, v), v at the boom pin, stop offset, v schedule)
 TUBES = {
@@ -109,10 +110,10 @@ def centreline(name):
     # 1. inside the PVC tube (turret), vertical, slot position
     for z in np.linspace(PVC_BOTTOM_Z, PVC_TOP_Z, 14):
         out.append(("turret", np.array([pu, pv, z]), "fixed"))
-    # 2. fan out above the PVC top to the rise line u = RISE_U and the pin-side v
+    # 2. fan out above the PVC top to the rise line u = RISE_U and the pin-side v (free zone)
     for z in np.linspace(PVC_TOP_Z, Z0_ARC1, 10)[1:]:
         t = (z - PVC_TOP_Z) / (Z0_ARC1 - PVC_TOP_Z)
-        out.append(("turret", np.array([ramp(t, 0, 1, pu, RISE_U), ramp(t, 0, 1, pv, v_pin), z]), "fixed"))
+        out.append(("turret", np.array([ramp(t, 0, 1, pu, RISE_U), ramp(t, 0, 1, pv, v_pin), z]), "flex_boom"))
     # 3. turret->boom arc (free window centred on it)
     for p in ARC1_PTS[1:]:
         out.append(("boom", np.array([p[0], v_pin, p[1]]), "flex_boom"))
@@ -123,14 +124,15 @@ def centreline(name):
             off = ramp(s, 40.0, s_end - 15.0, OFF0, off_stop)
             v = ramp(s, 60.0, s_end - 10.0, v_pin, 0.0)
             p = PB + s * DB + off * NB
-            out.append(("boom", np.array([p[0], v, p[1]]), "fixed"))
+            out.append(("boom", np.array([p[0], v, p[1]]), "flex_boom" if s < FREE_BOOM_S else "fixed"))
         return out
     side = 8.5 * (1 if v_pin > 0 else -1)
     for s in np.linspace(S_ARC1_END, S_BOOM_ARC2, 44)[1:]:
         off = ramp(s, 40.0, S_BOOM_ARC2 - 10.0, OFF0, OFF_BOOM_END)
         v = ramp(s, 100.0, 170.0, v_pin, side)
         p = PB + s * DB + off * NB
-        out.append(("boom", np.array([p[0], v, p[1]]), "fixed"))
+        zone = "flex_boom" if s < FREE_BOOM_S else ("flex_stick" if s > FREE_STICK[0] else "fixed")
+        out.append(("boom", np.array([p[0], v, p[1]]), zone))
     # 5. over the stick pin
     for i, p in enumerate(ARC2_PTS[1:]):
         out.append(("stick" if i >= len(ARC2_PTS) // 2 else "boom", np.array([p[0], side, p[1]]), "flex_stick"))
@@ -139,7 +141,7 @@ def centreline(name):
         off = ramp(s, S_STICK_ARC2 + 10.0, STICK_STOP_S - 15.0, OFF_STICK_START, off_stop)
         v = ramp(s, 40.0, STICK_STOP_S - 10.0, side, 0.0)
         p = PS + s * DS + off * NS
-        out.append(("stick", np.array([p[0], v, p[1]]), "fixed"))
+        out.append(("stick", np.array([p[0], v, p[1]]), "flex_stick" if s < FREE_STICK[1] else "fixed"))
     return out
 
 
@@ -163,8 +165,8 @@ def place(member, p3, boom=0.0, stick=0.0, bucket=0.0):
     raise KeyError(member)
 
 
-def _hermite(p0, t0, p1, t1, n):
-    L = np.linalg.norm(p1 - p0)
+def _hermite(p0, t0, p1, t1, n, scale=1.0):
+    L = np.linalg.norm(p1 - p0) * scale
     t0, t1 = t0 / np.linalg.norm(t0) * L, t1 / np.linalg.norm(t1) * L
     out = []
     for t in np.linspace(0, 1, n):
@@ -173,9 +175,10 @@ def _hermite(p0, t0, p1, t1, n):
     return out
 
 
-def tube_polyline(name, boom=0.0, stick=0.0, bucket=0.0, dz=0.0):
-    """Posed PTFE centreline (N x 3). Fixed samples ride on members; each flex window is
-    replaced by a cubic Hermite curve tangent to the fixed tube on both sides."""
+def tube_polyline(name, boom=0.0, stick=0.0, bucket=0.0, dz=0.0, scale=1.0, n_flex=40):
+    """Posed PTFE centreline (N x 3). Fixed samples ride on members; each free zone is
+    replaced by a cubic Hermite curve tangent to the clamped tube on both sides.
+    `scale` stretches the end tangents: a longer (slack) tube bows more."""
     cl = centreline(name)
     posed = [(place(m, p, boom, stick, bucket), zone) for m, p, zone in cl]
     out, i = [], 0
@@ -191,11 +194,30 @@ def tube_polyline(name, boom=0.0, stick=0.0, bucket=0.0, dz=0.0):
         a, b = posed[i - 1][0], posed[min(j, len(posed) - 1)][0]
         ta = a - posed[i - 2][0]
         tb = posed[min(j + 1, len(posed) - 1)][0] - b
-        out.extend(_hermite(a, ta, b, tb, (j - i) + 2)[1:-1])
+        out.extend(_hermite(a, ta, b, tb, n_flex, scale)[1:-1])
         i = j
     arr = np.array(out)
     arr[:, 2] += dz
     return arr
+
+
+def fit_length(name, L_target, boom=0.0, stick=0.0, bucket=0.0, dz=0.0):
+    """Shape of a fixed-length tube at a pose: pick the tangent scale whose curve length
+    matches L_target (the slack bows out). Returns (poly, scale)."""
+    lo, hi = 0.3, 3.0
+    f = lambda sc: path_length(tube_polyline(name, boom, stick, bucket, dz, sc)) - L_target
+    if f(lo) > 0:
+        return tube_polyline(name, boom, stick, bucket, dz, lo), lo
+    if f(hi) < 0:
+        return tube_polyline(name, boom, stick, bucket, dz, hi), hi
+    for _ in range(30):
+        mid = 0.5 * (lo + hi)
+        if f(mid) > 0:
+            hi = mid
+        else:
+            lo = mid
+    sc = 0.5 * (lo + hi)
+    return tube_polyline(name, boom, stick, bucket, dz, sc), sc
 
 
 def path_length(poly):
