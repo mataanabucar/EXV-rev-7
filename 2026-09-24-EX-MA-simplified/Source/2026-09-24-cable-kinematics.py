@@ -116,34 +116,69 @@ def slewing_ring_check():
 
 
 # ---------------------------------------------------------------- PTFE tubes
-def tube_checks(work):
-    """PTFE tubes over the working ranges. Tube length = longest natural path over the grid
-    (+2 mm); at every other pose that fixed length is re-shaped (slack bows out)."""
+TUBE_R = ex.PTFE_OD / 2
+MIN_BEND_R = 15.0                  # PTFE 4x2 bends without kinking above ~15 mm
+MIN_GAP = 0.5                      # tube surface to any member in the free zones
+# fixed tube run below the PVC top: box fitting -> conduit -> pedestal fitting -> elbow -> PVC tube
+LOWER_RUN = (rt.CONDUIT_RUN                                          # box fitting -> pedestal fitting
+             + (-ex.ELBOW_R - (ex.PED_U[0] + ex.T_WOOD))                # pedestal fitting -> elbow
+             + math.pi / 2 * ex.ELBOW_R                                 # R30 elbow
+             + (rt.PVC_TOP_Z + DZ) - (ex.Z_ARM_LAYER + ex.ELBOW_R))     # elbow top -> PVC top (built)
+
+
+def _free_mask(poly, zones):
+    """Samples to check for clearance: the free zones (where the tube is unsupported)."""
+    return np.array([z.startswith("free") for z in zones])
+
+
+def tube_checks(work, n=5):
+    """PTFE tubes over the working ranges (boom x stick grid, n x n poses). In the arm each tube
+    keeps its natural shape (it slides through the guides); it is cut to its longest arm path
+    + 2 mm, and the spare length at each pose is stored as a helix in the conduit run."""
     members = {k: asm.member_mesh(k) for k in ("turret", "boom", "stick")}
+    members["turret"] = trimesh.util.concatenate([members["turret"], asm.split_pins("boom")])
+    members["boom"] = trimesh.util.concatenate([members["boom"], asm.split_pins("stick")])
+    poses = [(b, s) for b in np.linspace(*work["boom"], n) for s in np.linspace(*work["stick"], n)]
+    rad = lambda g: (math.radians(g[0]), math.radians(g[1]))
+    shapes = {name: {g: rt.natural_with_zones(name, *rad(g), dz=DZ) for g in poses} for name in rt.TUBES}
     rep = {}
     for name in rt.TUBES:
-        circuit = rt.TUBES[name][0]
-        bs = np.linspace(*work["boom"], 5)
-        ss = np.linspace(*work["stick"], 5) if circuit == "bucket" else [0.0]
-        grid = [(b, s) for b in bs for s in ss]
-        nat = {g: rt.path_length(rt.tube_polyline(name, math.radians(g[0]), math.radians(g[1]), dz=DZ)) for g in grid}
-        L_tube = max(nat.values()) + 2.0
-        turn_ref = None
-        rows = []
-        for jb, js in grid:
-            poly, sc = rt.fit_length(name, L_tube, math.radians(jb), math.radians(js), dz=DZ)
-            clear = 99.0
-            for mem in ("turret", "boom", "stick"):
-                T = asm.pose_transform(mem, boom=math.radians(jb), stick=math.radians(js))
-                sd = trimesh.proximity.signed_distance(moved(members[mem], T), poly[::2])
-                clear = min(clear, float(-sd.max()))
-            turn = total_turn(poly)
-            turn_ref = turn if turn_ref is None else turn_ref
-            rows.append(dict(boom=float(jb), stick=float(js), minR=rt.min_bend_radius(poly), slack=L_tube - nat[(jb, js)],
-                             clear=clear, turn=turn, scale=sc))
-        tmin, tmax = min(r["turn"] for r in rows), max(r["turn"] for r in rows)
-        rep[name] = dict(length=L_tube, rows=rows, bowden=(tmax - tmin) * BOWDEN_E)
-    return rep
+        nat = {g: rt.path_length(shapes[name][g][0]) for g in poses}
+        L = max(nat.values()) + 2.0
+        rep[name] = dict(arm_length=L, natural=(min(nat.values()), max(nat.values())), rows=[])
+    pair_min = (99.0, None, None)
+    for g in poses:
+        Tm = {mem: asm.pose_transform(mem, boom=rad(g)[0], stick=rad(g)[1]) for mem in members}
+        posed = {mem: moved(members[mem], Tm[mem]) for mem in members}
+        free_pts = {}
+        for name in rt.TUBES:
+            poly, zones = shapes[name][g]
+            free = _free_mask(poly, zones)
+            pts = poly[free]
+            clear, where = 99.0, ""
+            for mem, m in posed.items():
+                d = -trimesh.proximity.signed_distance(m, pts)
+                k = int(np.argmin(d))
+                if d[k] < clear:
+                    clear, where = float(d[k]), f"{mem} at {np.round(pts[k], 0).tolist()}"
+            free_pts[name] = pts
+            slack = rep[name]["arm_length"] - rt.path_length(poly)
+            r_h, R_h, turn_h, _ = rt.conduit_helix(slack)
+            rep[name]["rows"].append(dict(boom=g[0], stick=g[1], minR=rt.min_bend_radius(poly), clear=clear,
+                                          where=where, slack=slack, helix_r=r_h, helix_R=R_h,
+                                          turn=total_turn(poly) + turn_h))
+        names = list(free_pts)
+        for i in range(len(names)):
+            for j in range(i + 1, len(names)):
+                A, B = free_pts[names[i]], free_pts[names[j]]
+                d = np.linalg.norm(A[:, None, :] - B[None, :, :], axis=2).min()
+                if d < pair_min[0]:
+                    pair_min = (float(d), f"{names[i]} / {names[j]}", g)
+    for name, t in rep.items():
+        turns = [r["turn"] for r in t["rows"]]
+        t["bowden"] = (max(turns) - min(turns)) * BOWDEN_E
+        t["length"] = t["arm_length"] + LOWER_RUN
+    return rep, pair_min
 
 
 def total_turn(poly):
@@ -190,9 +225,9 @@ def main():
     ranges["bucket"] = sweep("bucket vs stick", ["bucket"], ["stick"], "bucket", -200, 200)
     ring = slewing_ring_check()
     work = {k: tuple(v) for k, v in ex.WORKING.items()}
-    tubes = tube_checks(work)
+    tubes, pair = tube_checks(work)
     table = travel_table({k: dict(min=v[0], max=v[1]) for k, v in work.items() if k != "slew"})
-    L = ["# EX-MA kinematics and cable validation (B4)", "",
+    L = ["# EX-MA kinematics and cable validation (B4b: split pins, sliding tubes, conduit slack)", "",
          "Angles are measured from the EX-MA pose; + raises the member. Contact = overlap > "
          f"{CONTACT_MM3} mm³ between mesh solids, swept in {STEP}° steps.", "",
          "## Joint ranges (first contact)", "",
@@ -216,15 +251,37 @@ def main():
         ok = ranges[j]["min"] <= lo and hi <= ranges[j]["max"]
         L.append(f"| {j} | {lo:.0f}° … {hi:.0f}° | {'yes' if ok else 'NO'} ({ranges[j]['min']:.0f}° … {ranges[j]['max']:.0f}°) |")
     L += ["", "## PTFE tubes over the working ranges", "",
-          "Tube length is fixed (longest natural path + 2 mm); at other poses the spare length bows out in the free zones.", "",
-          "| Tube | Cut length | Worst bend R | Worst centreline clearance | Spare length (bows) | Bowden coupling |",
-          "|---|---|---|---|---|---|"]
+          f"Grid: boom × stick working ranges, 5 × 5 poses. Tubes are anchored in the control-box conduit fitting "
+          "and at their stop boss in the arm, and slide everywhere between. In the arm each tube keeps its natural "
+          "shape; the length change slides down the PVC tube and is stored as spare length in the "
+          f"{rt.CONDUIT_RUN:.0f} mm conduit run, where it coils as a gentle helix.", "",
+          "| Tube | Cut length (approx.) | Arm path length range | Spare length in the conduit | Worst bend R in the arm | "
+          "Conduit helix radius / bend R | Worst free-zone clearance | Bowden coupling |",
+          "|---|---|---|---|---|---|---|---|"]
     for name, t in tubes.items():
         rows = t["rows"]
-        L.append(f"| {name} | {t['length']:.0f} mm | {min(r['minR'] for r in rows):.1f} mm | "
-                 f"{min(r['clear'] for r in rows):.1f} mm | {min(r['slack'] for r in rows):.1f} … {max(r['slack'] for r in rows):.1f} mm | "
+        w = min(rows, key=lambda r: r["clear"])
+        L.append(f"| {name} | {t['length']:.0f} mm | {t['natural'][0]:.1f} … {t['natural'][1]:.1f} mm | "
+                 f"{min(r['slack'] for r in rows):.1f} … {max(r['slack'] for r in rows):.1f} mm | "
+                 f"{min(r['minR'] for r in rows):.1f} mm | ≤ {max(r['helix_r'] for r in rows):.1f} mm / ≥ {min(r['helix_R'] for r in rows):.0f} mm | "
+                 f"{w['clear'] - TUBE_R:.1f} mm ({w['where']}, boom {w['boom']:.0f}°, stick {w['stick']:.0f}°) | "
                  f"≤ {t['bowden']:.2f} mm |")
-    L += ["", "Clearance = distance from the tube centreline to the nearest member surface (tube radius 2.0 mm).",
+    ok_R = all(r["minR"] >= MIN_BEND_R and r["helix_R"] >= MIN_BEND_R for t in tubes.values() for r in t["rows"])
+    ok_c = all(r["clear"] - TUBE_R >= MIN_GAP for t in tubes.values() for r in t["rows"])
+    ok_h = all(r["helix_r"] <= rt.CONDUIT_HELIX_R_MAX for t in tubes.values() for r in t["rows"])
+    ok_b = all(t["bowden"] < 1.0 for t in tubes.values())
+    L += ["", f"- Bend radius ≥ {MIN_BEND_R:.0f} mm everywhere (arm and conduit): {'yes' if ok_R else 'NO'}.",
+          f"- Tube surface ≥ {MIN_GAP} mm from every member and split pin in the free zones: {'yes' if ok_c else 'NO'}.",
+          f"- Conduit helix fits (radius ≤ {rt.CONDUIT_HELIX_R_MAX:.1f} mm in the Ø{rt.CONDUIT_ID} conduit): {'yes' if ok_h else 'NO'}.",
+          f"- Bowden coupling < 1 mm: {'yes' if ok_b else 'NO'}.",
+          f"- Closest tube-to-tube centrelines in the free zones: {pair[0]:.1f} mm ({pair[1]}, boom {pair[2][0]:.0f}°, "
+          f"stick {pair[2][1]:.0f}°; tube OD {ex.PTFE_OD:.0f} mm, so ≥ 4.0 = not pressed together).",
+          "", "A slack bow inside the tower was modelled first and rejected: below the boom root the tower is only "
+          "about 44 mm tall, which holds about 2.4 mm of slack at R ≥ 15, while the bucket tubes need up to "
+          "10 mm; the boom root's rear shell also closes over a deeper bow at boom +45°."]
+    L += ["", "Clearance = tube surface to the nearest member surface in the unsupported (free) zones; inside the "
+          "guides the tube runs in Ø5.2 channels by design. Cut length = arm path + fixed run from the box "
+          "fitting through the conduit, pedestal, elbow and PVC tube (final lengths go in the bill of materials).",
           "Bowden coupling = rope movement caused by the tube bending: turning-angle change × rope play "
           f"({BOWDEN_E:.1f} mm). This is the only way one joint can move another's rope.", "",
           "## Travel table", "",
@@ -241,7 +298,8 @@ def main():
     (out_val / "2026-09-24-kinematics-report.md").write_text(rep)
     (out_val / "2026-09-24-kinematics-data.json").write_text(json.dumps(
         dict(ranges=ranges, ring=ring, table=table,
-             tubes={k: dict(length=v["length"], rows=v["rows"]) for k, v in tubes.items()}), indent=1, default=float))
+             tubes={k: dict(length=v["length"], arm_length=v["arm_length"], rows=v["rows"]) for k, v in tubes.items()}),
+        indent=1, default=float))
     print(rep)
 
 

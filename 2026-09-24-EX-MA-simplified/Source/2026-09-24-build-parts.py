@@ -28,11 +28,13 @@ CRIMP_LEN, CRIMP_W = 9.0, 4.8    # pocket for a 1/16" single stop sleeve (about 
 GROOVE_FLANGE_T = 1.5            # flange thickness at the rim
 ROPE_HOLE = 2.4                  # rope pass-through holes
 PTFE_BORE = 4.15                 # counterbore for 4 mm OD PTFE tube (tube end stop)
+PTFE_SLIDE = 4.6                 # loose bore: the PTFE tube slides through
 
 # drum keying: an M3 screw threads into each drum face; its head sits in a socket in the
 # member's inner wall (the drum turns with its own member). Angle in the drum print frame.
-BOOM_DRIVE_R, BOOM_DRIVE_ANG = 9.0, -60.0
-STICK_DRIVE_R, STICK_DRIVE_ANG = 7.2, -90.0
+# two key positions per drum (180 deg apart): with split pins nothing passes through the drum
+BOOM_DRIVE_R, BOOM_DRIVE_ANGS = 9.0, (-60.0, 120.0)
+STICK_DRIVE_R, STICK_DRIVE_ANGS = 7.2, (-30.0, 150.0)
 M3_TAP = 2.6                     # pilot hole for an M3 screw in plastic
 CLAMP_SLIT = 1.5
 
@@ -88,25 +90,27 @@ def x_hole(d, length, y, z):
 
 
 # ---------------------------------------------------------------- joint drums
-def joint_drum(pitch, width, lip, drive_r, drive_ang):
-    """Boom / stick drum: single groove, 8-32 pivot bore, crimp pocket, M3 key-screw pilot.
+def joint_drum(pitch, width, lip, drive_r, drive_angs):
+    """Boom / stick drum: single groove, crimp pocket, two M3 key-screw pilots, no pin bore.
 
-    An M3 screw in each face keys the drum to its own member (head in a wall socket),
-    so the drum turns with that member."""
-    prof, rc, rf = groove_profile(pitch, width, BORE / 2, lip=lip)
+    The joint pin is split into two short rods (the PTFE tubes cross the joint axis), so the
+    drum is carried by 4 M3 screws - two per face - whose heads sit in sockets in the member's
+    inner walls. The drum turns with its own member."""
+    prof, rc, rf = groove_profile(pitch, width, 0.0, lip=lip)
     d = revolve(prof)
     d = d.cut(crimp_pocket(rc, rc - 4.5, 90.0, rf))
-    a = math.radians(drive_ang)
-    d = d.cut(z_cyl(M3_TAP / 2, -width, width, drive_r * math.cos(a), drive_r * math.sin(a)))
+    for ang in drive_angs:
+        a = math.radians(ang)
+        d = d.cut(z_cyl(M3_TAP / 2, -width, width, drive_r * math.cos(a), drive_r * math.sin(a)))
     return d
 
 
 def boom_drum():
-    return joint_drum(ex.DRUM["boom"]["pitch"], ex.DRUM["boom"]["width"], 3.3, BOOM_DRIVE_R, BOOM_DRIVE_ANG)
+    return joint_drum(ex.DRUM["boom"]["pitch"], ex.DRUM["boom"]["width"], 3.3, BOOM_DRIVE_R, BOOM_DRIVE_ANGS)
 
 
 def stick_drum():
-    return joint_drum(ex.DRUM["stick"]["pitch"], ex.DRUM["stick"]["width"], 2.9, STICK_DRIVE_R, STICK_DRIVE_ANG)
+    return joint_drum(ex.DRUM["stick"]["pitch"], ex.DRUM["stick"]["width"], 2.9, STICK_DRIVE_R, STICK_DRIVE_ANGS)
 
 
 def pinch_clamp(part, r_bore, r_out, z0, z1, bolt_z, boss=True):
@@ -223,25 +227,35 @@ def base_race_rim():
 
 
 # ---------------------------------------------------------------- conduit end fitting (x2)
-def conduit_fitting():
-    """Same part at both conduit ends. Local X = design v, local Y = design z above conduit centre.
+def conduit_fitting(end):
+    """Conduit end fitting; end = 'box' or 'pedestal'. Local X = design v, local Y = design z above
+    the conduit centre. Conduit socket on the -Z face; slew holes high, 6 arm holes low.
 
-    Conduit socket on the -Z face; slew holes high, 6 arm holes low; PTFE counterbores
-    (tube end stops) and a 1/2" copper elbow socket on the +Z face (used at the pedestal end)."""
+    The PTFE tubes run the whole way from the box fitting to their stop bosses in the arm:
+      box:      the 4 tubes come out of the conduit and seat in 10 mm counterbores on the conduit
+                side (tube anchor); only the ropes continue into the box.
+      pedestal: the 4 tubes slide through loose Ø4.6 bores into the 1/2" copper elbow socket on
+                the +Z face (the tubes' length change is stored as spare length in the conduit)."""
     body = cq.Workplane("XY").rect(100, 100).extrude(6).union(z_cyl(42, 0, FIT_T))
     for sx in (-1, 1):
         for sy in (-1, 1):
             body = body.cut(z_cyl(2.3, -1, 7, sx * 40, sy * 40))
     body = body.cut(z_cyl(CONDUIT_OD / 2 + 0.3, -1, 12))
-    body = body.cut(z_cyl(COPPER_OD / 2 + 0.2, FIT_T - 8, FIT_T + 1, 0, -20))
+    if end == "pedestal":
+        body = body.cut(z_cyl(COPPER_OD / 2 + 0.2, FIT_T - 8, FIT_T + 1, 0, -20))
     slew = [(-5, 22.0), (5, 22.0)]
-    arm = [(x, y) for x in (-4.0, 0.0, 4.0) for y in (-17.8, -22.2)]
-    for x, y in slew + arm:
+    tubes = [(-4.0, -17.8), (-4.0, -22.2), (4.0, -17.8), (4.0, -22.2)]
+    ropes_only = slew + [(0.0, -17.8), (0.0, -22.2)]
+    for x, y in ropes_only + (tubes if end == "box" else []):
         body = body.cut(z_cyl(ROPE_HOLE / 2, 0, FIT_T + 1, x, y))
+    for x, y in ropes_only:
         body = body.cut(cq.Workplane("XY").circle(3.5).workplane(offset=2.2).circle(ROPE_HOLE / 2)
                         .loft().translate((x, y, 11.9)))         # bell mouth on the conduit side
-    for x, y in [(-4.0, -17.8), (-4.0, -22.2), (4.0, -17.8), (4.0, -22.2)]:
-        body = body.cut(z_cyl(PTFE_BORE / 2, FIT_T - 14, FIT_T + 1, x, y))
+    for x, y in tubes:
+        if end == "box":
+            body = body.cut(z_cyl(PTFE_BORE / 2, 11, 22, x, y))          # tube end stop, from the conduit side
+        else:
+            body = body.cut(z_cyl(PTFE_SLIDE / 2, 0, FIT_T + 1, x, y))  # loose: the tube slides through
     return body
 
 
@@ -336,7 +350,9 @@ PARTS = {
     "bucket-drum-axle": (bucket_drum_axle, 1, "Ø17 pitch bucket drum with journals and hex ends"),
     "slew-drum": (slew_drum, 1, "Ø110 pitch slew drum on the rotating 3/4in PVC tube"),
     "slewing-ring-retaining-ring": (retaining_ring, 1, "upper outer race, 8 x M3x12"),
-    "conduit-end-fitting": (conduit_fitting, 2, "same part at box and pedestal ends of the conduit"),
+    "conduit-end-fitting-box": (lambda: conduit_fitting("box"), 1, "box end of the conduit: PTFE tube anchors"),
+    "conduit-end-fitting-pedestal": (lambda: conduit_fitting("pedestal"), 1,
+                                     "pedestal end: PTFE tubes slide through into the copper elbow"),
     "lever-hub-boom": (lambda: lever_hub("boom"), 1, "boom lever hub, drum offset toward centre"),
     "lever-hub-stick": (lambda: lever_hub("stick"), 1, "stick lever hub"),
     "lever-hub-bucket": (lambda: lever_hub("bucket"), 1, "bucket lever hub, drum offset toward centre"),

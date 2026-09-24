@@ -60,7 +60,8 @@ def keep_main(man, name):
     """Keep the main body; drop floating rib fragments left by channel cuts (logged)."""
     parts = sorted(man.decompose(), key=lambda p: -p.volume())
     for p in parts[1:]:
-        DROPPED.append((name, round(p.volume(), 1)))
+        if abs(p.volume()) >= 0.05:                  # zero-volume slivers are not worth listing
+            DROPPED.append((name, round(p.volume(), 1)))
     return parts[0]
 
 
@@ -135,15 +136,24 @@ def clearing_volume(member_mesh, origin_uz, ang, s_range, step=4.0, inset=WALL):
 
 
 # ---------------------------------------------------------------- tower
+TOWER_CLEAR_Z = (25.6, 57.6)      # built z span cleared inside the tower (flange top .. below the boom root)
+
+
 def tower():
     sh = ex.load_stl_shells()
     t = M(sh["2"]).trim_by_plane([0, 0, 1], 35.5)          # remove the square flange
     t = t.translate([0, 0, DZ])
+    # remove the internal funnel of the old centre post (r 13.6 -> 27, z 33..57 built): the PTFE
+    # slack loop needs the tower interior. Hull-inset clearing keeps the 3.2 mm walls (+0.4 mm).
+    t = t - clearing_volume(T(t), (0.0, TOWER_CLEAR_Z[0]), math.pi / 2, (0.0, TOWER_CLEAR_Z[1] - TOWER_CLEAR_Z[0]),
+                            step=2.0, inset=3.6)
     t = t + cq_to_man(bp.turret_flange())
     top = rt.PVC_TOP_Z + DZ
     t = t - cylinder([0, 0, -5], [0, 0, 70], ex.PVC34_OD / 2 + 0.3)   # centre bored for the tube + cables
-    t = t + (cylinder([0, 0, ex.FLANGE_Z[1] - 0.5], [0, 0, top], ex.PVC34_OD / 2 + 3.0)
-             - cylinder([0, 0, 0], [0, 0, top + 1], ex.PVC34_OD / 2 + 0.15))  # tube socket up to the PVC top
+    if top > ex.FLANGE_Z[1]:
+        t = t + (cylinder([0, 0, ex.FLANGE_Z[1] - 0.5], [0, 0, top], ex.PVC34_OD / 2 + 3.0)
+                 - cylinder([0, 0, 0], [0, 0, top + 1], ex.PVC34_OD / 2 + 0.15))  # tube socket up to the PVC top
+    # otherwise the PVC ends inside the flange bore (held by the hub pinch clamp below it)
     return t
 
 
@@ -175,15 +185,13 @@ def stop_bulkhead(member_mesh_full, tubes, pass_tubes, member):
     inner = clearing_volume(member_mesh_full, origin_of(member), axis_of(member), (s_c - 8, s_c + 8), 2.0, inset=2.0)
     plate = plate ^ inner
     for name in tubes:
+        # the tube bore is the member's own channel (cut again after the plate is added); it ends
+        # at p, so the tube seats on the channel end face and only the rope continues
         _, p, d = rt.tube_stop(name)
-        plate = plate - cylinder(p - d * (BULKHEAD_T + 1), p, ex.PTFE_OD / 2 + 0.1)     # tube end sits at p
         plate = plate - cylinder(p - d * 20, p + d * 20, bp.ROPE_HOLE / 2)
-    for name in pass_tubes:
-        poly = rt.tube_polyline(name)
-        k = np.argmin(np.linalg.norm(poly - c, axis=1))
-        a, b = poly[max(k - 3, 0)], poly[min(k + 3, len(poly) - 1)]
-        dd = (b - a) / np.linalg.norm(b - a)
-        plate = plate - cylinder(poly[k] - dd * 12, poly[k] + dd * 12, ex.PTFE_OD / 2 + 0.5)
+    for p, d in (rt.bulkhead_clamp_points() if pass_tubes else []):
+        # loose guide, kept well clear of the Ø5.2 channel surface (near-coincident cuts pinch the mesh)
+        plate = plate - cylinder(p - d * 12, p + d * 12, ex.PTFE_OD / 2 + 1.2)
     return plate
 
 
@@ -218,6 +226,9 @@ def joining_lugs(member_mesh_full, origin_uz, ang, stations, avoid):
 
 
 # ---------------------------------------------------------------- boom / stick halves
+WALL_IN = dict(boom=17.0, stick=11.7)       # |v| of the inner side walls at the joint roots
+
+
 def key_socket(pivot_uz, drive_uz_rel, v_from, v_to):
     p = np.array([pivot_uz[0] + drive_uz_rel[0], 0, pivot_uz[1] + drive_uz_rel[1]])
     return cylinder(p + [0, v_from, 0], p + [0, v_to, 0], KEY_HEAD_D / 2)
@@ -229,29 +240,77 @@ def drum_key_rel(drive_r, drive_ang_local, anchor_dir_deg):
     return (drive_r * math.cos(a), drive_r * math.sin(a))
 
 
+def guided(names, member):
+    """Guided centreline pieces of the tubes on one member (original pose)."""
+    out = []
+    for n in names:
+        pts = [p for m, p, z in rt.centreline(n) if m == member and z == member]
+        if len(pts) > 1:
+            out.append(np.array(pts))
+    return out
+
+
+def channels(polys):
+    """Swept Ø5.2 channel along each polyline: a cylinder per segment plus a ball at every inner
+    joint (without the balls, the wedge between two cylinder end caps leaves a knife-thin fin of
+    rib material through the tube centreline on the outside of each bend). Ends stay flat."""
+    r = ex.PTFE_OD / 2 + 0.6
+    cuts = []
+    for poly in polys:
+        poly = [p for i, p in enumerate(poly) if i == 0 or np.linalg.norm(p - poly[i - 1]) > 1e-3]
+        cuts += [cylinder(a, b, r) for a, b in zip(poly[:-1], poly[1:])]
+        cuts += [mf.Manifold.sphere(r, 48).translate(list(p)) for p in poly[1:-1]]
+    return mf.Manifold.batch_boolean(cuts, mf.OpType.Add)
+
+
+def guide_lugs(names, member):
+    """Loose tube guides where each tube enters its member's guided zone (the clamp point):
+    a block from the inner side wall to the tube, with a Ø6 flared entry; the Ø5.2 channel continues through it."""
+    lugs, bores = [], []
+    for n in names:
+        cl = rt.centreline(n)
+        k = next(i for i, (m, p, z) in enumerate(cl) if m == member and z == member)
+        p, q = cl[k][1], cl[k + 2][1]
+        d = (q - p) / np.linalg.norm(q - p)
+        ang = math.atan2(d[2], d[0])
+        R = member_frame(ang)
+        side = 1 if p[1] > 0 else -1
+        v_wall = WALL_IN[member] + 1.0
+        v_in = p[1] - side * 4.0
+        c = np.array([p[0], (v_in + side * v_wall) / 2, p[2]])
+        lugs.append((box(c, (6.0, abs(side * v_wall - v_in), 9.0), R), side))
+        bores.append(cylinder(p - d * 8, p + d * 0.5, ex.PTFE_OD / 2 + 1.0))   # flared entry; the channel continues
+    return lugs, bores
+
+
 def boom_halves():
     halves = [ex.load_3mf_object(*h) for h in ex.BOOM_HALVES]
     full = trimesh.util.concatenate(halves)
+    names = list(rt.TUBES)
     bulk = stop_bulkhead(full, ["stick_hi", "stick_lo"], ["bucket_hi", "bucket_lo"], "boom")
-    avoid = [rt.tube_polyline(n) for n in rt.TUBES]
+    avoid = [rt.natural(n) for n in names]
     lugs, lug_holes = joining_lugs(full, ex.P_BOOM0, rt.BOOM_ANG,
-                                   [(45.0, 1), (45.0, -1), (110.0, 1), (110.0, -1), (175.0, 1), (175.0, -1)], avoid)
-    key = drum_key_rel(bp.BOOM_DRIVE_R, bp.BOOM_DRIVE_ANG, 90.0)
-    tube_cut = [cylinder(a, b, ex.PTFE_OD / 2 + 0.6) for poly in avoid for a, b in zip(poly[:-1], poly[1:])
-                if np.linalg.norm(a[[0, 2]] - np.array(ex.P_BOOM0)) > 14 and a[0] < 196]
-    tube_cut = mf.Manifold.batch_boolean(tube_cut, mf.OpType.Add)
+                                   [(45.0, 1), (45.0, -1), (110.0, 1), (110.0, -1), (160.0, 1), (160.0, -1)], avoid)
+    keys = [drum_key_rel(bp.BOOM_DRIVE_R, a, 90.0) for a in bp.BOOM_DRIVE_ANGS]
+    cut = channels(guided(names, "boom"))
+    glugs, gbores = guide_lugs(names, "boom")
     drum_env = cylinder([ex.P_BOOM0[0], -8.0, ex.P_BOOM0[1]], [ex.P_BOOM0[0], 8.0, ex.P_BOOM0[1]], 18.2)
     out = []
     for i, h in enumerate(halves):
         sgn = -1 if i == 0 else 1                      # half 69 is -v, half 70 is +v
-        m = M(h) - tube_cut - drum_env          # clean PTFE channels through the internal ribs
+        m = M(h) - cut - drum_env                      # clean PTFE channels through the internal ribs
         side = box([100, sgn * 50 + (-0.35 if sgn < 0 else 0.15), 150], [400, 100, 400])   # 0.5 mm seam gap
         m = m + (bulk ^ side)
         for lug in lugs:
             m = m + (lug ^ side)
-        for hole in lug_holes:
+        for lug, lside in glugs:
+            if lside == sgn:
+                m = m + lug
+        for hole in lug_holes + gbores:
             m = m - hole
-        m = m - key_socket(ex.P_BOOM0, key, sgn * 16.5, sgn * (16.5 + KEY_HEAD_DEPTH))
+        for key in keys:
+            m = m - key_socket(ex.P_BOOM0, key, sgn * 16.5, sgn * (16.5 + KEY_HEAD_DEPTH))
+        m = m - cut                                    # final pass: one consistent channel surface
         out.append(keep_main(m, f"boom half {sgn:+d}").translate([0, 0, DZ]))
     return out
 
@@ -259,25 +318,30 @@ def boom_halves():
 def stick_halves():
     halves = [ex.load_3mf_object(*h) for h in ex.STICK_HALVES]
     full = trimesh.util.concatenate(halves)
-    bulk = stop_bulkhead(full, ["bucket_hi", "bucket_lo"], [], "stick")
-    avoid = [rt.tube_polyline(n) for n in ("bucket_hi", "bucket_lo")]
+    names = ["bucket_hi", "bucket_lo"]
+    bulk = stop_bulkhead(full, names, [], "stick")
+    avoid = [rt.natural(n) for n in names]
     lugs, lug_holes = joining_lugs(full, ex.P_STICK0, rt.STICK_ANG,
                                    [(40.0, 1), (40.0, -1), (100.0, 1), (100.0, -1), (150.0, 1), (150.0, -1)], avoid)
-    key = drum_key_rel(bp.STICK_DRIVE_R, bp.STICK_DRIVE_ANG, math.degrees(rt.BOOM_ANG))
-    tube_cut = [cylinder(a, b, ex.PTFE_OD / 2 + 0.6) for poly in avoid for a, b in zip(poly[:-1], poly[1:])
-                if a[0] > 170 and np.linalg.norm(a[[0, 2]] - np.array(ex.P_STICK0)) > 12]
-    tube_cut = mf.Manifold.batch_boolean(tube_cut, mf.OpType.Add)
+    keys = [drum_key_rel(bp.STICK_DRIVE_R, a, math.degrees(rt.BOOM_ANG)) for a in bp.STICK_DRIVE_ANGS]
+    cut = channels(guided(names, "stick"))
+    glugs, gbores = guide_lugs(names, "stick")
     out = []
     for i, h in enumerate(halves):
         sgn = -1 if i == 0 else 1
-        m = M(h) - tube_cut
+        m = M(h) - cut
         side = box([260, sgn * 50 + (-0.35 if sgn < 0 else 0.15), 170], [400, 100, 400])
         m = m + (bulk ^ side)
         for lug in lugs:
             m = m + (lug ^ side)
-        for hole in lug_holes:
+        for lug, lside in glugs:
+            if lside == sgn:
+                m = m + lug
+        for hole in lug_holes + gbores:
             m = m - hole
-        m = m - key_socket(ex.P_STICK0, key, sgn * 10.7, sgn * (10.7 + KEY_HEAD_DEPTH))
+        for key in keys:
+            m = m - key_socket(ex.P_STICK0, key, sgn * 10.7, sgn * (10.7 + KEY_HEAD_DEPTH))
+        m = m - cut
         out.append(keep_main(m, f"stick half {sgn:+d}").translate([0, 0, DZ]))
     return out
 
@@ -318,22 +382,43 @@ def bucket():
 
 
 # ---------------------------------------------------------------- robust STL export
+def unzip_coincident(V, F, step=0.02, rounds=6):
+    """STL stores no connectivity, so vertices that the manifold kernel keeps distinct but at the
+    same float32 position (where two internal surfaces touch) merge on reload into 4-face edges.
+    Move each such copy `step` mm toward the centroid of its own face fan until all are unique."""
+    V = V.astype(np.float32).astype(np.float64)
+    for _ in range(rounds):
+        _, inv, cnt = np.unique(V.astype(np.float32), axis=0, return_inverse=True, return_counts=True)
+        dup = np.where(cnt[inv.ravel()] > 1)[0]
+        if len(dup) == 0:
+            break
+        UNZIPPED.append(len(dup))
+        cen = V[F].mean(axis=1)
+        acc, n = np.zeros_like(V), np.zeros(len(V))
+        for k in range(3):
+            np.add.at(acc, F[:, k], cen)
+            np.add.at(n, F[:, k], 1)
+        d = acc[dup] / n[dup, None] - V[dup]
+        d /= np.linalg.norm(d, axis=1, keepdims=True) + 1e-12
+        V[dup] = (V[dup] + step * d).astype(np.float32).astype(np.float64)
+    return V
+
+
 def export_checked(mesh, path, name):
-    """Collapse slivers, snap to float32 (STL precision), rebuild, export, and verify the
-    reloaded STL is watertight; escalate the cleanup tolerance until it is."""
+    """Export the manifold mesh as STL and verify the reloaded file is watertight; coincident
+    vertex copies are unzipped first; sliver cleanup (simplify) only if that is not enough."""
     clean = mesh
-    for tol in (0.02, 0.05, 0.1):
-        m = T(keep_main(M(mesh).simplify(tol), name + " (after cleanup)"))
-        m32 = trimesh.Trimesh(m.vertices.astype(np.float32).astype(np.float64), m.faces, process=True)
-        try:
-            clean = T(keep_main(M(m32), name + " (after float32)"))
-        except ValueError:
-            continue
+    for tol in (None, 0.02, 0.05):
+        m = mesh if tol is None else T(keep_main(M(mesh).simplify(tol), name + " (after cleanup)"))
+        clean = trimesh.Trimesh(unzip_coincident(m.vertices, m.faces), m.faces, process=False)
         clean.export(path)
         if trimesh.load(path, force="mesh").is_watertight:
             return clean
     print(f"WARNING {name}: not watertight after STL round trip")
     return clean
+
+
+UNZIPPED = []
 
 
 # ---------------------------------------------------------------- exterior check
@@ -389,13 +474,15 @@ def main():
         band = None
         ctx = boom_full if name.startswith("boom") else stick_full if name.startswith("stick") else None
         if name == "tower":
-            band = lambda p: (p[:, 2] > 36.0) & (np.hypot(p[:, 0], p[:, 1]) > 18.0)   # flange replaced; centre bored
+            band = lambda p: (p[:, 2] > 36.0) & (np.hypot(p[:, 0], p[:, 1]) > 18.0) & \
+                ~((np.hypot(p[:, 0], p[:, 1]) < 31.0) & (p[:, 2] < TOWER_CLEAR_Z[1] - DZ + 1.0))   # flange, bore, funnel
         if name == "base":
             band = lambda p: (p[:, 2] < 14.0) & (np.hypot(p[:, 0], p[:, 1]) > 26.0)   # rim + centre hole approved
         n, p99, mx = exterior_deviation(orig, results[name], dz, band=band, context=ctx)
         lines.append(f"{name:18s} samples={n:6d}  p99={p99:6.3f}  max={mx:6.3f}")
     lines.append("")
     lines.append("floating fragments dropped (name, volume mm3): " + (", ".join(f"{a} {b}" for a, b in DROPPED) or "none"))
+    lines.append(f"coincident vertex copies unzipped by 0.02 mm (all parts): {sum(UNZIPPED)}")
     lines.append("")
     for name, mesh in results.items():
         lines.append(f"{name:18s} watertight={mesh.is_watertight}  bodies={len(mesh.split(only_watertight=False))}"

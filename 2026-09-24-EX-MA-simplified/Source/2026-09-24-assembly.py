@@ -58,8 +58,8 @@ def placements():
     P["slew-drum"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, ex.Z_SLEW_LAYER))
     P["slewing-ring-retaining-ring"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, ex.RET_RING_Z[0]))
     # conduit fittings: local -Z faces the conduit, local +Y = up, local +X = lateral
-    P["conduit-end-fitting@box"] = _frame((0, -1, 0), (0, 0, 1), (-1, 0, 0), (ex.BOX_U[1] - ex.T_WOOD, ex.MOUTH_V, ex.COND_Z))
-    P["conduit-end-fitting@pedestal"] = _frame((0, 1, 0), (0, 0, 1), (1, 0, 0), (ex.PED_U[0] + ex.T_WOOD, 0.0, ex.COND_Z))
+    P["conduit-end-fitting-box"] = _frame((0, -1, 0), (0, 0, 1), (-1, 0, 0), (ex.BOX_U[1] - ex.T_WOOD, ex.MOUTH_V, ex.COND_Z))
+    P["conduit-end-fitting-pedestal"] = _frame((0, 1, 0), (0, 0, 1), (1, 0, 0), (ex.PED_U[0] + ex.T_WOOD, 0.0, ex.COND_Z))
     for name, (vh, vd) in ex.LEVERS.items():
         P[f"lever-hub-{name}"] = _frame((-1, 0, 0), (0, 0, 1), (0, 1, 0), (ex.AXLE_U, vd, ex.AXLE_Z))
     P["slew-spool"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1),
@@ -92,6 +92,23 @@ def part(name):
 
 def member_mesh(member):
     return trimesh.util.concatenate([part(n) for n in MEMBERS[member]])
+
+
+# split pins (8-32 rod): threaded into the outer part, inner end flush with the inner wall of
+# the member it carries, so the middle of the boom and stick joints is free for the tubes
+SPLIT_PIN_V = dict(boom=(17.0, 54.0), stick=(11.7, 30.0))   # |v| inner end, outer end incl. nut
+
+
+def split_pins(joint):
+    """Two rod pieces for one joint as a trimesh (built pose). Boom pins ride with the turret;
+    stick pins with the boom."""
+    c = ex.P_BOOM if joint == "boom" else ex.P_STICK
+    v0, v1 = SPLIT_PIN_V[joint]
+    rods = []
+    for sgn in (1, -1):
+        a, b = np.array([c[0], sgn * v0, c[1]]), np.array([c[0], sgn * v1, c[1]])
+        rods.append(trimesh.creation.cylinder(radius=ex.PIN_D / 2, segment=np.array([a, b]), sections=24))
+    return trimesh.util.concatenate(rods)
 
 
 def pose_transform(member, boom=0.0, stick=0.0, bucket=0.0, slew=0.0):

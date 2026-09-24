@@ -34,7 +34,8 @@ BASE_CX, BASE_CY = 55.72, 50.59                     # slew axis in STL / 3MF pla
 TURRET_DZ = -13.0                  # turret + arm lowered (green ring removed)
 # working ranges (deg from the EX-MA pose, + raises); limited by the lever slots, not the joints.
 # Each keeps >= 20 deg of rope wrap on its drum at both ends (crimp anchored at mid-range).
-WORKING = dict(boom=(-40.0, 45.0), stick=(-50.0, 70.0), bucket=(-55.0, 85.0), slew=(-90.0, 90.0))
+WORKING = dict(boom=(-40.0, 45.0), stick=(-45.0, 50.0), bucket=(-55.0, 85.0), slew=(-90.0, 90.0))
+# stick max +50: above it the bucket tubes graze the inside of the stick root's rear lip
 # pivots in the ORIGINAL EX-MA position (u, z); add TURRET_DZ for the built position
 P_BOOM0 = (0.0, 102.0)
 P_STICK0 = (186.19, 196.86)
@@ -71,7 +72,7 @@ BALL_Z = 21.0
 RACE_CLEAR = 0.15                  # per side, ball to race (tune with shims under the retaining ring)
 
 # pedestal / conduit / rotating tube
-TUBE_Z = (-98.0, 75.0 + TURRET_DZ)
+TUBE_Z = (-98.0, 35.0 + TURRET_DZ)   # rotating 3/4" PVC tube; top = routing.PVC_TOP_Z (held by the flange bore + hub clamp)
 COND_Z, COND_R = -110.0, 30.0
 Z_SLEW_LAYER, Z_ARM_LAYER = -88.0, -130.0
 PED_U, PED_V, PED_Z = (-90.0, 90.0), (-90.0, 90.0), (-190.0, 0.0)
