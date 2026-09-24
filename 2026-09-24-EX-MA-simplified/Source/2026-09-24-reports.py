@@ -202,10 +202,10 @@ def architecture():
     add("")
     for i, s in enumerate([
         "Print the parts (bill of materials, `3MF/` plates), cut the wood (`2026-09-24-cut-list.md`), deburr the copper.",
-        "Build the sandbox and the pedestal (leave the pedestal's +u wall off). Fit the pedestal conduit fitting (4 × 8-32), "
+        "Build the sandbox and the pedestal (leave the pedestal's +u wall off). Fit the pedestal conduit fitting (4 × M3 × 25), "
         "the copper elbow in its socket, the elbow support with a cable tie, the shelf on its cleats and the PEX bushing.",
         "Build the control box (top off). Fit the bearing blocks, the spool riser, the two sleeve posts and the box conduit "
-        "fitting; bolt the box to the sandbox wall through the fitting, the box front and the wall; fit the conduit and seal it.",
+        "fitting; bolt the box to the sandbox wall (M3 × 35 through the fitting, the box front and the wall; M3 × 30 at the lower corners); fit the conduit and seal it.",
         "Slew ring: screw the base to the pedestal top, drop in the BBs, lower the turret (its hub already clamped on the PEX tube, "
         "which passes the base, the pedestal top, the bushing and into the slew drum), bolt the retaining ring (8 × M3) and clamp the slew drum.",
         "PTFE tubes: seat each tube in its box-fitting counterbore, feed it through the conduit, the pedestal window, the elbow "

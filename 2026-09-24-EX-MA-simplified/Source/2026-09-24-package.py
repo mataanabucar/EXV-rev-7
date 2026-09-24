@@ -307,66 +307,113 @@ def assembly_step(path):
 
 
 # ---------------------------------------------------------------- hardware counts (from the models)
+# The user's kits (References/IMG_2449.jpeg, IMG_2454.jpeg)
+M3_KIT = {  # (head, length): pieces in the Fgruh 2300-pc kit
+    **{("socket cap", L): n for L, n in ((4, 40), (6, 42), (8, 42), (12, 32), (16, 30), (20, 30), (25, 30), (30, 20), (35, 20))},
+    **{("button head", L): n for L, n in ((6, 40), (8, 42), (10, 42), (12, 32), (16, 30), (20, 30), (25, 30), (30, 20), (35, 20))},
+    "nut": 576, "flat washer": 576, "split-lock washer": 576,
+}
+ROD_832_MM, NUTS_832 = 914.0, 22   # Hillman 8-32 threaded rod 3 ft + 22 hex nuts
+
+
 def hardware_table():
+    """BOM hardware in four groups: the user's M3 kit, the user's Hillman parts, the user's wood
+    screws, and stock still to buy. Counts come from the part features, lengths from the paths."""
     feat = json.loads((VAL / "2026-09-24-mods-features.json").read_text())
     box = json.loads((VAL / "2026-09-24-box-data.json").read_text())
     cl = box["cut_lengths"]
     n_keys = 2 * len(bp.BOOM_DRIVE_ANGS) + 2 * len(bp.STICK_DRIVE_ANGS)
-    n_lugs = feat["boom joining lugs (M3 + nut)"] + feat["stick joining lugs (M3 + nut)"]
+    n_lugs_b, n_lugs_s = feat["boom joining lugs (M3 + nut)"], feat["stick joining lugs (M3 + nut)"]
     n_ret = bp.N_RET_BOLTS
-    n_levers = len(ex.LEVERS)
-    n_spool_bolts = 3
-    n_anchor = 2 * n_levers + 2
+    n_lev = len(ex.LEVERS)
+    n_wheel = 3
+    n_anchor = 2 * n_lev + 2
     n_balls = int(2 * math.pi * ex.BALL_CIRCLE_R // (ex.BALL_D + 0.4))
-    loops = dict(boom=2, stick=2, bucket=2)
-    H = []
-    add = lambda item, qty, size, use: H.append((item, qty, size, use))
-    add("M3 socket screw", n_keys, "M3 × 12", "joint-drum key screws (4 per drum, heads in the member walls)")
-    add("M3 screw + hex nut", n_ret, "M3 × 12", "slewing-ring retaining ring (nuts slide into the base rim)")
-    add("M3 screw + hex nut", n_lugs, "M3 × 20", f"boom ({feat['boom joining lugs (M3 + nut)']}) and stick "
-        f"({feat['stick joining lugs (M3 + nut)']}) half-shell joining lugs")
-    add("M3 screw + hex nut", 2, "M3 × 25", "pinch clamps on the PEX tube (turret hub, slew drum)")
-    add("M3 screw + hex nut", n_levers, "M3 × 20", "lever drag clamps (set the holding friction)")
-    add("M3 screw + hex nut", n_levers, "M3 × 25", "dowel cross-pins in the lever hubs")
-    add("M3 screw + nut + washer", n_anchor, "M3 × 10", "slotted rope-tail anchors (tension adjusters): 2 per lever, 2 on the spool")
-    add("M3 screw + hex nut", n_spool_bolts, "M3 × 20", "slew wheel to spool flange")
-    add("8-32 threaded rod", 4, "2 × 42 mm, 2 × 22 mm", "split pins: boom (tower cheeks) and stick (boom tip), nyloc nut outside each")
-    add("8-32 threaded rod", 1, "65 mm", "bucket pin through ears and drum-axle, nyloc nuts")
-    add("8-32 threaded rod", 6, "4 × 45 mm, 2 × 40 mm", "box fitting + box front + sandbox wall bolts (nut + washer each end)")
-    add("8-32 threaded rod", 4, "30 mm", "pedestal fitting to the pedestal wall")
-    add("8-32 nut (nyloc where it holds a pivot)", 2 * (4 + 1 + 6 + 4), "8-32", "all 8-32 pieces above")
-    add("5/16in rod", 2, f"{2 * ex.AXLE_BLOCK_V[1] + 20:.0f} mm, {ex.BOX_Z[1] + 32.0 - ex.BOX_Z[0]:.0f} mm",
-        "lever axle; slew spool axle")
-    add("5/16in nut + washer", 4, "5/16in", "2 on the lever axle (outside the bearing blocks), 2 on the spool axle")
-    add("6 mm airsoft BBs (or 1/4in steel balls)", n_balls, "Ø6", f"slewing ring (plus ~5 spares)")
-    add("#8 wood screw", 4, "#8 × 1in", "base to the pedestal top")
-    add("#6 wood screw", 4 + 3 + 4 + 3 + 2, "#6 × 3/4in", "bearing blocks (from below), spool riser, sleeve posts, bushing, elbow support")
-    add("#6 wood screw", 4 * (12 + 10 + 8), "#6 × 1-1/4in", "panel joints: ~4 per edge (box 12 edges, pedestal 10, sandbox 8); glue as well")
+    # M3 uses: (head, length, qty, nuts, flat washers, split-lock washers, what for)
+    uses = [
+        ("socket cap", 12, n_keys, 0, 0, 0, "joint-drum key screws: lock the boom and stick drums to their arm members "
+         "(4 per drum, 2 through each side wall; the heads sit in pockets in the wall)"),
+        ("socket cap", 12, n_ret, n_ret, 0, n_ret, "slewing-ring retaining ring: holds the turret down on the BBs "
+         "(nuts slide into the slots in the base rim)"),
+        ("socket cap", 20, n_lugs_b + n_lugs_s, n_lugs_b + n_lugs_s, 0, 0,
+         f"joining lugs: clamp the two halves of the boom ({n_lugs_b}) and the stick ({n_lugs_s}) together"),
+        ("socket cap", 20, n_lev, n_lev, 0, n_lev, "lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction"),
+        ("socket cap", 20, n_wheel, n_wheel, 0, n_wheel, "slew wheel to the spool flange"),
+        ("socket cap", 25, 2, 2, 0, 2, "pinch clamps on the PEX turret tube (turret hub, pedestal slew drum)"),
+        ("socket cap", 25, n_lev, n_lev, 0, n_lev, "dowel cross-pins through the lever hubs"),
+        ("socket cap", 25, 4, 4, 8, 0, "pedestal conduit fitting to the pedestal wall (fitting 6 + wall 12 mm)"),
+        ("socket cap", 35, 4, 4, 8, 0, "box conduit fitting through the box front and the sandbox wall (6 + 12 + 12 mm)"),
+        ("socket cap", 30, 2, 2, 4, 0, "box front to the sandbox wall, lower corners (12 + 12 mm)"),
+        ("button head", 10, n_anchor, n_anchor, 2 * n_anchor, n_anchor,
+         "slotted rope-tail anchors = tension adjusters (2 per lever, 2 on the spool); the rope loop sits between two washers"),
+    ]
+    need = {}
+    for head, L, q, nuts, fw, lw, _ in uses:
+        need[(head, L)] = need.get((head, L), 0) + q
+        need["nut"] = need.get("nut", 0) + nuts
+        need["flat washer"] = need.get("flat washer", 0) + fw
+        need["split-lock washer"] = need.get("split-lock washer", 0) + lw
+    m3 = [(f"M3 × {L} {head}", q, f"{need[(head, L)]} of {M3_KIT[(head, L)]}", use) for head, L, q, *_, use in uses]
+    for k in ("nut", "flat washer", "split-lock washer"):
+        m3.append((f"M3 {k}", need[k], f"{need[k]} of {M3_KIT[k]}", "with the screws above; split-lock washers under the "
+                   "nuts that hold moving or clamping parts" if k == "split-lock washer" else "with the screws above"))
+    over = [k for k, v in need.items() if v > M3_KIT[k]]
+    # 8-32 rod: pins only; jam nuts (two nuts locked against each other)
+    pins = [("boom split pin (tower cheek → boom wall)", 2, 42.0, 2), ("stick split pin (boom tip → stick wall)", 2, 22.0, 2),
+            ("bucket pin (ears + drum-axle)", 1, 65.0, 4)]
+    rod_used = sum(n * L + n * 2.0 for _, n, L, _ in pins)
+    nuts_used = sum(n * k for _, n, _, k in pins)
+    hill = [(f"8-32 rod, {nm}", n, f"{L:.0f} mm", "a jam pair (2 nuts) on the outer end" if k == 2 else "a jam pair at each end")
+            for nm, n, L, k in pins]
+    hill.append(("8-32 hex nuts", nuts_used, f"{nuts_used} of {NUTS_832}", "jam nuts on the pins (two nuts tightened against each other)"))
+    hill.append(("8-32 rod used", "", f"{rod_used:.0f} of {ROD_832_MM:.0f} mm", "the rest is spare"))
+    hill.append(("#4-40 and #6-32 machine screws", "", "", "not needed (spares)"))
+    wood = [("#8 × 1in wood screw", 4, "", "base to the pedestal top"),
+            ("#6 × 3/4in wood screw", 4 + 3 + 4 + 3 + 2, "", "bearing blocks (from below), spool riser, sleeve posts, PEX bushing, elbow support"),
+            ("#6 × 1-1/4in wood screw", 4 * (12 + 10 + 8), "", "panel joints, ~4 per edge (box 12 edges, pedestal 10, sandbox 8), with wood glue")]
+    buy = []
     rope_total = 0.0
     for j in ("boom", "stick", "bucket"):
-        L = cl[f"{j} rope (one length, midpoint crimp)"] + 60.0 * loops[j]
+        L = cl[f"{j} rope (one length, midpoint crimp)"] + 120.0
         rope_total += L
-        add("1/16in galvanized 7x19 rope", 1, f"{L:.0f} mm", f"{j} circuit: one length, single crimp at its midpoint on the joint drum, "
-            "double-crimp loops on the lever anchors")
+        buy.append(("1/16in galvanized 7x19 rope (have)", 1, f"{L:.0f} mm", f"{j} circuit: one length, single crimp at the "
+                    "midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included)"))
     for lane in "AB":
         L = cl[f"slew rope {lane} (spool anchor -> pedestal crimp)"] + 60.0
         rope_total += L
-        add("1/16in galvanized 7x19 rope", 1, f"{L:.0f} mm", f"slew rope {lane}: single crimp in the pedestal drum pocket, loop on the spool anchor")
-    add("single crimp sleeve (stop)", 3 + 2, "1/16in", "3 joint-drum midpoints + 2 slew rope ends (plus spares)")
-    add("double crimp sleeve (loop)", 6 + 2, "1/16in", "6 arm tail loops + 2 slew loops (plus spares)")
+        buy.append(("1/16in galvanized 7x19 rope (have)", 1, f"{L:.0f} mm", f"slew rope {lane}: single crimp in the pedestal "
+                    "drum pocket, double-crimp loop on the spool anchor"))
+    buy.append(("single crimp sleeve (have)", 5, "1/16in", "3 joint-drum midpoints + 2 slew rope ends (+ spares)"))
+    buy.append(("double crimp sleeve (have)", 8, "1/16in", "6 arm tail loops + 2 slew loops (+ spares)"))
     ptfe_total = 0.0
     for k, v in cl.items():
         if k.startswith("PTFE"):
             ptfe_total += v + 10.0
-            add("PTFE tube 4 mm OD × 2 mm ID", 1, f"{v + 10:.0f} mm", k.replace("PTFE ", "") + " (+10 mm to trim)")
-    add("3/4in PEX-B tube (OD 22.2)", 1, f"{ex.TUBE_Z[1] - ex.TUBE_Z[0]:.0f} mm", "turning turret tube")
-    add("1/2in copper", 1, "90° sweep elbow (R ≈ 30) + 50 mm pipe", "fixed elbow in the pedestal (deburr both ends)")
-    add("2in sch 40 PVC", 1, f"{rt.CONDUIT_RUN:.0f} mm", "conduit between the box and the pedestal (seal with silicone at the sandbox wall)")
-    add("5/8in hardwood dowel", 3, f"{ex.HANDLE_LEN - 9.0:.0f} mm", "lever handles")
-    add("knob Ø30–40 mm (ball or drawer knob)", 3, "", "lever handle tops")
-    add("12 mm plywood", "see cut list", "", "control box, pedestal, sandbox (2026-09-24-cut-list.md)")
-    add("glue", "", "wood glue; epoxy or CA", "panel joints; bucket ears to the bucket lugs (as in the original EX-MA)")
-    return H, dict(rope_total=rope_total, ptfe_total=ptfe_total, n_balls=n_balls, keys=n_keys, lugs=n_lugs)
+            buy.append(("PTFE tube 4 mm OD × 2 mm ID", 1, f"{v + 10:.0f} mm", k.replace("PTFE ", "") + " (+10 mm to trim)"))
+    buy += [
+        ("5/16in rod (have)", 2, f"{2 * ex.AXLE_BLOCK_V[1] + 20:.0f} mm, {ex.BOX_Z[1] + 32.0 - ex.BOX_Z[0]:.0f} mm", "lever axle; slew spool axle"),
+        ("5/16in nut + washer", 4, "5/16in", "2 on the lever axle (outside the bearing blocks), 2 on the spool axle"),
+        ("6 mm airsoft BBs (or 1/4in steel balls)", n_balls, "Ø6", "slewing ring (+ ~5 spares)"),
+        ("3/4in PEX-B tube (have)", 1, f"{ex.TUBE_Z[1] - ex.TUBE_Z[0]:.0f} mm", "turning turret tube"),
+        ("1/2in copper (have)", 1, "90° sweep elbow (R ≈ 30) + 50 mm pipe", "fixed elbow in the pedestal (deburr both ends)"),
+        ("2in sch 40 PVC", 1, f"{rt.CONDUIT_RUN:.0f} mm", "conduit between the box and the pedestal (seal with silicone at the sandbox wall)"),
+        ("5/8in hardwood dowel", 3, f"{ex.HANDLE_LEN - 9.0:.0f} mm", "lever handles"),
+        ("knob Ø30–40 mm (ball or drawer knob)", 3, "", "lever handle tops"),
+        ("12 mm plywood", "see cut list", "", "control box, pedestal, sandbox (2026-09-24-cut-list.md)"),
+        ("glue", "", "wood glue; epoxy or CA", "panel joints; bucket ears to the bucket lugs (as in the original EX-MA)"),
+    ]
+    sections = [
+        ("From your M3 kit (Fgruh 2300 pc)", "Every machine screw is an M3 from the kit; the longest needed is 35 mm. "
+         "Column 3 shows how many of that size are used out of how many the kit holds.", ("Item", "Qty", "Used / in kit", "What it does"), m3),
+        ("From your Hillman parts", "The 8-32 rod is only used for the joint pins; nuts are used in jam pairs instead of lock nuts.",
+         ("Item", "Qty", "Length / used", "Notes"), hill),
+        ("Your wood screws", "", ("Item", "Qty", "", "Used for"), wood),
+        ("Rope, tube and other stock", "PTFE tube = the white 4 mm OD / 2 mm ID filament (Bowden) tube used on 3D printers. "
+         "The stick and bucket ropes run inside it through the arm, and the slew ropes through the conduit; "
+         "it is what lets each lever move only its own joint.", ("Item", "Qty", "Size / length", "Used for"), buy),
+    ]
+    return sections, dict(rope_total=rope_total, ptfe_total=ptfe_total, n_balls=n_balls, keys=n_keys,
+                          lugs=n_lugs_b + n_lugs_s, m3_over_kit=over, rod_832_used=rod_used, nuts_832_used=nuts_used)
 
 
 # ---------------------------------------------------------------- BOM
@@ -400,11 +447,15 @@ def bom_md(rows, plates, H, totals):
     for n, p in enumerate(plates, 1):
         names = [it["row"]["name"] + (f" #{it['k'] + 1}" if it["row"]["qty"] > 1 else "") for it in p["items"]]
         L.append(f"| `3MF/2026-09-24-plate-{n:02d}.3mf` | {', '.join(names)} |")
-    L += ["", "## Hardware and stock", "", "| Item | Qty | Size / length | Used for |", "|---|---|---|---|"]
-    for item, qty, size, use in H:
-        L.append(f"| {item} | {qty} | {size} | {use} |")
-    L += ["", f"Rope total: {totals['rope_total'] / 1000:.1f} m (buy ≥ {math.ceil(totals['rope_total'] / 1000 * 1.2)} m). "
-          f"PTFE total: {totals['ptfe_total'] / 1000:.1f} m (buy ≥ {math.ceil(totals['ptfe_total'] / 1000 * 1.2)} m).", "",
+    for title, intro, hdr, items in H:
+        L += ["", f"## {title}", ""] + ([intro, ""] if intro else [])
+        L += ["| " + " | ".join(hdr) + " |", "|" + "---|" * len(hdr)]
+        for row in items:
+            L.append("| " + " | ".join(str(x) for x in row) + " |")
+    L += ["", f"Rope total: {totals['rope_total'] / 1000:.1f} m (have at least {math.ceil(totals['rope_total'] / 1000 * 1.2)} m, which includes 20 % spare). "
+          f"PTFE tube total: {totals['ptfe_total'] / 1000:.1f} m — buy one 5 m roll.", "",
+          "M3 sizes all fit inside the kit's counts." if not totals["m3_over_kit"] else
+          f"More needed than the kit holds: {totals['m3_over_kit']}.", "",
           "## Wood", "", "All wood parts, sizes and hole positions: `2026-09-24-cut-list.md` "
           "(STEP: `STEP/2026-09-24-control-box-wood.step`, `-pedestal-wood.step`, `-sandbox-wood.step`).", "",
           "## Part count", "",

@@ -490,6 +490,9 @@
   "ptfe_total": 4120.152463448815,
   "n_balls": 57,
   "keys": 8,
-  "lugs": 10
+  "lugs": 10,
+  "m3_over_kit": [],
+  "rod_832_used": 203.0,
+  "nuts_832_used": 12
  }
 }

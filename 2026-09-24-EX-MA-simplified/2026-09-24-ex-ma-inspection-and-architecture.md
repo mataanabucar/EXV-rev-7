@@ -94,8 +94,8 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 ## Assembly order
 
 1. Print the parts (bill of materials, `3MF/` plates), cut the wood (`2026-09-24-cut-list.md`), deburr the copper.
-2. Build the sandbox and the pedestal (leave the pedestal's +u wall off). Fit the pedestal conduit fitting (4 × 8-32), the copper elbow in its socket, the elbow support with a cable tie, the shelf on its cleats and the PEX bushing.
-3. Build the control box (top off). Fit the bearing blocks, the spool riser, the two sleeve posts and the box conduit fitting; bolt the box to the sandbox wall through the fitting, the box front and the wall; fit the conduit and seal it.
+2. Build the sandbox and the pedestal (leave the pedestal's +u wall off). Fit the pedestal conduit fitting (4 × M3 × 25), the copper elbow in its socket, the elbow support with a cable tie, the shelf on its cleats and the PEX bushing.
+3. Build the control box (top off). Fit the bearing blocks, the spool riser, the two sleeve posts and the box conduit fitting; bolt the box to the sandbox wall (M3 × 35 through the fitting, the box front and the wall; M3 × 30 at the lower corners); fit the conduit and seal it.
 4. Slew ring: screw the base to the pedestal top, drop in the BBs, lower the turret (its hub already clamped on the PEX tube, which passes the base, the pedestal top, the bushing and into the slew drum), bolt the retaining ring (8 × M3) and clamp the slew drum.
 5. PTFE tubes: seat each tube in its box-fitting counterbore, feed it through the conduit, the pedestal window, the elbow and the PEX tube into the tower, then along its channels to its stop bulkhead (cut to the listed length).
 6. Arm: boom drum between the boom halves (4 key screws), boom split pins; stick drum and stick split pins; bucket drum-axle in the stick nose, ears glued to the bucket lugs, bucket pin; close the halves with the lug screws.

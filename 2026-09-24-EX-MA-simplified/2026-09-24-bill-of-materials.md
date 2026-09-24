@@ -53,51 +53,81 @@ Printed total: 17 new prints + 9 modified EX-MA prints, about 0.97 kg of filamen
 | `3MF/2026-09-24-plate-06.3mf` | tower, stick-half-right, conduit-end-fitting-box |
 | `3MF/2026-09-24-plate-07.3mf` | conduit-end-fitting-pedestal |
 
-## Hardware and stock
+## From your M3 kit (Fgruh 2300 pc)
+
+Every machine screw is an M3 from the kit; the longest needed is 35 mm. Column 3 shows how many of that size are used out of how many the kit holds.
+
+| Item | Qty | Used / in kit | What it does |
+|---|---|---|---|
+| M3 × 12 socket cap | 8 | 16 of 32 | joint-drum key screws: lock the boom and stick drums to their arm members (4 per drum, 2 through each side wall; the heads sit in pockets in the wall) |
+| M3 × 12 socket cap | 8 | 16 of 32 | slewing-ring retaining ring: holds the turret down on the BBs (nuts slide into the slots in the base rim) |
+| M3 × 20 socket cap | 10 | 16 of 30 | joining lugs: clamp the two halves of the boom (5) and the stick (5) together |
+| M3 × 20 socket cap | 3 | 16 of 30 | lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction |
+| M3 × 20 socket cap | 3 | 16 of 30 | slew wheel to the spool flange |
+| M3 × 25 socket cap | 2 | 9 of 30 | pinch clamps on the PEX turret tube (turret hub, pedestal slew drum) |
+| M3 × 25 socket cap | 3 | 9 of 30 | dowel cross-pins through the lever hubs |
+| M3 × 25 socket cap | 4 | 9 of 30 | pedestal conduit fitting to the pedestal wall (fitting 6 + wall 12 mm) |
+| M3 × 35 socket cap | 4 | 4 of 20 | box conduit fitting through the box front and the sandbox wall (6 + 12 + 12 mm) |
+| M3 × 30 socket cap | 2 | 2 of 20 | box front to the sandbox wall, lower corners (12 + 12 mm) |
+| M3 × 10 button head | 8 | 8 of 42 | slotted rope-tail anchors = tension adjusters (2 per lever, 2 on the spool); the rope loop sits between two washers |
+| M3 nut | 47 | 47 of 576 | with the screws above |
+| M3 flat washer | 36 | 36 of 576 | with the screws above |
+| M3 split-lock washer | 27 | 27 of 576 | with the screws above; split-lock washers under the nuts that hold moving or clamping parts |
+
+## From your Hillman parts
+
+The 8-32 rod is only used for the joint pins; nuts are used in jam pairs instead of lock nuts.
+
+| Item | Qty | Length / used | Notes |
+|---|---|---|---|
+| 8-32 rod, boom split pin (tower cheek → boom wall) | 2 | 42 mm | a jam pair (2 nuts) on the outer end |
+| 8-32 rod, stick split pin (boom tip → stick wall) | 2 | 22 mm | a jam pair (2 nuts) on the outer end |
+| 8-32 rod, bucket pin (ears + drum-axle) | 1 | 65 mm | a jam pair at each end |
+| 8-32 hex nuts | 12 | 12 of 22 | jam nuts on the pins (two nuts tightened against each other) |
+| 8-32 rod used |  | 203 of 914 mm | the rest is spare |
+| #4-40 and #6-32 machine screws |  |  | not needed (spares) |
+
+## Your wood screws
+
+| Item | Qty |  | Used for |
+|---|---|---|---|
+| #8 × 1in wood screw | 4 |  | base to the pedestal top |
+| #6 × 3/4in wood screw | 16 |  | bearing blocks (from below), spool riser, sleeve posts, PEX bushing, elbow support |
+| #6 × 1-1/4in wood screw | 120 |  | panel joints, ~4 per edge (box 12 edges, pedestal 10, sandbox 8), with wood glue |
+
+## Rope, tube and other stock
+
+PTFE tube = the white 4 mm OD / 2 mm ID filament (Bowden) tube used on 3D printers. The stick and bucket ropes run inside it through the arm, and the slew ropes through the conduit; it is what lets each lever move only its own joint.
 
 | Item | Qty | Size / length | Used for |
 |---|---|---|---|
-| M3 socket screw | 8 | M3 × 12 | joint-drum key screws (4 per drum, heads in the member walls) |
-| M3 screw + hex nut | 8 | M3 × 12 | slewing-ring retaining ring (nuts slide into the base rim) |
-| M3 screw + hex nut | 10 | M3 × 20 | boom (5) and stick (5) half-shell joining lugs |
-| M3 screw + hex nut | 2 | M3 × 25 | pinch clamps on the PEX tube (turret hub, slew drum) |
-| M3 screw + hex nut | 3 | M3 × 20 | lever drag clamps (set the holding friction) |
-| M3 screw + hex nut | 3 | M3 × 25 | dowel cross-pins in the lever hubs |
-| M3 screw + nut + washer | 8 | M3 × 10 | slotted rope-tail anchors (tension adjusters): 2 per lever, 2 on the spool |
-| M3 screw + hex nut | 3 | M3 × 20 | slew wheel to spool flange |
-| 8-32 threaded rod | 4 | 2 × 42 mm, 2 × 22 mm | split pins: boom (tower cheeks) and stick (boom tip), nyloc nut outside each |
-| 8-32 threaded rod | 1 | 65 mm | bucket pin through ears and drum-axle, nyloc nuts |
-| 8-32 threaded rod | 6 | 4 × 45 mm, 2 × 40 mm | box fitting + box front + sandbox wall bolts (nut + washer each end) |
-| 8-32 threaded rod | 4 | 30 mm | pedestal fitting to the pedestal wall |
-| 8-32 nut (nyloc where it holds a pivot) | 30 | 8-32 | all 8-32 pieces above |
-| 5/16in rod | 2 | 205 mm, 274 mm | lever axle; slew spool axle |
-| 5/16in nut + washer | 4 | 5/16in | 2 on the lever axle (outside the bearing blocks), 2 on the spool axle |
-| 6 mm airsoft BBs (or 1/4in steel balls) | 57 | Ø6 | slewing ring (plus ~5 spares) |
-| #8 wood screw | 4 | #8 × 1in | base to the pedestal top |
-| #6 wood screw | 16 | #6 × 3/4in | bearing blocks (from below), spool riser, sleeve posts, bushing, elbow support |
-| #6 wood screw | 120 | #6 × 1-1/4in | panel joints: ~4 per edge (box 12 edges, pedestal 10, sandbox 8); glue as well |
-| 1/16in galvanized 7x19 rope | 1 | 1427 mm | boom circuit: one length, single crimp at its midpoint on the joint drum, double-crimp loops on the lever anchors |
-| 1/16in galvanized 7x19 rope | 1 | 2083 mm | stick circuit: one length, single crimp at its midpoint on the joint drum, double-crimp loops on the lever anchors |
-| 1/16in galvanized 7x19 rope | 1 | 2444 mm | bucket circuit: one length, single crimp at its midpoint on the joint drum, double-crimp loops on the lever anchors |
-| 1/16in galvanized 7x19 rope | 1 | 722 mm | slew rope A: single crimp in the pedestal drum pocket, loop on the spool anchor |
-| 1/16in galvanized 7x19 rope | 1 | 795 mm | slew rope B: single crimp in the pedestal drum pocket, loop on the spool anchor |
-| single crimp sleeve (stop) | 5 | 1/16in | 3 joint-drum midpoints + 2 slew rope ends (plus spares) |
-| double crimp sleeve (loop) | 8 | 1/16in | 6 arm tail loops + 2 slew loops (plus spares) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 1427 mm | boom circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 2083 mm | stick circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 2444 mm | bucket circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 722 mm | slew rope A: single crimp in the pedestal drum pocket, double-crimp loop on the spool anchor |
+| 1/16in galvanized 7x19 rope (have) | 1 | 795 mm | slew rope B: single crimp in the pedestal drum pocket, double-crimp loop on the spool anchor |
+| single crimp sleeve (have) | 5 | 1/16in | 3 joint-drum midpoints + 2 slew rope ends (+ spares) |
+| double crimp sleeve (have) | 8 | 1/16in | 6 arm tail loops + 2 slew loops (+ spares) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 759 mm | stick_hi (box fitting -> arm stop) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 763 mm | stick_lo (box fitting -> arm stop) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 925 mm | bucket_hi (box fitting -> arm stop) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 927 mm | bucket_lo (box fitting -> arm stop) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 339 mm | slew sleeve A (post -> pedestal fitting) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 407 mm | slew sleeve B (post -> pedestal fitting) (+10 mm to trim) |
-| 3/4in PEX-B tube (OD 22.2) | 1 | 120 mm | turning turret tube |
-| 1/2in copper | 1 | 90° sweep elbow (R ≈ 30) + 50 mm pipe | fixed elbow in the pedestal (deburr both ends) |
+| 5/16in rod (have) | 2 | 205 mm, 274 mm | lever axle; slew spool axle |
+| 5/16in nut + washer | 4 | 5/16in | 2 on the lever axle (outside the bearing blocks), 2 on the spool axle |
+| 6 mm airsoft BBs (or 1/4in steel balls) | 57 | Ø6 | slewing ring (+ ~5 spares) |
+| 3/4in PEX-B tube (have) | 1 | 120 mm | turning turret tube |
+| 1/2in copper (have) | 1 | 90° sweep elbow (R ≈ 30) + 50 mm pipe | fixed elbow in the pedestal (deburr both ends) |
 | 2in sch 40 PVC | 1 | 141 mm | conduit between the box and the pedestal (seal with silicone at the sandbox wall) |
 | 5/8in hardwood dowel | 3 | 216 mm | lever handles |
 | knob Ø30–40 mm (ball or drawer knob) | 3 |  | lever handle tops |
 | 12 mm plywood | see cut list |  | control box, pedestal, sandbox (2026-09-24-cut-list.md) |
 | glue |  | wood glue; epoxy or CA | panel joints; bucket ears to the bucket lugs (as in the original EX-MA) |
 
-Rope total: 7.5 m (buy ≥ 9 m). PTFE total: 4.1 m (buy ≥ 5 m).
+Rope total: 7.5 m (have at least 9 m, which includes 20 % spare). PTFE tube total: 4.1 m — buy one 5 m roll.
+
+M3 sizes all fit inside the kit's counts.
 
 ## Wood
 

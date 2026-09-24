@@ -31,7 +31,7 @@ T = ex.T_WOOD
 # ---------------------------------------------------------------- parameters
 CONDUIT_HOLE_D = 62.0             # 2" PVC OD 60.3
 ROD_HOLE_D = 8.5                  # 5/16" rod
-BOLT_HOLE_D = 4.6                 # 8-32 rod pieces through fitting + panel + sandbox wall
+BOLT_HOLE_D = 4.6                 # M3 bolts (with washers) through fitting + panel + sandbox wall
 SLOT_W = ex.DOWEL_D + 1.1         # lever slot width
 SPOOL_HOLE_D = 24.4               # top panel = upper bearing of the spool tube (Ø24)
 PEX_HOLE_D = ex.TURRET_TUBE_OD + 4.0   # pedestal top: clearance only
@@ -97,9 +97,9 @@ def panels():
     front = Panel("box front", "control-box", (u1 - T, v0, z0 + T), (u1, v1, z1 - T),
                   [("hole", "u", (u1, ex.MOUTH_V, ex.COND_Z), CONDUIT_HOLE_D, "2in conduit")])
     for p in fitting_bolts(fit_box, -1):
-        front.holes.append(("hole", "u", p, BOLT_HOLE_D, "fitting bolt (8-32 through the sandbox wall)"))
+        front.holes.append(("hole", "u", p, BOLT_HOLE_D, "fitting bolt (M3 × 35 through the sandbox wall)"))
     for p in box_extra:
-        front.holes.append(("hole", "u", p, BOLT_HOLE_D, "box-to-sandbox bolt"))
+        front.holes.append(("hole", "u", p, BOLT_HOLE_D, "box-to-sandbox bolt (M3 × 30)"))
     P.append(front)
     P.append(Panel("box rear", "control-box", (u0, v0, z0 + T), (u0 + T, v1, z1 - T)))
     P.append(Panel("box right side", "control-box", (u0 + T, v0, z0 + T), (u1 - T, v0 + T, z1 - T)))
@@ -130,7 +130,7 @@ def panels():
     wall = Panel("pedestal wall -u (conduit)", "pedestal", (pu0, pv0, pz0), (pu0 + T, pv1, pz1 - T),
                  [("hole", "u", (pu0, ex.PED_FIT_V, ex.COND_Z), CONDUIT_HOLE_D, "2in conduit")])
     for p in fitting_bolts(fit_ped, 1):
-        wall.holes.append(("hole", "u", p, BOLT_HOLE_D, "fitting bolt"))
+        wall.holes.append(("hole", "u", p, BOLT_HOLE_D, "fitting bolt (M3 × 25)"))
     P.append(wall)
     P.append(Panel("pedestal wall +u (removable access)", "pedestal", (pu1 - T, pv0, pz0), (pu1, pv1, pz1 - T),
                    note="screwed on; remove to reach the slew drum clamp and the elbow"))
@@ -409,7 +409,7 @@ def cut_list(P):
           f"- 5/16in rod: lever axle {2 * ex.AXLE_BLOCK_V[1] + 20:.0f} mm; slew spool axle "
           f"{ex.BOX_Z[1] + 32.0 - ex.BOX_Z[0]:.0f} mm.",
           f"- 5/8in hardwood dowel handles: 3 × {ex.HANDLE_LEN - 9.0:.0f} mm.",
-          "- 8-32 rod: 4 × 45 mm (fitting bolts, box end), 2 × 40 mm (box-to-sandbox), 4 × 45 mm (pedestal fitting).", ""]
+          "- 8-32 rod (joint pins only): 2 × 42 mm, 2 × 22 mm, 1 × 65 mm.", ""]
     return "\n".join(L)
 
 
