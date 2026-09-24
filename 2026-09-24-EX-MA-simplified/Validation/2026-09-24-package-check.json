@@ -1,0 +1,495 @@
+{
+ "parts": [
+  {
+   "part": "boom-drum",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    35.0,
+    35.0,
+    14.0
+   ],
+   "orientation": "+z",
+   "support_mm2": 138.0
+  },
+  {
+   "part": "stick-drum",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    30.2,
+    30.2,
+    10.0
+   ],
+   "orientation": "+z",
+   "support_mm2": 132.0
+  },
+  {
+   "part": "bucket-drum-axle",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    21.0,
+    21.0,
+    49.0
+   ],
+   "orientation": "+z",
+   "support_mm2": 94.0
+  },
+  {
+   "part": "slew-drum",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    113.4,
+    113.4,
+    31.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 1398.0
+  },
+  {
+   "part": "slewing-ring-retaining-ring",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    140.0,
+    140.0,
+    6.0
+   ],
+   "orientation": "+z",
+   "support_mm2": 0.0
+  },
+  {
+   "part": "conduit-end-fitting-box",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    100.0,
+    100.0,
+    26.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 2812.0
+  },
+  {
+   "part": "conduit-end-fitting-pedestal",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    100.0,
+    100.0,
+    26.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 2832.0
+  },
+  {
+   "part": "lever-hub-boom",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    65.0,
+    66.5,
+    69.8
+   ],
+   "orientation": "+z",
+   "support_mm2": 3584.0
+  },
+  {
+   "part": "lever-hub-stick",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    65.0,
+    66.5,
+    34.5
+   ],
+   "orientation": "+z",
+   "support_mm2": 3374.0
+  },
+  {
+   "part": "lever-hub-bucket",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    65.0,
+    66.5,
+    54.8
+   ],
+   "orientation": "+z",
+   "support_mm2": 2726.0
+  },
+  {
+   "part": "slew-spool",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    113.4,
+    113.4,
+    145.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 2137.0
+  },
+  {
+   "part": "slew-wheel",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    184.0,
+    183.9,
+    12.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 1101.0
+  },
+  {
+   "part": "slew-tube-bushing",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    44.0,
+    44.0,
+    15.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 0.0
+  },
+  {
+   "part": "elbow-support",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    44.0,
+    24.0,
+    57.1
+   ],
+   "orientation": "-z",
+   "support_mm2": 60.0
+  },
+  {
+   "part": "spool-riser",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    52.0,
+    52.0,
+    93.5
+   ],
+   "orientation": "-z",
+   "support_mm2": 0.0
+  },
+  {
+   "part": "slew-tube-post",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    24.0,
+    36.0,
+    110.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 42.0
+  },
+  {
+   "part": "tower",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    99.0,
+    117.1,
+    117.0
+   ],
+   "orientation": "+x",
+   "support_mm2": 5293.0
+  },
+  {
+   "part": "base",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    139.9,
+    140.0,
+    21.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 2848.0
+  },
+  {
+   "part": "boom-half-left",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    218.4,
+    123.2,
+    24.0
+   ],
+   "orientation": "+y",
+   "support_mm2": 1192.0
+  },
+  {
+   "part": "boom-half-right",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    218.4,
+    123.2,
+    24.0
+   ],
+   "orientation": "-y",
+   "support_mm2": 1408.0
+  },
+  {
+   "part": "stick-half-left",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    190.1,
+    107.1,
+    17.5
+   ],
+   "orientation": "+y",
+   "support_mm2": 651.0
+  },
+  {
+   "part": "stick-half-right",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    190.1,
+    107.1,
+    17.5
+   ],
+   "orientation": "-y",
+   "support_mm2": 757.0
+  },
+  {
+   "part": "bucket-ear-left",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    20.0,
+    43.0,
+    14.5
+   ],
+   "orientation": "+y",
+   "support_mm2": 109.0
+  },
+  {
+   "part": "bucket-ear-right",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    20.0,
+    43.0,
+    14.5
+   ],
+   "orientation": "-y",
+   "support_mm2": 112.0
+  },
+  {
+   "part": "bucket",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    68.8,
+    54.0,
+    69.3
+   ],
+   "orientation": "-x",
+   "support_mm2": 2672.0
+  }
+ ],
+ "steps": [
+  {
+   "step": "2026-09-24-boom-drum.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-bucket-drum-axle.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-conduit-end-fitting-box.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-conduit-end-fitting-pedestal.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-elbow-support.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-lever-hub-boom.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-lever-hub-bucket.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-lever-hub-stick.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-slew-drum.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-slew-spool.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-slew-tube-bushing.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-slew-tube-post.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-slew-wheel.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-slewing-ring-retaining-ring.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-spool-riser.step",
+   "solids": 1
+  },
+  {
+   "step": "2026-09-24-stick-drum.step",
+   "solids": 1
+  }
+ ],
+ "plates": [
+  {
+   "plate": "2026-09-24-plate-01.3mf",
+   "parts": [
+    "slew-wheel",
+    "bucket",
+    "spool-riser",
+    "slew-tube-bushing",
+    "bucket-ear-left",
+    "bucket-ear-right",
+    "slew-tube-post-1",
+    "slew-tube-post-2"
+   ],
+   "reloaded": 8,
+   "inside_bed": true,
+   "bbox_overlap": false
+  },
+  {
+   "plate": "2026-09-24-plate-02.3mf",
+   "parts": [
+    "base",
+    "lever-hub-stick",
+    "lever-hub-boom",
+    "lever-hub-bucket",
+    "boom-drum",
+    "stick-drum",
+    "bucket-drum-axle"
+   ],
+   "reloaded": 7,
+   "inside_bed": true,
+   "bbox_overlap": false
+  },
+  {
+   "plate": "2026-09-24-plate-03.3mf",
+   "parts": [
+    "slewing-ring-retaining-ring",
+    "elbow-support"
+   ],
+   "reloaded": 2,
+   "inside_bed": true,
+   "bbox_overlap": false
+  },
+  {
+   "plate": "2026-09-24-plate-04.3mf",
+   "parts": [
+    "boom-half-left",
+    "slew-drum",
+    "slew-spool"
+   ],
+   "reloaded": 3,
+   "inside_bed": true,
+   "bbox_overlap": false
+  },
+  {
+   "plate": "2026-09-24-plate-05.3mf",
+   "parts": [
+    "boom-half-right",
+    "stick-half-left"
+   ],
+   "reloaded": 2,
+   "inside_bed": true,
+   "bbox_overlap": false
+  },
+  {
+   "plate": "2026-09-24-plate-06.3mf",
+   "parts": [
+    "tower",
+    "stick-half-right",
+    "conduit-end-fitting-box"
+   ],
+   "reloaded": 3,
+   "inside_bed": true,
+   "bbox_overlap": false
+  },
+  {
+   "plate": "2026-09-24-plate-07.3mf",
+   "parts": [
+    "conduit-end-fitting-pedestal"
+   ],
+   "reloaded": 1,
+   "inside_bed": true,
+   "bbox_overlap": false
+  }
+ ],
+ "assembly": {
+  "items": 108,
+  "solids_on_reimport": 108,
+  "step_size_mb": 3.1,
+  "glb": {
+   "nodes": 71,
+   "size_mb": 7.8
+  }
+ },
+ "totals": {
+  "rope_total": 7470.078052472059,
+  "ptfe_total": 4120.152463448815,
+  "n_balls": 57,
+  "keys": 8,
+  "lugs": 10
+ }
+}

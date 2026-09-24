@@ -291,6 +291,7 @@ def boom_halves():
     avoid = [rt.natural(n) for n in names]
     lugs, lug_holes = joining_lugs(full, ex.P_BOOM0, rt.BOOM_ANG,
                                    [(45.0, 1), (45.0, -1), (110.0, 1), (110.0, -1), (160.0, 1), (160.0, -1)], avoid)
+    FEATURES['boom joining lugs (M3 + nut)'] = len(lugs)
     keys = [drum_key_rel(bp.BOOM_DRIVE_R, a, 90.0) for a in bp.BOOM_DRIVE_ANGS]
     cut = channels(guided(names, "boom"))
     glugs, gbores = guide_lugs(names, "boom")
@@ -323,6 +324,7 @@ def stick_halves():
     avoid = [rt.natural(n) for n in names]
     lugs, lug_holes = joining_lugs(full, ex.P_STICK0, rt.STICK_ANG,
                                    [(40.0, 1), (40.0, -1), (100.0, 1), (100.0, -1), (150.0, 1), (150.0, -1)], avoid)
+    FEATURES['stick joining lugs (M3 + nut)'] = len(lugs)
     keys = [drum_key_rel(bp.STICK_DRIVE_R, a, math.degrees(rt.BOOM_ANG)) for a in bp.STICK_DRIVE_ANGS]
     cut = channels(guided(names, "stick"))
     glugs, gbores = guide_lugs(names, "stick")
@@ -419,6 +421,7 @@ def export_checked(mesh, path, name):
 
 
 UNZIPPED = []
+FEATURES = {}                   # hardware-bearing features built into the modified parts (for the BOM)
 
 
 # ---------------------------------------------------------------- exterior check
@@ -488,6 +491,8 @@ def main():
         lines.append(f"{name:18s} watertight={mesh.is_watertight}  bodies={len(mesh.split(only_watertight=False))}"
                      f"  volume={mesh.volume / 1000:7.2f} cm3  bbox={np.round(mesh.extents, 1).tolist()}")
     (out_val / "2026-09-24-exterior-check.txt").write_text("\n".join(lines) + "\n")
+    import json
+    (out_val / "2026-09-24-mods-features.json").write_text(json.dumps(FEATURES, indent=1))
     print("\n".join(lines))
 
 
