@@ -119,10 +119,8 @@ def load_exma(path):
 # shell label -> (name, colour, group, clip-in-cutaway) ; missing labels are removed
 KEEP = {
     "0": ("base", COL["black"], "exterior", True),
-    "1": ("slew ring", COL["lime"], "exterior", True),
     "2": ("tower", COL["black"], "exterior", True),
     "3": ("boom", COL["yellow"], "exterior", True),
-    "5": ("base cap", COL["black"], "exterior", True),
     "8": ("boom pin 8-32", COL["steel"], "exterior", False),
     "9": ("stick", COL["yellow"], "exterior", True),
     "D": ("stick pin 8-32", COL["steel"], "exterior", False),
@@ -137,7 +135,12 @@ KEEP = {
 REMOVED = {"4": "boom double-groove drum", "6": "boom idler", "7": "boom idler",
            "A": "stick double-groove drum", "B": "stick idler", "C": "stick idler",
            "F": "bucket drum + sleeve", "J": "cross pin", "K": "clip", "M": "cross pin",
-           "N": "clip", "Q": "vertical pin", "R": "cross pin", "S": "vertical pin"}
+           "N": "clip", "Q": "vertical pin", "R": "cross pin", "S": "vertical pin",
+           "1": "green slew ring (old slew drum; drum now in pedestal)", "5": "base post cap"}
+
+# internal features cut away from kept shells: label -> (max centroid radius, min centroid z)
+BORE = {"0": (16.0, 15.2),   # base centre post removed -> floor bearing hole for 3/4in PVC
+        "2": (15.0, 25.0)}   # tower centre boss bored to 26.7 for the PVC tube
 
 
 def mesh_records(shells):
@@ -145,7 +148,11 @@ def mesh_records(shells):
     for lab, (name, color, group, clip) in KEEP.items():
         tris, L = shells[lab]
         arr = array("f")
+        rmax, zmin = BORE.get(lab, (-1.0, 0.0))
         for t in tris:
+            cu, cv, cz = (sum(L[i][k] for i in t) / 3 for k in range(3))
+            if math.hypot(cu, cv) < rmax and cz > zmin:
+                continue
             for i in t:
                 arr.extend(t3(L[i]))
         out.append(dict(name=name, label=lab, color=color, group=group, clip=clip,
@@ -256,6 +263,9 @@ for s_off in (-7.0, 7.0):
 
 # rotating tube (3/4" PVC) + slew drum in pedestal
 cyl((0, 0, TUBE_Z[0]), (0, 0, TUBE_Z[1]), TUBE_R, COL["pvc"], "tube", "3/4in PVC rotating tube", opacity=1.0)
+cyl((0, 0, 16.5), (0, 0, 29.5), 16.0, "#dcdcdc", "arm_mech", "3/4in PVC slip coupling (thrust collar)")
+cyl((0, 0, 15.0), (0, 0, 16.5), 19.0, COL["steel"], "arm_mech", "fender washer")
+cyl((0, -24, 50), (0, 24, 50), 1.6, COL["steel"], "arm_mech", "M3 cross-bolt tower-to-tube")
 drum_z((0.0, 0.0), Z_SLEW_LAYER, R_SLEW, 14, "arm_mech", "slew drum (in pedestal)")
 
 # --- pedestal -------------------------------------------------------------
@@ -449,11 +459,11 @@ VIEWS = {
                 ("Fairlead block → conduit", (MOUTH_U, 0, COND_Z + 40), 80, -50),
                 ("Double-crimp loops + tension screw on drum", (AXLE_U - 24, 25, AXLE_Z), -230, -10)]),
     "04-arm": dict(
-        title="View 4 — Arm and base (EX-MA exterior unchanged) on pedestal",
+        title="View 4 — Arm and base on pedestal (EX-MA exterior; old green slew ring removed)",
         cam=dict(pos=t3((200, -820, 330)), target=t3((150, 0, 60)), fov=34),
         only=["exterior", "pedestal", "pedestal_near", "tube"],
         labels=[("Boom", (95, 0, 175), -40, -80), ("Stick", (270, 0, 180), 30, -80), ("Bucket", (330, 0, 60), 60, 40),
-                ("Slew ring / turret", (0, 30, 40), -200, -20), ("Wooden pedestal", (0, 90, -100), -220, 40)]),
+                ("Turret rides on the rotating tube (green ring removed)", (-20, 0, 60), 60, -210), ("Wooden pedestal", (0, 90, -100), -220, 40)]),
     "05-arm-cutaway": dict(
         title="View 5 — Arm cutaway: joint drums, PTFE-sleeved cables, rotating tube, slew drum in pedestal",
         cam=dict(pos=t3((140, -900, 40)), target=t3((135, 0, 35)), fov=36),
@@ -465,7 +475,8 @@ VIEWS = {
                 ("PTFE stop boss (stick cables)", (150, 0, 186), -260, -60),
                 ("PTFE stop boss (bucket cables)", (305, 0, 150), 30, -80),
                 ("PTFE sleeves cross the joints", (60, -10, 140), -120, -120),
-                ("3/4″ PVC tube turns with turret", (0, 0, 30), -260, 10),
+                ("3/4″ PVC tube turns with turret (M3 cross-bolt)", (0, 0, 50), -270, -20),
+                ("PVC coupling on washer = turret thrust bearing", (16, 0, 23), 300, 20),
                 ("Slew drum Ø110 (in pedestal)", (40, 0, Z_SLEW_LAYER), 60, 20),
                 ("Copper elbow: arm cables up the axis", (-20, 0, -125), 150, 90),
                 ("Conduit from control box", (-150, 0, COND_Z + 30), -40, -120)]),
