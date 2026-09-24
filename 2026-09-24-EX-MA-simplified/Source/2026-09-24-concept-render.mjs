@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || '/opt/node22/lib/node_modules/playwright');
 
 const [buildDir, outDir, ...only] = process.argv.slice(2);
-const VIEWS = ['01-full-assembly', '02-control-box', '03-control-box-cutaway', '04-arm', '05-arm-cutaway'];
+const VIEWS = ['01-full-assembly', '02-control-box', '03-control-box-cutaway', '04-arm', '05-arm-cutaway', '06-slew-bearing-detail'];
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript' };
 
 const server = http.createServer((req, res) => {

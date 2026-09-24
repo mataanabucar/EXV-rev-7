@@ -118,6 +118,10 @@ for (const P of SCENE.proxies) {
   } else if (P.type === 'torus') {
     mesh = new THREE.Mesh(new THREE.TorusGeometry(P.R, P.r, 16, 96), m);
     mesh.position.set(...P.c); mesh.rotation.x = Math.PI / 2;
+  } else if (P.type === 'ring') {
+    const prof = [[P.r_in, P.y0], [P.r_out, P.y0], [P.r_out, P.y1], [P.r_in, P.y1], [P.r_in, P.y0]]
+      .map(([r, y]) => new THREE.Vector2(r, y));
+    mesh = new THREE.Mesh(new THREE.LatheGeometry(prof, 128), m);
   } else if (P.type === 'path') {
     mesh = tube(P.pts, P.r, m);
   }

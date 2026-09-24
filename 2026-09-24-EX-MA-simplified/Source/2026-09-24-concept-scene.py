@@ -61,6 +61,14 @@ ELBOW_R = 30.0
 TUBE_R = 13.35                     # 3/4" PVC OD 26.7
 TUBE_Z = (-98.0, 75.0)
 
+# printed slewing ring (turret <-> base); turret + arm lowered by TURRET_DZ
+TURRET_DZ = -13.0                  # closes the gap left by the removed green ring
+LOWER_ABOVE_Z = 18.0               # anything on the turret side above this height moves down
+FLANGE_R, FLANGE_Z = 59.5, (17.0, 25.0)    # circular turret flange = inner race
+RACE_R = (62.5, 70.0)              # base lower race rim / retaining ring radial span
+BASE_RIM_Z, RET_RING_Z = (15.0, 21.0), (21.0, 27.0)
+BALL_R, BALL_CIRCLE_R, BALL_Z, N_BALLS = 3.0, 61.0, 21.0, 56
+
 # sandbox (24" x 24")
 SB_U, SB_V, SB_Z = (-203.0, 407.0), (-305.0, 305.0), (-190.0, 40.0)
 SAND_Z = -10.0
@@ -141,6 +149,7 @@ REMOVED = {"4": "boom double-groove drum", "6": "boom idler", "7": "boom idler",
 # internal features cut away from kept shells: label -> (max centroid radius, min centroid z)
 BORE = {"0": (16.0, 15.2),   # base centre post removed -> floor bearing hole for 3/4in PVC
         "2": (15.0, 25.0)}   # tower centre boss bored to 26.7 for the PVC tube
+FLANGE_CUT = {"2": 35.5}     # old square tower flange removed (replaced by circular flange proxy)
 
 
 def mesh_records(shells):
@@ -153,8 +162,11 @@ def mesh_records(shells):
             cu, cv, cz = (sum(L[i][k] for i in t) / 3 for k in range(3))
             if math.hypot(cu, cv) < rmax and cz > zmin:
                 continue
+            if cz < FLANGE_CUT.get(lab, -1e9):
+                continue
+            dz = 0.0 if lab == "0" else TURRET_DZ     # base stays; turret and arm drop
             for i in t:
-                arr.extend(t3(L[i]))
+                arr.extend(t3((L[i][0], L[i][1], L[i][2] + dz)))
         out.append(dict(name=name, label=lab, color=color, group=group, clip=clip,
                         b64=base64.b64encode(arr.tobytes()).decode()))
     return out
@@ -222,6 +234,12 @@ def sph(c, r, color, group, name=""):
     prox.append(dict(type="sph", c=t3(c), r=r, color=color, group=group, name=name))
 
 
+def ring(r_in, r_out, z0, z1, color, group, name=""):
+    """Annulus about the slew axis (vertical), in final coordinates (never lowered)."""
+    prox.append(dict(type="ring", r_in=r_in, r_out=r_out, y0=z0, y1=z1, color=color, group=group,
+                     name=name, nolower=True))
+
+
 def path(pts, r, color, group, name="", opacity=1.0):
     prox.append(dict(type="path", pts=[t3(p) for p in pts], r=r, color=color, group=group,
                      name=name, opacity=opacity))
@@ -263,9 +281,24 @@ for s_off in (-7.0, 7.0):
 
 # rotating tube (3/4" PVC) + slew drum in pedestal
 cyl((0, 0, TUBE_Z[0]), (0, 0, TUBE_Z[1]), TUBE_R, COL["pvc"], "tube", "3/4in PVC rotating tube", opacity=1.0)
-cyl((0, 0, 16.5), (0, 0, 29.5), 16.0, "#dcdcdc", "arm_mech", "3/4in PVC slip coupling (thrust collar)")
-cyl((0, 0, 15.0), (0, 0, 16.5), 19.0, COL["steel"], "arm_mech", "fender washer")
 cyl((0, -24, 50), (0, 24, 50), 1.6, COL["steel"], "arm_mech", "M3 cross-bolt tower-to-tube")
+
+# --- printed slewing ring (final coordinates; not lowered) ----------------
+ring(TUBE_R + 0.5, FLANGE_R, FLANGE_Z[0], 19.5, COL["black"], "exterior", "circular turret flange")
+ring(TUBE_R + 0.5, FLANGE_R - 2.2, 19.5, 22.5, COL["black"], "exterior", "turret flange race groove")
+ring(TUBE_R + 0.5, FLANGE_R, 22.5, FLANGE_Z[1], COL["black"], "exterior", "circular turret flange")
+ring(RACE_R[0], RACE_R[1], BASE_RIM_Z[0], BASE_RIM_Z[1], COL["black"], "exterior", "base lower race rim")
+ring(RACE_R[0], RACE_R[1], RET_RING_Z[0], RET_RING_Z[1], COL["printed"], "exterior", "slewing-ring retaining ring")
+for k in range(8):
+    a = math.radians(45 * k)
+    c = (66.25 * math.cos(a), 66.25 * math.sin(a))
+    prox.append(dict(type="cyl", a=t3((c[0], c[1], RET_RING_Z[1])), b=t3((c[0], c[1], RET_RING_Z[1] + 2.5)), r=2.75,
+                     color=COL["steel"], group="exterior", name="M3x20 retaining bolt", opacity=1.0, seg=24,
+                     nolower=True))
+for k in range(N_BALLS):
+    a = 2 * math.pi * (k + 0.5) / N_BALLS
+    prox.append(dict(type="sph", c=t3((BALL_CIRCLE_R * math.cos(a), BALL_CIRCLE_R * math.sin(a), BALL_Z)), r=BALL_R,
+                     color="#f4f4f4", group="bearing_balls", name="6 mm BB", nolower=True))
 drum_z((0.0, 0.0), Z_SLEW_LAYER, R_SLEW, 14, "arm_mech", "slew drum (in pedestal)")
 
 # --- pedestal -------------------------------------------------------------
@@ -434,7 +467,7 @@ VIEWS = {
                 ("Wooden control box on sandbox wall", (-330, 115, -60), -170, 60),
                 ("2″ PVC conduit under sand (all 8 cables)", (-150, 0, COND_Z), -60, 120),
                 ("Pedestal (slew drum inside)", (0, 90, -60), 60, 80),
-                ("EX-MA exterior (frozen)", (100, 0, 190), 40, -70)]),
+                ("EX-MA exterior (turret now on printed slewing ring)", (100, 0, 177), 40, -70)]),
     "02-control-box": dict(
         title="View 2 — Control box: 3 push-pull levers + horizontal slew wheel on top",
         cam=dict(pos=t3((-1080, 430, 560)), target=t3((-330, -90, 0)), fov=34),
@@ -459,16 +492,18 @@ VIEWS = {
                 ("Fairlead block → conduit", (MOUTH_U, 0, COND_Z + 40), 80, -50),
                 ("Double-crimp loops + tension screw on drum", (AXLE_U - 24, 25, AXLE_Z), -230, -10)]),
     "04-arm": dict(
-        title="View 4 — Arm and base on pedestal (EX-MA exterior; old green slew ring removed)",
+        title="View 4 — Arm and base on pedestal: circular turret flange, printed slewing ring, turret lowered 13 mm",
         cam=dict(pos=t3((200, -820, 330)), target=t3((150, 0, 60)), fov=34),
         only=["exterior", "pedestal", "pedestal_near", "tube"],
         labels=[("Boom", (95, 0, 175), -40, -80), ("Stick", (270, 0, 180), 30, -80), ("Bucket", (330, 0, 60), 60, 40),
-                ("Turret rides on the rotating tube (green ring removed)", (-20, 0, 60), 60, -210), ("Wooden pedestal", (0, 90, -100), -220, 40)]),
+                ("Circular turret flange, turret lowered 13 mm", (-35, -40, 25), -90, -170, "fixed"),
+                ("Bolted retaining ring (upper race)", (40, -58, 27), 260, 40, "fixed"), ("Wooden pedestal", (0, 90, -100), -220, 40)]),
     "05-arm-cutaway": dict(
         title="View 5 — Arm cutaway: joint drums, PTFE-sleeved cables, rotating tube, slew drum in pedestal",
         cam=dict(pos=t3((140, -900, 40)), target=t3((135, 0, 35)), fov=36),
-        only=["exterior", "arm_mech", "pedestal", "pedestal_near", "tube", "cables", "ptfe", "conduit"],
-        cut=["exterior", "pedestal", "tube"], ghost={"conduit": 0.25, "tube": 0.35},
+        only=["exterior", "arm_mech", "pedestal", "pedestal_near", "tube", "cables", "ptfe", "conduit",
+              "bearing_balls"],
+        cut=["exterior", "pedestal", "tube", "bearing_balls"], ghost={"conduit": 0.25, "tube": 0.35},
         labels=[("Boom drum Ø32, keyed by M3 bolt", (0, 0, 118), -250, -90),
                 ("Stick drum Ø26", (P_STICK[0], 0, P_STICK[1] + 15), -40, -90),
                 ("Bucket drum-axle Ø18", (P_BUCKET[0], 0, P_BUCKET[1] - 10), 50, 40),
@@ -476,24 +511,65 @@ VIEWS = {
                 ("PTFE stop boss (bucket cables)", (305, 0, 150), 30, -80),
                 ("PTFE sleeves cross the joints", (60, -10, 140), -120, -120),
                 ("3/4″ PVC tube turns with turret (M3 cross-bolt)", (0, 0, 50), -270, -20),
-                ("PVC coupling on washer = turret thrust bearing", (16, 0, 23), 300, 20),
+                ("Printed slewing ring: 6 mm BBs between flange and base", (61, 0, 21), 300, 30, "fixed"),
                 ("Slew drum Ø110 (in pedestal)", (40, 0, Z_SLEW_LAYER), 60, 20),
                 ("Copper elbow: arm cables up the axis", (-20, 0, -125), 150, 90),
                 ("Conduit from control box", (-150, 0, COND_Z + 30), -40, -120)]),
+    "06-slew-bearing-detail": dict(
+        title="View 6 — Printed slewing ring: circular turret flange (inner race), 6 mm BBs, bolted retaining ring",
+        cam=dict(pos=t3((70, -300, 110)), target=t3((10, 0, 22)), fov=30),
+        only=["exterior", "arm_mech", "tube", "bearing_balls", "pedestal", "pedestal_near", "cables", "ptfe"],
+        cut=["exterior", "pedestal", "tube", "bearing_balls"], ghost={"tube": 0.35},
+        labels=[("Turret flange Ø119 = inner race (printed with tower)", (-40, 0, 23), -60, -260),
+                ("6 mm BBs (≈56, no cage)", (-61, 0, 21), -120, 110),
+                ("Retaining ring = upper outer race (new printed part)", (66, 0, 25), 60, -150),
+                ("Base rim = lower outer race", (66, 0, 17), 90, 90),
+                ("8 × M3×20 into nuts captured in base", (66.25, 0, 28.5), 150, -70),
+                ("3/4″ PVC tube: cables + slew torque only", (-13, 0, 60), -330, -120),
+                ("Base (fixed, screwed to pedestal)", (-45, 0, 8), -250, 60)]),
 }
 
 LEGEND = [("Boom circuit", COL["boom"]), ("Stick circuit", COL["stick"]), ("Bucket circuit", COL["bucket"]),
           ("Slew circuit", COL["slew"]), ("New printed parts", COL["printed"]), ("PTFE 4×2 sleeve", "#d9d9d9")]
 
 
+LOWER_GROUPS = {"arm_mech", "tube", "ptfe"}
+LOWER_LABEL_VIEWS = {"04-arm", "05-arm-cutaway"}
+
+
+def _low(p3):
+    """three.js point [x, y(=z design), z]: drop turret-side points by TURRET_DZ."""
+    return [p3[0], round(p3[1] + TURRET_DZ, 3), p3[2]] if p3[1] > LOWER_ABOVE_Z else p3
+
+
+def lower_proxies_and_strands():
+    for P in prox:
+        if P.get("nolower") or P["group"] not in LOWER_GROUPS:
+            continue
+        for key in ("a", "b", "c", "min", "max"):
+            if key in P:
+                P[key] = _low(P[key])
+        if "pts" in P:
+            P["pts"] = [_low(q) for q in P["pts"]]
+    for S_ in strands:
+        S_["pts"] = [_low(q) for q in S_["pts"]]
+
+
 def main():
     stl, out = sys.argv[1], sys.argv[2]
     shells = load_exma(stl)
     meshes = mesh_records(shells)
+    lower_proxies_and_strands()
     views = {}
     for k, v in VIEWS.items():
         v = dict(v)
-        v["labels"] = [dict(text=a, at=L3(b), dx=c, dy=d) for a, b, c, d in v["labels"]]
+        low = k in LOWER_LABEL_VIEWS
+        labs = []
+        for lab in v["labels"]:
+            a, b, c, d = lab[:4]
+            fixed = len(lab) > 4 and lab[4] == "fixed"     # slewing-ring parts sit on the fixed base
+            labs.append(dict(text=a, at=(_low(L3(b)) if low and not fixed else L3(b)), dx=c, dy=d))
+        v["labels"] = labs
         views[k] = v
     scene = dict(proxies=prox, strands=strands, cable_r=CABLE_R, views=views, legend=LEGEND,
                  removed=REMOVED)
