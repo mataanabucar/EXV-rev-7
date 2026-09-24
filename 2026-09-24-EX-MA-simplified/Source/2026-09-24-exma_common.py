@@ -50,13 +50,17 @@ PIN_BORE = 4.6                     # printed clearance bore for 8-32 rod
 M3_CLEAR = 3.4
 M3_NUT_AF = 5.5                    # across flats
 PTFE_OD, PTFE_ID = 4.0, 2.0
-PVC34_OD = 26.7                    # 3/4" sch40 PVC
+TURRET_TUBE_OD = 22.23             # rotating turret tube: 3/4" PEX-B (measured OD 22.23)
+TURRET_TUBE_ID = 17.3              # SDR-9 wall 2.47
+LEVER_AXLE_D = 7.94                # common lever axle and slew-spool axle: 5/16" rod
+COPPER_OD = 15.88                  # 1/2" copper (measured)
 
+SLEW_LANE_OFF = 3.6                # slew drum / spool lanes at +-3.6 from the drum mid-plane
 # joint drums: pitch diameter (to rope centre), drum width
 DRUM = dict(boom=dict(pitch=30.0, width=14.0),      # boom root free radius 19.0
             stick=dict(pitch=26.0, width=10.0),     # stick root free radius 17.6
             bucket=dict(pitch=17.0, width=10.0),    # stick nose free radius 11.5 (drum turns vs nose)
-            slew=dict(pitch=110.0, width=14.0),
+            slew=dict(pitch=110.0, width=16.0),     # two lanes, one rope each (wrap >= 90 deg at +-90 slew)
             lever=dict(pitch=60.0, width=14.0))     # lever swing 40-52 deg over the working ranges
 
 # printed slewing ring
@@ -72,24 +76,40 @@ BALL_Z = 21.0
 RACE_CLEAR = 0.15                  # per side, ball to race (tune with shims under the retaining ring)
 
 # pedestal / conduit / rotating tube
-TUBE_Z = (-98.0, 35.0 + TURRET_DZ)   # rotating 3/4" PVC tube; top = routing.PVC_TOP_Z (held by the flange bore + hub clamp)
-COND_Z, COND_R = -110.0, 30.0
+TUBE_Z = (-98.0, 35.0 + TURRET_DZ)   # rotating PEX tube; top = routing.TUBE_TOP_Z (held by the flange bore + hub clamp)
+COND_Z, COND_R = -110.0, 30.0      # 2" PVC conduit axis height, outer radius
+CONDUIT_ID = 52.5
+CONDUIT_SOCKET = 12.0              # conduit socket depth in each end fitting
 Z_SLEW_LAYER, Z_ARM_LAYER = -88.0, -130.0
-PED_U, PED_V, PED_Z = (-90.0, 90.0), (-90.0, 90.0), (-190.0, 0.0)
+# pedestal extends toward the box so the conduit fitting clears the Ø115 slew drum (14.5 mm)
+PED_U, PED_V, PED_Z = (-110.0, 90.0), (-90.0, 90.0), (-190.0, 0.0)
 ELBOW_R = 30.0
+FIT_T = 26.0                       # conduit end fitting thickness
+# conduit end fitting hole layout (fitting local x/y; y = height above the conduit axis)
+FIT_ARM_ROWS = (-17.8, -22.2)      # each circuit's two strands (arm layer, z -127.8 / -132.2)
+FIT_SLEW_Y, FIT_SLEW_X = 22.0, 9.0    # slew PTFE sleeves at x +-9 on the conduit side (inside the 2" bore)
 
-# control box
+# control box (floor on the same ground as the sandbox)
 BOX_U = (-453.0, -203.0)
 BOX_V = (-290.0, 115.0)
-BOX_Z = (-160.0, 40.0)
+BOX_Z = (-202.0, 40.0)
 T_WOOD = 12.0
-AXLE_U, AXLE_Z = -360.0, -100.0
-LEVERS = dict(boom=(70.0, 21.0), stick=(0.0, -17.0), bucket=(-70.0, -37.0))   # (handle v, drum v)
+AXLE_U, AXLE_Z = -360.0, -120.0      # axle near the fitting hole height: rope entry angles <= ~20 deg
+LEVERS = dict(boom=(70.0, 19.0), stick=(0.0, -17.0), bucket=(-70.0, -32.0))   # (handle v, drum v)
+# lever hub extents in design v: neighbours 0.5 mm apart, outer ends 0.5 mm from the bearing blocks
+LEVER_HUB_V = dict(boom=(10.25, 80.0), stick=(-24.75, 9.75), bucket=(-80.0, -25.25))
+AXLE_BLOCK_V = (80.5, 92.5)        # |v| span of the two axle bearing blocks
 HANDLE_LEN = 225.0
+DOWEL_D = 15.9                     # 5/8" hardwood dowel handles
 WHEEL_C = (-340.0, -190.0)
-WHEEL_Z = 75.0
 MOUTH_U = -210.0
 MOUTH_V = -8.0
+PED_FIT_V = MOUTH_V                # pedestal fitting on the conduit line; its copper socket is offset to v 0
+SPOOL_DEPART_DEG = 30.0            # slew sleeves leave the spool heading 30 deg (plan view, u -> v)
+
+# sandbox (24" x 24"; the control box bolts to the outside of its -u wall)
+SB_U, SB_V, SB_Z = (-203.0, 407.0), (-305.0, 305.0), (-190.0, 40.0)
+SAND_Z = -10.0
 BUCKET_STEP_OFFSET = (5.3, -0.05, -19.4)   # STEP frame -> original design frame (fit: mean 0.15 mm)
 
 
@@ -205,3 +225,48 @@ def shift_z(mesh, dz):
     m = mesh.copy()
     m.apply_translation((0, 0, dz))
     return m
+
+
+# ---------------------------------------------------------------- slew rope geometry (plan view u, v)
+def pedestal_slew_line(sign):
+    """Slew sleeve anchored in an angled counterbore of the pedestal fitting, aimed so the rope
+    leaves the fitting exactly along the tangent of the pedestal slew drum (no bend at the exit).
+    sign +1 = the +v strand (lane A, upper), -1 = the -v strand (lane B, lower).
+    Returns dict(entry, exit (u, v), gamma (rad), tangent point (u, v), tangent angle (deg))."""
+    R = DRUM["slew"]["pitch"] / 2
+    u0 = PED_U[0] + T_WOOD
+    ue, depth = u0 + FIT_T, FIT_T - CONDUIT_SOCKET
+    v_in = PED_FIT_V + sign * FIT_SLEW_X
+
+    def line(g):
+        ex_pt = np.array([ue, v_in + sign * depth * math.tan(g)])
+        d = np.array([math.cos(g), sign * math.sin(g)])
+        return ex_pt, d, abs(ex_pt[0] * d[1] - ex_pt[1] * d[0])      # distance of the line from the axis
+
+    lo, hi = 0.0, math.radians(80.0)
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if line(mid)[2] < R else (lo, mid)
+    g = 0.5 * (lo + hi)
+    ex_pt, d, _ = line(g)
+    tp = ex_pt - (ex_pt @ d) * d
+    return dict(entry=np.array([u0 + CONDUIT_SOCKET, v_in]), exit=ex_pt, dir=d, gamma=g,
+                tangent=tp, tangent_deg=math.degrees(math.atan2(tp[1], tp[0])))
+
+
+SPOOL_POST_L = 44.0                # slew sleeve post: distance from the spool tangent point along the rope (clears the rim)
+
+
+def spool_departures():
+    """Box slew spool: both strands leave heading SPOOL_DEPART_DEG (plan). Lane A (upper, the
+    strand that runs to the +v side of the conduit) leaves at the +90 deg tangent point.
+    Returns {lane: dict(tangent_deg, tangent (u, v), dir, post (u, v))}."""
+    R = DRUM["slew"]["pitch"] / 2
+    c = np.array(WHEEL_C)
+    d = np.array([math.cos(math.radians(SPOOL_DEPART_DEG)), math.sin(math.radians(SPOOL_DEPART_DEG))])
+    out = {}
+    for lane, off in (("A", 90.0), ("B", -90.0)):
+        a = SPOOL_DEPART_DEG + off
+        tp = c + R * np.array([math.cos(math.radians(a)), math.sin(math.radians(a))])
+        out[lane] = dict(tangent_deg=a, tangent=tp, dir=d, post=tp + SPOOL_POST_L * d)
+    return out

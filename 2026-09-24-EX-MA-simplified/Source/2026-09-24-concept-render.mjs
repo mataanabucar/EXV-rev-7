@@ -1,5 +1,6 @@
 // Render the EX-MA concept views to PNG with headless Chromium.
 // Usage: node 2026-09-24-concept-render.mjs <build_dir> <out_dir> [view ...]
+// PREFIX env sets the file name prefix (default 2026-09-24-concept-).
 // build_dir must contain the viewer html (as index.html), data.js and three.module.js.
 import http from 'node:http';
 import fs from 'node:fs';
@@ -30,7 +31,7 @@ fs.mkdirSync(outDir, { recursive: true });
 for (const v of (only.length ? only : VIEWS)) {
   await page.goto(`http://127.0.0.1:${port}/index.html?view=${v}`);
   await page.waitForFunction(() => window.READY === true, null, { timeout: 120000 });
-  const out = path.join(outDir, `2026-09-24-concept-${v}.png`);
+  const out = path.join(outDir, `${process.env.PREFIX || '2026-09-24-concept-'}${v}.png`);
   await page.locator('#wrap').screenshot({ path: out });
   console.log('wrote', out);
 }

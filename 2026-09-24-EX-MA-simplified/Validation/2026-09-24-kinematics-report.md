@@ -31,24 +31,24 @@ Angles are measured from the EX-MA pose; + raises the member. Contact = overlap 
 
 ## PTFE tubes over the working ranges
 
-Grid: boom × stick working ranges, 5 × 5 poses. Tubes are anchored in the control-box conduit fitting and at their stop boss in the arm, and slide everywhere between. In the arm each tube keeps its natural shape; the length change slides down the PVC tube and is stored as spare length in the 137 mm conduit run, where it coils as a gentle helix.
+Grid: boom × stick working ranges, 5 × 5 poses. Tubes are anchored in the control-box conduit fitting and at their stop boss in the arm, and slide everywhere between. In the arm each tube keeps its natural shape; the length change slides down the PEX turret tube and is stored as spare length in the 141 mm conduit run, where it coils as a gentle helix.
 
 | Tube | Cut length (approx.) | Arm path length range | Spare length in the conduit | Worst bend R in the arm | Conduit helix radius / bend R | Worst free-zone clearance | Bowden coupling |
 |---|---|---|---|---|---|---|---|
-| stick_hi | 737 mm | 379.2 … 380.7 mm | 2.0 … 3.5 mm | 20.0 mm | ≤ 5.0 mm / ≥ 100 mm | 0.6 mm (boom at [9.0, 10.0, 97.0], boom -40°, stick -45°) | ≤ 0.22 mm |
-| stick_lo | 741 mm | 383.0 … 384.5 mm | 2.0 … 3.5 mm | 20.0 mm | ≤ 5.0 mm / ≥ 100 mm | 0.6 mm (boom at [9.0, -10.0, 97.0], boom -40°, stick -45°) | ≤ 0.22 mm |
-| bucket_hi | 902 mm | 537.1 … 545.4 mm | 2.0 … 10.3 mm | 15.3 mm | ≤ 8.6 mm / ≥ 64 mm | 0.6 mm (boom at [9.0, 14.0, 97.0], boom -40°, stick -45°) | ≤ 0.67 mm |
-| bucket_lo | 903 mm | 539.1 … 547.3 mm | 2.0 … 10.3 mm | 15.3 mm | ≤ 8.6 mm / ≥ 64 mm | 0.6 mm (boom at [9.0, -14.0, 97.0], boom -40°, stick -45°) | ≤ 0.67 mm |
+| stick_hi | 749 mm | 379.7 … 381.0 mm | 2.0 … 3.3 mm | 20.0 mm | ≤ 4.9 mm / ≥ 108 mm | 0.6 mm (boom at [9.0, 10.0, 97.0], boom -40°, stick -45°) | ≤ 0.20 mm |
+| stick_lo | 753 mm | 383.5 … 384.8 mm | 2.0 … 3.3 mm | 20.0 mm | ≤ 4.9 mm / ≥ 108 mm | 0.6 mm (boom at [9.0, -10.0, 97.0], boom -40°, stick -45°) | ≤ 0.20 mm |
+| bucket_hi | 915 mm | 538.7 … 547.2 mm | 2.0 … 10.5 mm | 15.3 mm | ≤ 8.8 mm / ≥ 66 mm | 0.6 mm (boom at [9.0, 14.0, 97.0], boom -40°, stick -45°) | ≤ 0.66 mm |
+| bucket_lo | 917 mm | 540.6 … 549.1 mm | 2.0 … 10.5 mm | 15.3 mm | ≤ 8.8 mm / ≥ 66 mm | 0.6 mm (boom at [9.0, -14.0, 97.0], boom -40°, stick -45°) | ≤ 0.66 mm |
 
 - Bend radius ≥ 15 mm everywhere (arm and conduit): yes.
 - Tube surface ≥ 0.5 mm from every member and split pin in the free zones: yes.
 - Conduit helix fits (radius ≤ 20.2 mm in the Ø52.5 conduit): yes.
 - Bowden coupling < 1 mm: yes.
-- Closest tube-to-tube centrelines in the free zones: 4.3 mm (stick_hi / bucket_hi, boom 2°, stick -45°; tube OD 4 mm, so ≥ 4.0 = not pressed together).
+- Closest tube-to-tube centrelines in the free zones: 4.2 mm (stick_hi / bucket_hi, boom 45°, stick -45°; tube OD 4 mm, so ≥ 4.0 = not pressed together).
 
 A slack bow inside the tower was modelled first and rejected: below the boom root the tower is only about 44 mm tall, which holds about 2.4 mm of slack at R ≥ 15, while the bucket tubes need up to 10 mm; the boom root's rear shell also closes over a deeper bow at boom +45°.
 
-Clearance = tube surface to the nearest member surface in the unsupported (free) zones; inside the guides the tube runs in Ø5.2 channels by design. Cut length = arm path + fixed run from the box fitting through the conduit, pedestal, elbow and PVC tube (final lengths go in the bill of materials).
+Clearance = tube surface to the nearest member surface in the unsupported (free) zones; inside the guides the tube runs in Ø5.2 channels by design. Cut length = arm path + fixed run from the box fitting through the conduit, pedestal, elbow and turret tube (final lengths go in the bill of materials).
 Bowden coupling = rope movement caused by the tube bending: turning-angle change × rope play (0.2 mm). This is the only way one joint can move another's rope.
 
 ## Travel table

@@ -9,7 +9,7 @@ is free and a tube can pass exactly through the pivot axis. A tube passing throu
 barely changes length when the joint turns.
 
 Tubes are anchored only at their two ends: the conduit fitting in the CONTROL BOX and the
-stop boss in the arm. Everywhere else they slide (pedestal fitting, copper elbow, PVC tube,
+stop boss in the arm. Everywhere else they slide (pedestal fitting, copper elbow, PEX turret tube,
 rib channels); the small remaining length change is taken up as spare length in the 2"
 conduit, where it forms a gentle helix (see conduit_helix). A bow in the tower was tried
 first and rejected: the tower below the boom root is only ~44 mm tall, which holds ~2.4 mm
@@ -19,8 +19,8 @@ Each tube moves out to its crossing v in the lower half of the tower and then st
 own plane, 4.3-4.5 mm from its neighbour.
 
 Zones along each tube:
-  'turret'     fixed on the turret (inside the PVC tube)
-  'free_boom'  free: PVC top -> boom clamp
+  'turret'     fixed on the turret (inside the PEX turret tube)
+  'free_boom'  free: tube top -> boom clamp
   'boom'       guided by the boom (straight / fixed bends)
   'free_stick' free: boom bulkhead -> stick clamp (bucket tubes only)
   'stick'      guided by the stick
@@ -44,8 +44,8 @@ DS = np.array([math.cos(STICK_ANG), math.sin(STICK_ANG)])
 NS = np.array([-DS[1], DS[0]])
 BOOM_LEN = float(np.linalg.norm(PS - PB))
 
-PVC_TOP_Z = 35.0                  # top of the rotating PVC tube (original frame; 22 built, 3 mm inside the flange bore)
-PVC_BOTTOM_Z = -85.0
+TUBE_TOP_Z = 35.0                  # top of the rotating PEX turret tube (original frame; 22 built, 3 mm inside the flange bore)
+TUBE_BOTTOM_Z = -85.0
 BEND_R = 20.0                     # fixed bends inside the members
 
 # boom joint: tube rises vertically through the boom axis; on the boom side it leaves the
@@ -62,13 +62,15 @@ STICK_CLAMP_B = 18.0
 STICK_STOP_S = 131.1
 
 TUBES = {
-    # name: (circuit, PVC slot (u, v), v across the boom joint, stop offset)
-    # slots sit at the tube's side of the 3/4" PVC bore (ID 20.9) so the lateral move is small;
-    # the two boom ropes pass the PVC at (+-8, 0)
-    "stick_hi": ("stick", (3.0, +3.8), +10.0, +7.0),
-    "stick_lo": ("stick", (3.0, -3.8), -10.0, -7.0),
-    "bucket_hi": ("bucket", (-1.5, +8.0), +14.3, +6.0),     # 0.7 mm from the split-pin ends (|v| 17)
-    "bucket_lo": ("bucket", (-1.5, -8.0), -14.3, -6.0),
+    # name: (circuit, slot in the turret tube (u, v), v across the boom joint, stop offset)
+    # slots at the top of the 3/4" PEX-B turret tube (ID 17.3; tube surfaces within r 6.9):
+    # circuits side by side in u (bucket, stick, boom ropes at (+4, +-2)), each pair split in v.
+    # This is the conduit bundle (circuits side by side in v, pairs split by row) turned 90 deg,
+    # so the bundle twists 90 deg + slew along the turret tube (<= 180 deg over ~120 mm).
+    "stick_hi": ("stick", (0.0, +2.3), +10.0, +7.0),
+    "stick_lo": ("stick", (0.0, -2.3), -10.0, -7.0),
+    "bucket_hi": ("bucket", (-4.3, +2.3), +14.3, +6.0),     # 0.7 mm from the split-pin ends (|v| 17)
+    "bucket_lo": ("bucket", (-4.3, -2.3), -14.3, -6.0),
 }
 V_RAMP_T = 0.45                   # tower zone: the tube reaches its crossing v by this fraction
 BUCKET_V_STICK = 8.5              # bucket tubes pass the stick joint beside the stick drum
@@ -138,14 +140,14 @@ def centreline(name):
     """[(member, np.array([u, v, z]), zone)] for one tube, original pose."""
     circuit, (pu, pv), v_pin, off_stop = TUBES[name]
     out = []
-    # 1. inside the PVC tube
-    for z in np.linspace(PVC_BOTTOM_Z, PVC_TOP_Z, 14):
+    # 1. inside the turret tube
+    for z in np.linspace(TUBE_BOTTOM_Z, TUBE_TOP_Z, 14):
         out.append(("turret", np.array([pu, pv, z]), "turret"))
-    # 2. free zone: PVC top -> through the boom axis -> boom clamp (shape re-solved per pose)
+    # 2. free zone: tube top -> through the boom axis -> boom clamp (shape re-solved per pose)
     h_boom = BOOM_ANG + BOOM_EXIT_REL
     for t in np.linspace(0, 1, 16)[1:]:
         if t < 0.8:
-            u, z = pu * (1 - t / 0.8), PVC_TOP_Z + (PB[1] - PVC_TOP_Z) * (t / 0.8)
+            u, z = pu * (1 - t / 0.8), TUBE_TOP_Z + (PB[1] - TUBE_TOP_Z) * (t / 0.8)
         else:
             u, z = PB + BOOM_CLAMP_B * _dir(h_boom) * ((t - 0.8) / 0.2)
         out.append(("boom" if t >= 0.8 else "turret", np.array([u, ramp(t, 0.0, V_RAMP_T, pv, v_pin), z]), "free_boom"))
@@ -289,7 +291,7 @@ def _stick_zone_min_r(name, boom, stick, bucket, sc):
 
 
 def natural(name, boom=0.0, stick=0.0, bucket=0.0, dz=0.0):
-    """Natural shape of the arm part of a tube (PVC top -> stop): stick zone at its gentlest shape.
+    """Natural shape of the arm part of a tube (tube top -> stop): stick zone at its gentlest shape.
     The tube keeps this shape at every pose; length changes slide down to the conduit."""
     return tube_polyline(name, boom, stick, bucket, dz, stick_zone_scale(name, boom, stick, bucket))
 
@@ -300,8 +302,9 @@ def natural_with_zones(name, boom=0.0, stick=0.0, bucket=0.0, dz=0.0):
 
 # ---------------------------------------------------------------- conduit slack
 # straight conduit run between the control-box fitting (tube anchor) and the pedestal fitting
-CONDUIT_RUN = (ex.PED_U[0] + ex.T_WOOD) - (ex.BOX_U[1] - ex.T_WOOD)
-CONDUIT_ID = 52.5                 # 2" sch 40 PVC
+# (socket floor to socket floor)
+CONDUIT_RUN = (ex.PED_U[0] + ex.T_WOOD + ex.CONDUIT_SOCKET) - (ex.BOX_U[1] - ex.T_WOOD - ex.CONDUIT_SOCKET)
+CONDUIT_ID = ex.CONDUIT_ID        # 2" sch 40 PVC
 CONDUIT_HELIX_R_MAX = CONDUIT_ID / 2 - ex.PTFE_OD / 2 - 4.0   # leave room for the other cables
 
 

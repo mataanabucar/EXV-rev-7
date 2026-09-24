@@ -2,7 +2,7 @@
 
 part(name) -> trimesh in the assembly frame. Printed parts come from STL/ (new parts are
 stored in their print frame and placed here; modified EX-MA parts are already stored in
-the assembly frame). Hardware (rod, bolts, BBs, PVC, copper, PTFE, rope) is generated
+the assembly frame). Hardware (rod, bolts, BBs, PEX, PVC conduit, copper, PTFE, rope) is generated
 as simple solids for checks and renders only.
 
 MEMBERS groups the rigid bodies that move together for the joint sweeps.
@@ -59,14 +59,27 @@ def placements():
     P["slewing-ring-retaining-ring"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, ex.RET_RING_Z[0]))
     # conduit fittings: local -Z faces the conduit, local +Y = up, local +X = lateral
     P["conduit-end-fitting-box"] = _frame((0, -1, 0), (0, 0, 1), (-1, 0, 0), (ex.BOX_U[1] - ex.T_WOOD, ex.MOUTH_V, ex.COND_Z))
-    P["conduit-end-fitting-pedestal"] = _frame((0, 1, 0), (0, 0, 1), (1, 0, 0), (ex.PED_U[0] + ex.T_WOOD, 0.0, ex.COND_Z))
+    P["conduit-end-fitting-pedestal"] = _frame((0, 1, 0), (0, 0, 1), (1, 0, 0), (ex.PED_U[0] + ex.T_WOOD, ex.PED_FIT_V, ex.COND_Z))
     for name, (vh, vd) in ex.LEVERS.items():
         P[f"lever-hub-{name}"] = _frame((-1, 0, 0), (0, 0, 1), (0, 1, 0), (ex.AXLE_U, vd, ex.AXLE_Z))
     P["slew-spool"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1),
                              (ex.WHEEL_C[0], ex.WHEEL_C[1], ex.Z_SLEW_LAYER - ex.DRUM["slew"]["width"] / 2))
     spool_top = ex.Z_SLEW_LAYER - ex.DRUM["slew"]["width"] / 2 + 145.0
     P["slew-wheel"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1), (ex.WHEEL_C[0], ex.WHEEL_C[1], spool_top))
+    floor_top = ex.BOX_Z[0] + ex.T_WOOD
+    P["spool-riser"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1), (ex.WHEEL_C[0], ex.WHEEL_C[1], floor_top))
+    for lane, dep in ex.spool_departures().items():
+        x = np.array([-dep["dir"][0], -dep["dir"][1], 0.0])          # local +X toward the spool
+        P[f"slew-tube-post@{lane}"] = _frame(x, np.cross((0, 0, 1), x), (0, 0, 1),
+                                             (dep["post"][0], dep["post"][1], floor_top))
+    # bushing: flange on top of the pedestal shelf, body down through it
+    P["slew-tube-bushing"] = _frame((1, 0, 0), (0, -1, 0), (0, 0, -1), (0.0, 0.0, PED_SHELF_Z[1] + 3.0))
+    P["elbow-support"] = _frame((1, 0, 0), (0, 1, 0), (0, 0, 1), (ELBOW_SUPPORT_U, 0.0, ex.PED_Z[0]))
     return P
+
+
+PED_SHELF_Z = (-63.0, -51.0)       # pedestal shelf carrying the PEX bushing, just above the slew drum hub
+ELBOW_SUPPORT_U = -50.0            # under the horizontal copper leg
 
 
 MODIFIED = ["tower", "base", "boom-half-left", "boom-half-right", "stick-half-left", "stick-half-right",

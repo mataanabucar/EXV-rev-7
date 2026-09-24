@@ -119,11 +119,11 @@ def slewing_ring_check():
 TUBE_R = ex.PTFE_OD / 2
 MIN_BEND_R = 15.0                  # PTFE 4x2 bends without kinking above ~15 mm
 MIN_GAP = 0.5                      # tube surface to any member in the free zones
-# fixed tube run below the PVC top: box fitting -> conduit -> pedestal fitting -> elbow -> PVC tube
+# fixed tube run below the tube top: box fitting -> conduit -> pedestal fitting -> elbow -> PEX turret tube
 LOWER_RUN = (rt.CONDUIT_RUN                                          # box fitting -> pedestal fitting
-             + (-ex.ELBOW_R - (ex.PED_U[0] + ex.T_WOOD))                # pedestal fitting -> elbow
+             + (-ex.ELBOW_R - (ex.PED_U[0] + ex.T_WOOD + ex.CONDUIT_SOCKET))   # pedestal fitting -> elbow
              + math.pi / 2 * ex.ELBOW_R                                 # R30 elbow
-             + (rt.PVC_TOP_Z + DZ) - (ex.Z_ARM_LAYER + ex.ELBOW_R))     # elbow top -> PVC top (built)
+             + (rt.TUBE_TOP_Z + DZ) - (ex.Z_ARM_LAYER + ex.ELBOW_R))     # elbow top -> turret-tube top (built)
 
 
 def _free_mask(poly, zones):
@@ -253,7 +253,7 @@ def main():
     L += ["", "## PTFE tubes over the working ranges", "",
           f"Grid: boom × stick working ranges, 5 × 5 poses. Tubes are anchored in the control-box conduit fitting "
           "and at their stop boss in the arm, and slide everywhere between. In the arm each tube keeps its natural "
-          "shape; the length change slides down the PVC tube and is stored as spare length in the "
+          "shape; the length change slides down the PEX turret tube and is stored as spare length in the "
           f"{rt.CONDUIT_RUN:.0f} mm conduit run, where it coils as a gentle helix.", "",
           "| Tube | Cut length (approx.) | Arm path length range | Spare length in the conduit | Worst bend R in the arm | "
           "Conduit helix radius / bend R | Worst free-zone clearance | Bowden coupling |",
@@ -281,7 +281,7 @@ def main():
           "10 mm; the boom root's rear shell also closes over a deeper bow at boom +45°."]
     L += ["", "Clearance = tube surface to the nearest member surface in the unsupported (free) zones; inside the "
           "guides the tube runs in Ø5.2 channels by design. Cut length = arm path + fixed run from the box "
-          "fitting through the conduit, pedestal, elbow and PVC tube (final lengths go in the bill of materials).",
+          "fitting through the conduit, pedestal, elbow and turret tube (final lengths go in the bill of materials).",
           "Bowden coupling = rope movement caused by the tube bending: turning-angle change × rope play "
           f"({BOWDEN_E:.1f} mm). This is the only way one joint can move another's rope.", "",
           "## Travel table", "",

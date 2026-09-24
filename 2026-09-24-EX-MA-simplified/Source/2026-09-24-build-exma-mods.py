@@ -6,7 +6,7 @@ turret lowered 13 mm, base race rim + retaining ring). Output: STL/ (assembly
 frame, built position) plus Validation/2026-09-24-exterior-check.txt.
 
   tower         : square flange removed, circular flange + inner race + tube clamp hub,
-                  centre bored for the 3/4" PVC tube, lowered TURRET_DZ
+                  centre bored for the 3/4" PEX turret tube, lowered TURRET_DZ
   base          : centre post removed (Ø46 hole + closing sleeve), lower race rim with
                   side-entry M3 nut slots, 4 screw holes to the pedestal
   boom halves   : interior cleared between the joints (walls kept >= WALL), PTFE stop
@@ -148,12 +148,12 @@ def tower():
     t = t - clearing_volume(T(t), (0.0, TOWER_CLEAR_Z[0]), math.pi / 2, (0.0, TOWER_CLEAR_Z[1] - TOWER_CLEAR_Z[0]),
                             step=2.0, inset=3.6)
     t = t + cq_to_man(bp.turret_flange())
-    top = rt.PVC_TOP_Z + DZ
-    t = t - cylinder([0, 0, -5], [0, 0, 70], ex.PVC34_OD / 2 + 0.3)   # centre bored for the tube + cables
+    top = rt.TUBE_TOP_Z + DZ
+    t = t - cylinder([0, 0, -5], [0, 0, 70], ex.TURRET_TUBE_OD / 2 + 0.3)   # centre bored for the tube + cables
     if top > ex.FLANGE_Z[1]:
-        t = t + (cylinder([0, 0, ex.FLANGE_Z[1] - 0.5], [0, 0, top], ex.PVC34_OD / 2 + 3.0)
-                 - cylinder([0, 0, 0], [0, 0, top + 1], ex.PVC34_OD / 2 + 0.15))  # tube socket up to the PVC top
-    # otherwise the PVC ends inside the flange bore (held by the hub pinch clamp below it)
+        t = t + (cylinder([0, 0, ex.FLANGE_Z[1] - 0.5], [0, 0, top], ex.TURRET_TUBE_OD / 2 + 3.0)
+                 - cylinder([0, 0, 0], [0, 0, top + 1], ex.TURRET_TUBE_OD / 2 + 0.15))  # tube socket up to the tube top
+    # otherwise the tube ends inside the flange bore (held by the hub pinch clamp below it)
     return t
 
 
