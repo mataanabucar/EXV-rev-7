@@ -29,10 +29,14 @@ GROOVE_FLANGE_T = 1.5            # flange thickness at the rim
 ROPE_HOLE = 2.4                  # rope pass-through holes
 PTFE_BORE = 4.15                 # counterbore for 4 mm OD PTFE tube (tube end stop)
 
-BOOM_DRIVE_R = 9.0               # 8-32 rod keying the boom drum to the boom walls
-STICK_DRIVE_R = 7.2
+# drum keying: an M3 screw threads into each drum face; its head sits in a socket in the
+# member's inner wall (the drum turns with its own member). Angle in the drum print frame.
+BOOM_DRIVE_R, BOOM_DRIVE_ANG = 9.0, -60.0
+STICK_DRIVE_R, STICK_DRIVE_ANG = 7.2, -90.0
+M3_TAP = 2.6                     # pilot hole for an M3 screw in plastic
+CLAMP_SLIT = 1.5
 
-AXLE_JOURNAL_D = 13.0            # bucket drum-axle journal in the stick nose
+AXLE_JOURNAL_D = 12.2            # turns in the existing Ø12.7 hole in the stick nose (no change to the stick)
 AXLE_HEX_AF = 12.0               # hex ends keyed into bucket ears G/H
 AXLE_Z = dict(drum=5.0, cone=9.5, journal=18.9, hex=24.5)   # half-lengths along the axle
 
@@ -84,23 +88,39 @@ def x_hole(d, length, y, z):
 
 
 # ---------------------------------------------------------------- joint drums
-def joint_drum(pitch, width, lip, drive_r):
-    """Boom / stick drum: single groove, 8-32 pivot bore, 8-32 drive-rod hole, crimp pocket.
+def joint_drum(pitch, width, lip, drive_r, drive_ang):
+    """Boom / stick drum: single groove, 8-32 pivot bore, crimp pocket, M3 key-screw pilot.
 
-    The drum is keyed to its own member by the drive rod, so it turns with that member."""
+    An M3 screw in each face keys the drum to its own member (head in a wall socket),
+    so the drum turns with that member."""
     prof, rc, rf = groove_profile(pitch, width, BORE / 2, lip=lip)
     d = revolve(prof)
     d = d.cut(crimp_pocket(rc, rc - 4.5, 90.0, rf))
-    d = d.cut(z_cyl(BORE / 2, -width, width, 0, -drive_r))
+    a = math.radians(drive_ang)
+    d = d.cut(z_cyl(M3_TAP / 2, -width, width, drive_r * math.cos(a), drive_r * math.sin(a)))
     return d
 
 
 def boom_drum():
-    return joint_drum(ex.DRUM["boom"]["pitch"], ex.DRUM["boom"]["width"], 3.3, BOOM_DRIVE_R)
+    return joint_drum(ex.DRUM["boom"]["pitch"], ex.DRUM["boom"]["width"], 3.3, BOOM_DRIVE_R, BOOM_DRIVE_ANG)
 
 
 def stick_drum():
-    return joint_drum(ex.DRUM["stick"]["pitch"], ex.DRUM["stick"]["width"], 2.9, STICK_DRIVE_R)
+    return joint_drum(ex.DRUM["stick"]["pitch"], ex.DRUM["stick"]["width"], 2.9, STICK_DRIVE_R, STICK_DRIVE_ANG)
+
+
+def pinch_clamp(part, r_bore, r_out, z0, z1, bolt_z, boss=True):
+    """Split-clamp a tube bore: radial slit + tangential M3 pinch bolt that stays outside the bore."""
+    y_bolt = (r_bore + r_out) / 2 + (1.5 if boss else 0.0)
+    if boss:
+        part = part.union(cq.Workplane("XY").box(18, 8, z1 - z0).translate((0, r_out + 1.0, (z0 + z1) / 2)))
+    part = part.cut(cq.Workplane("XY").box(CLAMP_SLIT, r_out + 8, z1 - z0 + 2)
+                    .translate((0, (r_out + 8) / 2 + r_bore - 1, (z0 + z1) / 2)))
+    part = part.cut(x_hole(M3, 60, y_bolt, bolt_z))
+    part = part.cut(cq.Workplane("YZ").circle(M3_HEAD_D / 2).extrude(20).translate((6.0, y_bolt, bolt_z)))
+    part = part.cut(cq.Workplane("YZ").polygon(6, M3_NUT_AF / math.cos(math.pi / 6)).extrude(20)
+                    .translate((-26.0, y_bolt, bolt_z)))
+    return part
 
 
 def bucket_drum_axle():
@@ -135,9 +155,8 @@ def slew_drum():
     d = rim.union(web).union(hub)
     d = d.cut(z_cyl(SLEW_BORE / 2, -20, 30))
     d = d.cut(crimp_pocket(rc, rc - 4.5, 90.0, rf))
-    d = d.cut(x_hole(M3, 60, 0, 15.0))
-    for sgn in (1, -1):                                   # head / nut recesses
-        d = d.cut(cq.Workplane("YZ").circle(M3_HEAD_D / 2).extrude(10).translate((sgn * (SLEW_HUB_R - 2.0) - (10 if sgn < 0 else 0), 0, 15.0)))
+    # split clamp on the PVC tube (pinch bolt outside the tube bore - cables run inside the tube)
+    d = pinch_clamp(d, SLEW_BORE / 2, SLEW_HUB_R, -width / 2 + 6.0, 23.0, 14.0)
     return d
 
 
@@ -167,14 +186,22 @@ def retaining_ring():
     return ring
 
 
+TURRET_HUB_R, TURRET_HUB_Z = 20.5, (3.0, 17.0)   # clamp hub under the flange, inside the base hole
+
+
 def turret_flange():
-    """Circular turret flange = inner race. Union onto the lowered tower (B3)."""
+    """Circular turret flange = inner race, plus a split-clamp hub below it that grips the
+    rotating PVC tube (tightened before the turret is lowered onto the balls).
+    Union onto the lowered tower (B3). Design frame, built position."""
     g = race_geometry()
     z0, z1, zb = ex.FLANGE_Z[0], ex.FLANGE_Z[1], ex.BALL_Z
     r_apex = g["inner_at_joint"]
-    pts = [(ex.PVC34_OD / 2 + 0.3, z0), (r_apex + (zb - z0), z0), (r_apex, zb), (r_apex + (z1 - zb), z1),
-           (ex.PVC34_OD / 2 + 0.3, z1)]
-    return revolve(pts)
+    rb = ex.PVC34_OD / 2 + 0.15
+    pts = [(rb, z0), (r_apex + (zb - z0), z0), (r_apex, zb), (r_apex + (z1 - zb), z1), (rb, z1)]
+    fl = revolve(pts)
+    hub = z_cyl(TURRET_HUB_R, TURRET_HUB_Z[0], z0 + 0.5).cut(z_cyl(rb, TURRET_HUB_Z[0] - 1, z1 + 1))
+    hub = pinch_clamp(hub, rb, TURRET_HUB_R, TURRET_HUB_Z[0], z0 - 0.5, (TURRET_HUB_Z[0] + z0) / 2, boss=False)
+    return fl.union(hub)
 
 
 def base_race_rim():

@@ -192,8 +192,9 @@ def to_manifold(mesh):
 
 
 def from_manifold(man):
+    """Manifold -> trimesh without re-processing (processing deletes slivers and opens holes)."""
     m = man.to_mesh()
-    return trimesh.Trimesh(np.asarray(m.vert_properties)[:, :3], np.asarray(m.tri_verts), process=True)
+    return trimesh.Trimesh(np.asarray(m.vert_properties)[:, :3], np.asarray(m.tri_verts), process=False)
 
 
 def shift_z(mesh, dz):
