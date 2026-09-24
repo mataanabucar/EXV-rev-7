@@ -122,3 +122,15 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 - `Source/` — every script (all parameters in `2026-09-24-exma_common.py`).
 - `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step`; `3MF/` A1 plates; `2026-09-24-ex-ma-assembly.glb` every part in one file.
 - `2026-09-24-bill-of-materials.md`, `2026-09-24-cut-list.md`, `Validation/`, `Preview/`.
+
+## Review views
+
+Rendered from the exported parts, wood panels and hardware. Every coloured rope (boom green, stick blue, bucket red, slew purple) is the continuous modelled path from `Source/2026-09-24-cable-paths.py` (built pose, joints at 0°); PTFE tubes are drawn translucent around their ropes.
+
+1. `Preview/2026-09-24-view1-complete-excavator.png` — Complete excavator: control box with the 3 levers and the slew wheel, pedestal, base, arm, bucket.
+2. `Preview/2026-09-24-view2-full-system-cutaway.png` — Full-system cutaway (+v halves removed): every rope from its lever or wheel through the conduit, pedestal, copper elbow and PEX tube to its joint.
+3. `Preview/2026-09-24-view3-control-box-cutaway.png` — Control box: lever hubs on the 5/16in axle, drums and rope anchors, bearing blocks, slew spool and riser, sleeve posts, box conduit fitting.
+4. `Preview/2026-09-24-view4-boom-joint.png` — Boom joint: boom drum and crimp pocket, split pins, boom ropes rising from the PEX tube, stick and bucket PTFE tubes crossing the boom axis.
+5. `Preview/2026-09-24-view5-stick-joint.png` — Stick joint: stick drum, split pins, stick tube stops in the boom, bucket tubes crossing the stick axis.
+6. `Preview/2026-09-24-view6-bucket-joint.png` — Bucket joint: bucket drum-axle with hex ends in the ears, bucket tube stops in the stick.
+7. `Preview/2026-09-24-view7-slew-detail.png` — Slew path, cut just above the slew-rope layer: wheel → spool → PTFE sleeves → conduit → pedestal fitting → slew drum on the PEX tube → turret.

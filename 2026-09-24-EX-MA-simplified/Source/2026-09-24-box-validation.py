@@ -325,37 +325,21 @@ def analytic():
 
 
 def cut_lengths():
-    """Approximate rope and PTFE cut lengths (mm), without crimp tails (add 60 mm per double-crimp
-    loop). Arm rope = box strand + lever wrap + fittings + conduit + pedestal + elbow + turret tube +
-    arm path (PTFE arm length for stick / bucket) + joint-drum wrap at mid-range (90 deg)."""
-    kin = json.loads((ex.OUT / "Validation" / "2026-09-24-kinematics-data.json").read_text())
-    lower = (2 * ex.FIT_T + rt.CONDUIT_RUN + (-ex.ELBOW_R - (ex.PED_U[0] + ex.T_WOOD + ex.FIT_T))
-             + math.pi / 2 * ex.ELBOW_R + (rt.TUBE_TOP_Z + ex.TURRET_DZ) - (ex.Z_ARM_LAYER + ex.ELBOW_R))
+    """Rope and PTFE cut lengths (mm) measured along the continuous modelled paths
+    (2026-09-24-cable-paths.py), without crimp tails (add 60 mm per double-crimp loop)."""
+    cp = _load("cp", "2026-09-24-cable-paths.py")
+    P = cp.all_paths()
+    L = {n: float(np.sum(np.linalg.norm(np.diff(cp.polyline(e), axis=0), axis=1))) for n, e in P.items()}
     out = {}
     for j in ("boom", "stick", "bucket"):
-        strands = bx.lever_strands(j, 0.0)
-        box = sum(np.linalg.norm(s["hole"] - s["tangent"]) + math.radians(s["wrap_deg"]) * bx.R_LEVER for s in strands)
-        r_j = ex.DRUM[j]["pitch"] / 2
-        if j == "boom":
-            arm = 2 * ((ex.P_BOOM[1] - (rt.TUBE_TOP_Z + ex.TURRET_DZ)) + math.radians(90) * r_j)
-        else:
-            tubes = [t for t in kin["tubes"] if kin["tubes"][t] and t.startswith(j)]
-            arm = 0.0
-            for t in tubes:
-                _, stop, _ = rt.tube_stop(t)
-                piv = np.array(ex.P_STICK0 if j == "stick" else ex.P_BUCKET0)
-                beyond = max(np.linalg.norm(np.array([stop[0], stop[2]]) - piv) - r_j, 0.0)
-                arm += kin["tubes"][t]["arm_length"] + beyond + math.radians(90) * r_j
-        out[f"{j} rope (one length, midpoint crimp)"] = box + 2 * lower + arm
-    for t, v in kin["tubes"].items():
-        out[f"PTFE {t} (box fitting -> arm stop)"] = v["length"]
+        out[f"{j} rope (one length, midpoint crimp)"] = L[f"{j} upper tail"] + L[f"{j} lower tail"]
+    for n, e in P.items():
+        if e.get("tube"):
+            seg = e["ptfe"][0]
+            out[f"PTFE {e['tube']} (box fitting -> arm stop)"] = float(np.sum(np.linalg.norm(np.diff(seg, axis=0), axis=1))) + 11.0
     for lane in "AB":
-        sl = bx.slew_sleeve(lane)
-        out[f"PTFE slew sleeve {lane} (post -> pedestal fitting)"] = sl["length"] + 12.0
-        free_box, free_ped = bx.slew_rope_free(lane)
-        rope = (sl["length"] + 12.0 + 8.0 + np.linalg.norm(free_box[1] - free_box[0])
-                + np.linalg.norm(free_ped[1] - free_ped[0]) + 2 * math.pi * bx.R_SLEW / 2 + 2 * 30.0)
-        out[f"slew rope {lane} (spool anchor -> pedestal crimp)"] = rope
+        out[f"PTFE slew sleeve {lane} (post -> pedestal fitting)"] = bx.slew_sleeve(lane)["length"] + 12.0
+        out[f"slew rope {lane} (spool anchor -> pedestal crimp)"] = L[f"slew rope {lane}"]
     return out
 
 
@@ -413,8 +397,8 @@ def main():
     for k, v in an.items():
         L.append(f"- {k}: {v:.2f}" if isinstance(v, float) else f"- {k}: {v}")
     cl = cut_lengths()
-    L += ["", "## Approximate cut lengths (for the bill of materials)", "",
-          "Without crimp tails: add about 60 mm for each double-crimp loop. Final lengths go in the B6 bill of materials.", "",
+    L += ["", "## Cut lengths (measured along the modelled cable paths)", "",
+          "Measured along the continuous paths in 2026-09-24-cable-paths.py, without crimp tails (the bill of materials adds 60 mm per double-crimp loop).", "",
           "| Item | Length |", "|---|---|"]
     for k, v in cl.items():
         L.append(f"| {k} | {v:.0f} mm |")

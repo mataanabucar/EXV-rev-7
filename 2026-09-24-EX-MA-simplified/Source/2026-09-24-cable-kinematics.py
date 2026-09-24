@@ -120,10 +120,12 @@ TUBE_R = ex.PTFE_OD / 2
 MIN_BEND_R = 15.0                  # PTFE 4x2 bends without kinking above ~15 mm
 MIN_GAP = 0.5                      # tube surface to any member in the free zones
 # fixed tube run below the tube top: box fitting -> conduit -> pedestal fitting -> elbow -> PEX turret tube
-LOWER_RUN = (rt.CONDUIT_RUN                                          # box fitting -> pedestal fitting
+# (the arm path from routing.natural() already starts at the bottom of the turret tube)
+LOWER_RUN = (11.0                                                     # seated in the box-fitting counterbore
+             + rt.CONDUIT_RUN                                          # box fitting -> pedestal fitting
              + (-ex.ELBOW_R - (ex.PED_U[0] + ex.T_WOOD + ex.CONDUIT_SOCKET))   # pedestal fitting -> elbow
              + math.pi / 2 * ex.ELBOW_R                                 # R30 elbow
-             + (rt.TUBE_TOP_Z + DZ) - (ex.Z_ARM_LAYER + ex.ELBOW_R))     # elbow top -> turret-tube top (built)
+             + (rt.TUBE_BOTTOM_Z + DZ) - (ex.Z_ARM_LAYER + ex.ELBOW_R))  # elbow top -> turret-tube bottom (built)
 
 
 def _free_mask(poly, zones):

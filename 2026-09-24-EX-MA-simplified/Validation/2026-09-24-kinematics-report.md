@@ -35,10 +35,10 @@ Grid: boom × stick working ranges, 5 × 5 poses. Tubes are anchored in the cont
 
 | Tube | Cut length (approx.) | Arm path length range | Spare length in the conduit | Worst bend R in the arm | Conduit helix radius / bend R | Worst free-zone clearance | Bowden coupling |
 |---|---|---|---|---|---|---|---|
-| stick_hi | 749 mm | 379.7 … 381.0 mm | 2.0 … 3.3 mm | 20.0 mm | ≤ 4.9 mm / ≥ 108 mm | 0.6 mm (boom at [9.0, 10.0, 97.0], boom -40°, stick -45°) | ≤ 0.20 mm |
-| stick_lo | 753 mm | 383.5 … 384.8 mm | 2.0 … 3.3 mm | 20.0 mm | ≤ 4.9 mm / ≥ 108 mm | 0.6 mm (boom at [9.0, -10.0, 97.0], boom -40°, stick -45°) | ≤ 0.20 mm |
-| bucket_hi | 915 mm | 538.7 … 547.2 mm | 2.0 … 10.5 mm | 15.3 mm | ≤ 8.8 mm / ≥ 66 mm | 0.6 mm (boom at [9.0, 14.0, 97.0], boom -40°, stick -45°) | ≤ 0.66 mm |
-| bucket_lo | 917 mm | 540.6 … 549.1 mm | 2.0 … 10.5 mm | 15.3 mm | ≤ 8.8 mm / ≥ 66 mm | 0.6 mm (boom at [9.0, -14.0, 97.0], boom -40°, stick -45°) | ≤ 0.66 mm |
+| stick_hi | 640 mm | 379.7 … 381.0 mm | 2.0 … 3.3 mm | 20.0 mm | ≤ 4.9 mm / ≥ 108 mm | 0.6 mm (boom at [9.0, 10.0, 97.0], boom -40°, stick -45°) | ≤ 0.20 mm |
+| stick_lo | 644 mm | 383.5 … 384.8 mm | 2.0 … 3.3 mm | 20.0 mm | ≤ 4.9 mm / ≥ 108 mm | 0.6 mm (boom at [9.0, -10.0, 97.0], boom -40°, stick -45°) | ≤ 0.20 mm |
+| bucket_hi | 806 mm | 538.7 … 547.2 mm | 2.0 … 10.5 mm | 15.3 mm | ≤ 8.8 mm / ≥ 66 mm | 0.6 mm (boom at [9.0, 14.0, 97.0], boom -40°, stick -45°) | ≤ 0.66 mm |
+| bucket_lo | 808 mm | 540.6 … 549.1 mm | 2.0 … 10.5 mm | 15.3 mm | ≤ 8.8 mm / ≥ 66 mm | 0.6 mm (boom at [9.0, -14.0, 97.0], boom -40°, stick -45°) | ≤ 0.66 mm |
 
 - Bend radius ≥ 15 mm everywhere (arm and conduit): yes.
 - Tube surface ≥ 0.5 mm from every member and split pin in the free zones: yes.

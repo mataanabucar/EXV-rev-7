@@ -78,14 +78,14 @@ Without crimp tails: add about 60 mm for each double-crimp loop. Final lengths g
 
 | Item | Length |
 |---|---|
-| boom rope (one length, midpoint crimp) | 1307 mm |
-| stick rope (one length, midpoint crimp) | 1963 mm |
-| bucket rope (one length, midpoint crimp) | 2324 mm |
-| PTFE stick_hi (box fitting -> arm stop) | 749 mm |
-| PTFE stick_lo (box fitting -> arm stop) | 753 mm |
-| PTFE bucket_hi (box fitting -> arm stop) | 915 mm |
-| PTFE bucket_lo (box fitting -> arm stop) | 917 mm |
+| boom rope (one length, midpoint crimp) | 1264 mm |
+| stick rope (one length, midpoint crimp) | 1701 mm |
+| bucket rope (one length, midpoint crimp) | 2053 mm |
+| PTFE stick_hi (box fitting -> arm stop) | 637 mm |
+| PTFE stick_lo (box fitting -> arm stop) | 648 mm |
+| PTFE bucket_hi (box fitting -> arm stop) | 803 mm |
+| PTFE bucket_lo (box fitting -> arm stop) | 812 mm |
 | PTFE slew sleeve A (post -> pedestal fitting) | 329 mm |
-| slew rope A (spool anchor -> pedestal crimp) | 662 mm |
+| slew rope A (spool anchor -> pedestal crimp) | 769 mm |
 | PTFE slew sleeve B (post -> pedestal fitting) | 397 mm |
-| slew rope B (spool anchor -> pedestal crimp) | 735 mm |
+| slew rope B (spool anchor -> pedestal crimp) | 840 mm |

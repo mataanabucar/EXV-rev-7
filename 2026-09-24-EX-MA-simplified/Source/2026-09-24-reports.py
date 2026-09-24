@@ -27,6 +27,20 @@ KIN = json.loads((VAL / "2026-09-24-kinematics-data.json").read_text())
 BOX = json.loads((VAL / "2026-09-24-box-data.json").read_text())
 PKG = json.loads((VAL / "2026-09-24-package-check.json").read_text())
 EXT = (VAL / "2026-09-24-exterior-check.txt").read_text()
+CAB = json.loads((VAL / "2026-09-24-cable-paths.json").read_text())
+VIEWS = [   # Preview/2026-09-24-<key>.png, rendered by render-scene.py (view set b7) + concept-render.mjs
+    ("view1-complete-excavator", "Complete excavator: control box with the 3 levers and the slew wheel, pedestal, base, arm, bucket."),
+    ("view2-full-system-cutaway", "Full-system cutaway (+v halves removed): every rope from its lever or wheel through the conduit, "
+                                  "pedestal, copper elbow and PEX tube to its joint."),
+    ("view3-control-box-cutaway", "Control box: lever hubs on the 5/16in axle, drums and rope anchors, bearing blocks, slew spool "
+                                  "and riser, sleeve posts, box conduit fitting."),
+    ("view4-boom-joint", "Boom joint: boom drum and crimp pocket, split pins, boom ropes rising from the PEX tube, "
+                         "stick and bucket PTFE tubes crossing the boom axis."),
+    ("view5-stick-joint", "Stick joint: stick drum, split pins, stick tube stops in the boom, bucket tubes crossing the stick axis."),
+    ("view6-bucket-joint", "Bucket joint: bucket drum-axle with hex ends in the ears, bucket tube stops in the stick."),
+    ("view7-slew-detail", "Slew path, cut just above the slew-rope layer: wheel → spool → PTFE sleeves → conduit → "
+                          "pedestal fitting → slew drum on the PEX tube → turret."),
+]
 
 
 def tower_deviation():
@@ -245,6 +259,15 @@ def architecture():
     add("- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step`; `3MF/` A1 plates; "
         "`2026-09-24-ex-ma-assembly.glb` every part in one file.")
     add("- `2026-09-24-bill-of-materials.md`, `2026-09-24-cut-list.md`, `Validation/`, `Preview/`.")
+    add("")
+    add("## Review views")
+    add("")
+    add("Rendered from the exported parts, wood panels and hardware. Every coloured rope (boom green, stick blue, "
+        "bucket red, slew purple) is the continuous modelled path from `Source/2026-09-24-cable-paths.py` "
+        "(built pose, joints at 0°); PTFE tubes are drawn translucent around their ropes.")
+    add("")
+    for i, (k, d) in enumerate(VIEWS, 1):
+        add(f"{i}. `Preview/2026-09-24-{k}.png` — {d}")
     return "\n".join(L) + "\n"
 
 
@@ -297,6 +320,9 @@ def validation():
                  ok(an['lever axle sag, threaded (root 6.6)'] <= 1)))
     rows.append(("PEX deflection at the slew drum", "≤ 0.5 mm", f"{an['PEX deflection at the drum, with the shelf bushing (mm)']:.2f} mm",
                  ok(an['PEX deflection at the drum, with the shelf bushing (mm)'] <= 0.5)))
+    gap = max(r["max_gap"] for r in CAB["ropes"])
+    rows.append(("Every rope modelled as one continuous path", f"{len(CAB['ropes'])} rope tails, gap < 0.5 mm",
+                 f"max gap {gap:.2f} mm", ok(gap < 0.5)))
     parts = PKG["parts"]
     rows.append(("Every printed STL watertight, one body", f"{len(parts)} parts",
                  f"{sum(p['watertight'] and p['bodies'] == 1 for p in parts)}/{len(parts)}",
@@ -316,7 +342,7 @@ def validation():
     L = ["# EX-MA — validation summary", "",
          "One line per criterion; details in the reports next to this file:",
          "`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, "
-         "`2026-09-24-package-check.json`.", "",
+         "`2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`.", "",
          "| Check | Target | Result | Status |", "|---|---|---|---|"]
     for r in rows:
         L.append(f"| {r[0]} | {r[1]} | {r[2]} | {r[3]} |")

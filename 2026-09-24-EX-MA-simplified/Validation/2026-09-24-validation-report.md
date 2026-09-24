@@ -1,7 +1,7 @@
 # EX-MA — validation summary
 
 One line per criterion; details in the reports next to this file:
-`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, `2026-09-24-package-check.json`.
+`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, `2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`.
 
 | Check | Target | Result | Status |
 |---|---|---|---|
@@ -24,13 +24,14 @@ One line per criterion; details in the reports next to this file:
 | Rope-to-rope spacing in the box | ≥ 2 mm | 2.4 mm | pass |
 | Lever axle sag (threaded 5/16in, 100 N) | ≤ 1 mm | 0.58 mm | pass |
 | PEX deflection at the slew drum | ≤ 0.5 mm | 0.33 mm | pass |
+| Every rope modelled as one continuous path | 8 rope tails, gap < 0.5 mm | max gap 0.00 mm | pass |
 | Every printed STL watertight, one body | 25 parts | 25/25 | pass |
 | Every printed part fits the A1 bed | ≤ 246 × 246 × 256 mm | 25/25 | pass |
 | Every part STEP imports as one solid | 16 files | 16/16 | pass |
 | Assembly STEP re-imports completely | 108 solids | 108 | pass |
 | 3MF plates reload, inside the bed, no overlaps | 7 plates | 7/7 | pass |
 
-**24 of 24 checks pass.**
+**25 of 25 checks pass.**
 
 ## Not checked by the model
 

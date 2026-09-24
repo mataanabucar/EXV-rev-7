@@ -101,17 +101,17 @@ PTFE tube = the white 4 mm OD / 2 mm ID filament (Bowden) tube used on 3D printe
 
 | Item | Qty | Size / length | Used for |
 |---|---|---|---|
-| 1/16in galvanized 7x19 rope (have) | 1 | 1427 mm | boom circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
-| 1/16in galvanized 7x19 rope (have) | 1 | 2083 mm | stick circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
-| 1/16in galvanized 7x19 rope (have) | 1 | 2444 mm | bucket circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
-| 1/16in galvanized 7x19 rope (have) | 1 | 722 mm | slew rope A: single crimp in the pedestal drum pocket, double-crimp loop on the spool anchor |
-| 1/16in galvanized 7x19 rope (have) | 1 | 795 mm | slew rope B: single crimp in the pedestal drum pocket, double-crimp loop on the spool anchor |
+| 1/16in galvanized 7x19 rope (have) | 1 | 1384 mm | boom circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 1821 mm | stick circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 2173 mm | bucket circuit: one length, single crimp at the midpoint on the joint drum, double-crimp loops on the lever anchors (+60 mm per loop included) |
+| 1/16in galvanized 7x19 rope (have) | 1 | 829 mm | slew rope A: single crimp in the pedestal drum pocket, double-crimp loop on the spool anchor |
+| 1/16in galvanized 7x19 rope (have) | 1 | 900 mm | slew rope B: single crimp in the pedestal drum pocket, double-crimp loop on the spool anchor |
 | single crimp sleeve (have) | 5 | 1/16in | 3 joint-drum midpoints + 2 slew rope ends (+ spares) |
 | double crimp sleeve (have) | 8 | 1/16in | 6 arm tail loops + 2 slew loops (+ spares) |
-| PTFE tube 4 mm OD × 2 mm ID | 1 | 759 mm | stick_hi (box fitting -> arm stop) (+10 mm to trim) |
-| PTFE tube 4 mm OD × 2 mm ID | 1 | 763 mm | stick_lo (box fitting -> arm stop) (+10 mm to trim) |
-| PTFE tube 4 mm OD × 2 mm ID | 1 | 925 mm | bucket_hi (box fitting -> arm stop) (+10 mm to trim) |
-| PTFE tube 4 mm OD × 2 mm ID | 1 | 927 mm | bucket_lo (box fitting -> arm stop) (+10 mm to trim) |
+| PTFE tube 4 mm OD × 2 mm ID | 1 | 647 mm | stick_hi (box fitting -> arm stop) (+10 mm to trim) |
+| PTFE tube 4 mm OD × 2 mm ID | 1 | 658 mm | stick_lo (box fitting -> arm stop) (+10 mm to trim) |
+| PTFE tube 4 mm OD × 2 mm ID | 1 | 813 mm | bucket_hi (box fitting -> arm stop) (+10 mm to trim) |
+| PTFE tube 4 mm OD × 2 mm ID | 1 | 822 mm | bucket_lo (box fitting -> arm stop) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 339 mm | slew sleeve A (post -> pedestal fitting) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 407 mm | slew sleeve B (post -> pedestal fitting) (+10 mm to trim) |
 | 5/16in rod (have) | 2 | 205 mm, 274 mm | lever axle; slew spool axle |
@@ -125,7 +125,7 @@ PTFE tube = the white 4 mm OD / 2 mm ID filament (Bowden) tube used on 3D printe
 | 12 mm plywood | see cut list |  | control box, pedestal, sandbox (2026-09-24-cut-list.md) |
 | glue |  | wood glue; epoxy or CA | panel joints; bucket ears to the bucket lugs (as in the original EX-MA) |
 
-Rope total: 7.5 m (have at least 9 m, which includes 20 % spare). PTFE tube total: 4.1 m — buy one 5 m roll.
+Rope total: 7.1 m (have at least 9 m, which includes 20 % spare). PTFE tube total: 3.7 m — buy one 5 m roll.
 
 M3 sizes all fit inside the kit's counts.
 

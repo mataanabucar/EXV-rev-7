@@ -192,17 +192,17 @@
   }
  },
  "cut_lengths": {
-  "boom rope (one length, midpoint crimp)": 1307.3241804104925,
-  "stick rope (one length, midpoint crimp)": 1962.8025945771005,
-  "bucket rope (one length, midpoint crimp)": 2323.739456430655,
-  "PTFE stick_hi (box fitting -> arm stop)": 749.144009202698,
-  "PTFE stick_lo (box fitting -> arm stop)": 752.9118128452667,
-  "PTFE bucket_hi (box fitting -> arm stop)": 915.3071778209983,
-  "PTFE bucket_lo (box fitting -> arm stop)": 917.2443686571046,
+  "boom rope (one length, midpoint crimp)": 1263.7059086514664,
+  "stick rope (one length, midpoint crimp)": 1700.8391256394168,
+  "bucket rope (one length, midpoint crimp)": 2052.7998398986424,
+  "PTFE stick_hi (box fitting -> arm stop)": 636.931561797878,
+  "PTFE stick_lo (box fitting -> arm stop)": 647.6077116645151,
+  "PTFE bucket_hi (box fitting -> arm stop)": 803.229550090551,
+  "PTFE bucket_lo (box fitting -> arm stop)": 812.0793430712768,
   "PTFE slew sleeve A (post -> pedestal fitting)": 328.5048818286412,
-  "slew rope A (spool anchor -> pedestal crimp)": 661.6581634948161,
+  "slew rope A (spool anchor -> pedestal crimp)": 769.4126028905143,
   "PTFE slew sleeve B (post -> pedestal fitting)": 397.0402130941059,
-  "slew rope B (spool anchor -> pedestal crimp)": 734.5536575589945
+  "slew rope B (spool anchor -> pedestal crimp)": 840.0798385103235
  },
  "slew_wraps": {
   "-90": {
