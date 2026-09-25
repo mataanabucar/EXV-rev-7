@@ -13,8 +13,8 @@
  "solids_in_file": 131,
  "solids_on_reimport": 131,
  "reimport_status": 1,
- "step_mb": 336.9,
- "zip_mb": 63.6,
+ "step_mb": 333.6,
+ "zip_mb": 62.6,
  "mesh_parts": {
   "tower": {
    "triangles": 4536,
@@ -24,7 +24,7 @@
    "valid": true,
    "volume": 130227.5,
    "volume_error_pct": 0.0,
-   "seconds": 3.1
+   "seconds": 3.2
   },
   "base": {
    "triangles": 9606,
@@ -34,78 +34,78 @@
    "valid": true,
    "volume": 157572.2,
    "volume_error_pct": 0.0,
-   "seconds": 8.9
+   "seconds": 9.4
   },
   "boom-half-left": {
-   "triangles": 57408,
-   "faces": 28447,
-   "merged_planar_faces": 6203,
+   "triangles": 55990,
+   "faces": 26658,
+   "merged_planar_faces": 6169,
    "shells": 1,
    "valid": true,
-   "volume": 60222.0,
+   "volume": 59991.3,
    "volume_error_pct": 0.0001,
-   "seconds": 98.0
+   "seconds": 92.9
   },
   "boom-half-right": {
-   "triangles": 53298,
-   "faces": 53298,
-   "merged_planar_faces": 6155,
+   "triangles": 49918,
+   "faces": 49918,
+   "merged_planar_faces": 5767,
    "shells": 1,
    "valid": true,
-   "volume": 56076.5,
+   "volume": 55859.2,
    "volume_error_pct": 0.0,
    "fallback": "triangle sewing",
-   "seconds": 166.8
+   "seconds": 152.2
   },
   "stick-half-left": {
-   "triangles": 19644,
-   "faces": 9309,
-   "merged_planar_faces": 2480,
+   "triangles": 23500,
+   "faces": 10397,
+   "merged_planar_faces": 3570,
    "shells": 1,
    "valid": true,
-   "volume": 39051.2,
-   "volume_error_pct": 0.0008,
-   "seconds": 26.1
+   "volume": 42804.1,
+   "volume_error_pct": 0.0001,
+   "seconds": 34.4
   },
   "stick-half-right": {
-   "triangles": 18864,
-   "faces": 8871,
-   "merged_planar_faces": 2450,
+   "triangles": 22272,
+   "faces": 9497,
+   "merged_planar_faces": 3448,
    "shells": 1,
    "valid": true,
-   "volume": 37295.8,
-   "volume_error_pct": 0.001,
-   "seconds": 25.7
+   "volume": 41141.0,
+   "volume_error_pct": 0.0003,
+   "seconds": 30.6
   },
   "bucket-ear-left": {
-   "triangles": 1038,
-   "faces": 530,
-   "merged_planar_faces": 252,
+   "triangles": 1092,
+   "faces": 389,
+   "merged_planar_faces": 266,
    "shells": 1,
    "valid": true,
-   "volume": 2223.2,
+   "volume": 2279.8,
    "volume_error_pct": 0.0,
    "seconds": 1.2
   },
   "bucket-ear-right": {
-   "triangles": 1348,
-   "faces": 731,
-   "merged_planar_faces": 290,
+   "triangles": 1382,
+   "faces": 668,
+   "merged_planar_faces": 300,
    "shells": 1,
    "valid": true,
-   "volume": 2246.5,
+   "volume": 2293.0,
    "volume_error_pct": 0.0,
-   "seconds": 1.9
+   "seconds": 1.6
   },
   "bucket": {
-   "triangles": 2764,
-   "faces": 1102,
-   "merged_planar_faces": 640,
+   "triangles": 3934,
+   "faces": 1687,
+   "merged_planar_faces": 771,
    "shells": 1,
    "valid": true,
-   "volume": 25423.8,
+   "volume": 27826.2,
    "volume_error_pct": 0.0,
-   "seconds": 3.1
+   "seconds": 4.9
   }
  },
  "cables": {

@@ -25,8 +25,8 @@ One line per criterion; details in the reports next to this file:
 | Lever axle sag (threaded 5/16in, 100 N) | ≤ 1 mm | 0.58 mm | pass |
 | PEX deflection at the slew drum | ≤ 0.5 mm | 0.33 mm | pass |
 | Every rope modelled as one continuous path | 8 rope tails, gap < 0.5 mm | max gap 0.00 mm | pass |
-| Full assembly STEP (zip): every item present, re-imports | 131 solids | 131 in file / 131 on re-import; 64 MB zipped | pass |
-| Full assembly: EX-MA meshes and ropes/tubes as valid solids | valid, volume error < 0.1 % | 9/9 parts (max 0.001 %), 14/14 ropes+tubes (max 0.000 %) | pass |
+| Full assembly STEP (zip): every item present, re-imports | 131 solids | 131 in file / 131 on re-import; 63 MB zipped | pass |
+| Full assembly: EX-MA meshes and ropes/tubes as valid solids | valid, volume error < 0.1 % | 9/9 parts (max 0.000 %), 14/14 ropes+tubes (max 0.000 %) | pass |
 | Walls printable with a 0.6 mm nozzle (in print orientation) | no patch ≥ 20 mm² under 1.0 mm | 25/25 parts; 44 small attached slivers listed | pass |
 | Every printed STL watertight, one body | 25 parts | 25/25 | pass |
 | Every printed part fits the A1 bed | ≤ 246 × 246 × 256 mm | 25/25 | pass |
