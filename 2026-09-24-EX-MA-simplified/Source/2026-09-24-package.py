@@ -422,9 +422,10 @@ def bom_md(rows, plates, H, totals):
          "Everything needed to build the simplified EX-MA arm, the wooden control box, the pedestal and the "
          "sandbox. Counts come from the build scripts (drum keys, lugs, bolts, balls), lengths from the "
          "validated rope and tube paths.", "",
-         "Print settings for every printed part: PLA or PETG, 0.2 mm layers, at least 4 walls and 40 % infill "
-         "(drums, hubs, clamps and anything carrying a pin), otherwise 20 %. Orientation below is the one with "
-         "the least support area; plates are in `3MF/`.", ""]
+         "Print settings for every printed part: 0.6 mm nozzle, PLA or PETG, 0.2 mm layers, at least 4 walls and "
+         "40 % infill (drums, hubs, clamps and anything carrying a pin), otherwise 20 %. Orientation below is the "
+         "one with the least support area; plates are in `3MF/`. Every wall was checked in that orientation for "
+         "the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).", ""]
     for kind, title in (("new", "Printed parts — new"), ("modified", "Printed parts — modified EX-MA parts")):
         L += [f"## {title}", "", "| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Plate |",
               "|---|---|---|---|---|---|---|---|---|"]

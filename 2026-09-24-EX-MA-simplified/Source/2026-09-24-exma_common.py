@@ -59,7 +59,7 @@ SLEW_LANE_OFF = 3.6                # slew drum / spool lanes at +-3.6 from the d
 # joint drums: pitch diameter (to rope centre), drum width
 DRUM = dict(boom=dict(pitch=30.0, width=14.0),      # boom root free radius 19.0
             stick=dict(pitch=26.0, width=10.0),     # stick root free radius 17.6
-            bucket=dict(pitch=17.0, width=10.0),    # stick nose free radius 11.5 (drum turns vs nose)
+            bucket=dict(pitch=17.0, width=10.0),    # flange r 9.5 turns 0.5 mm inside the solid stick nose (r 10.0)
             slew=dict(pitch=110.0, width=16.0),     # two lanes, one rope each (wrap >= 90 deg at +-90 slew)
             lever=dict(pitch=60.0, width=14.0))     # lever swing 40-52 deg over the working ranges
 

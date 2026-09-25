@@ -28,6 +28,8 @@ BOX = json.loads((VAL / "2026-09-24-box-data.json").read_text())
 PKG = json.loads((VAL / "2026-09-24-package-check.json").read_text())
 EXT = (VAL / "2026-09-24-exterior-check.txt").read_text()
 CAB = json.loads((VAL / "2026-09-24-cable-paths.json").read_text())
+_WALL = VAL / "2026-09-25-wall-check.json"
+WALL = json.loads(_WALL.read_text()) if _WALL.exists() else None
 _FULL = VAL / "2026-09-25-full-assembly-check.json"
 FULL = json.loads(_FULL.read_text()) if _FULL.exists() else None
 VIEWS = [   # Preview/2026-09-24-<key>.png, rendered by render-scene.py (view set b7) + concept-render.mjs
@@ -252,6 +254,14 @@ def architecture():
         "Measured hardware: 3/4in PEX-B turret tube, 5/16in lever axle, 1/2in copper OD 15.88 — user.",
         "Copper instead of PEX for the turret tube considered; kept PEX (the tube must turn with the turret) — user.",
         "Working ranges kept larger than the earlier build's (slew ±60, boom ±35, stick −45…+25, bucket ±50) — user.",
+        "Hardware from the user's own kits (Fgruh M3 kit, Hillman 8-32 rod + nuts), split-lock washers instead of nylocs, "
+        "wood screws on hand; PTFE kept — user.",
+        "Printing with a 0.6 mm nozzle: every wall checked in its print orientation (no patch ≥ 20 mm² under 1.0 mm) — user.",
+        "Stick nose (0.3–0.4 mm hood over the bucket drum, a 6 mm open slot beside it, a 0.9 mm ring round the pin) made "
+        "a solid rounded end inside the original r 12 outline; bucket drum flange lip 2.8 → 1.8 mm so the hood is 2 mm "
+        "thick — user (fill the slot; thicken inward).",
+        "Bucket floor 1.8 mm (it had a crack through the middle); bucket lug slits, back-plate top edge and the two unused "
+        "link-pin holes in bracket I filled; clip recess in each ear filled — user (fix every thin spot).",
     ]:
         add(f"- {d}")
     add("")
@@ -341,6 +351,13 @@ def validation():
                      ok(all(m["valid"] and m["volume_error_pct"] < 0.1 for m in mp)
                         and all(c["valid"] and c["solids"] == 1 and c["volume_error_pct"] < 0.1 for c in cb))))
     parts = PKG["parts"]
+    if WALL:
+        wp = WALL["parts"]
+        n_ok = sum(p["ok"] for p in wp)
+        slivers = sum(len(p["small_slivers"]) for p in wp)
+        rows.append(("Walls printable with a 0.6 mm nozzle (in print orientation)",
+                     f"no patch ≥ {WALL['fail_area_mm2']:.0f} mm² under {WALL['hard_min_mm']} mm",
+                     f"{n_ok}/{len(wp)} parts; {slivers} small attached slivers listed", ok(WALL["all_ok"])))
     rows.append(("Every printed STL watertight, one body", f"{len(parts)} parts",
                  f"{sum(p['watertight'] and p['bodies'] == 1 for p in parts)}/{len(parts)}",
                  ok(all(p["watertight"] and p["bodies"] == 1 for p in parts))))
@@ -359,7 +376,8 @@ def validation():
     L = ["# EX-MA — validation summary", "",
          "One line per criterion; details in the reports next to this file:",
          "`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, "
-         "`2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`, `2026-09-25-full-assembly-check.json`.", "",
+         "`2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`, `2026-09-25-full-assembly-check.json`, "
+         "`2026-09-25-wall-check.json`.", "",
          "| Check | Target | Result | Status |", "|---|---|---|---|"]
     for r in rows:
         L.append(f"| {r[0]} | {r[1]} | {r[2]} | {r[3]} |")

@@ -2,7 +2,7 @@
 
 Everything needed to build the simplified EX-MA arm, the wooden control box, the pedestal and the sandbox. Counts come from the build scripts (drum keys, lugs, bolts, balls), lengths from the validated rope and tube paths.
 
-Print settings for every printed part: PLA or PETG, 0.2 mm layers, at least 4 walls and 40 % infill (drums, hubs, clamps and anything carrying a pin), otherwise 20 %. Orientation below is the one with the least support area; plates are in `3MF/`.
+Print settings for every printed part: 0.6 mm nozzle, PLA or PETG, 0.2 mm layers, at least 4 walls and 40 % infill (drums, hubs, clamps and anything carrying a pin), otherwise 20 %. Orientation below is the one with the least support area; plates are in `3MF/`. Every wall was checked in that orientation for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
 
 ## Printed parts — new
 
@@ -10,10 +10,10 @@ Print settings for every printed part: PLA or PETG, 0.2 mm layers, at least 4 wa
 |---|---|---|---|---|---|---|---|---|
 | boom-drum | 1 | Ø30 pitch single-groove boom drum | 10.6 cm³ | 7 g | top face down | 35 × 35 × 14 | light (1.4 cm²) | 2 |
 | stick-drum | 1 | Ø26 pitch single-groove stick drum | 5.8 cm³ | 4 g | top face down | 30 × 30 × 10 | light (1.3 cm²) | 2 |
-| bucket-drum-axle | 1 | Ø17 pitch bucket drum with journals and hex ends | 7.3 cm³ | 5 g | top face down | 21 × 21 × 49 | light (0.9 cm²) | 2 |
-| slew-drum | 1 | Ø110 pitch two-lane slew drum on the rotating 3/4in PEX turret tube | 78.7 cm³ | 54 g | as modelled (bottom down) | 113 × 113 × 31 | yes (14 cm²) | 4 |
+| bucket-drum-axle | 1 | Ø17 pitch bucket drum with journals and hex ends | 6.6 cm³ | 5 g | top face down | 19 × 19 × 49 | light (0.7 cm²) | 2 |
+| slew-drum | 1 | Ø110 pitch two-lane slew drum on the rotating 3/4in PEX turret tube | 78.9 cm³ | 54 g | as modelled (bottom down) | 113 × 113 × 31 | yes (14 cm²) | 4 |
 | slewing-ring-retaining-ring | 1 | upper outer race, 8 x M3x12 | 19.9 cm³ | 14 g | top face down | 140 × 140 × 6 | none | 3 |
-| conduit-end-fitting-box | 1 | box end of the conduit: PTFE tube anchors | 133.9 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 6 |
+| conduit-end-fitting-box | 1 | box end of the conduit: PTFE tube anchors | 133.8 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 6 |
 | conduit-end-fitting-pedestal | 1 | pedestal end: PTFE tubes slide through into the copper elbow | 132.9 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 7 |
 | lever-hub-boom | 1 | boom lever hub + drag clamp, drum offset toward centre | 50.9 cm³ | 35 g | top face down | 65 × 66 × 70 | yes (36 cm²) | 2 |
 | lever-hub-stick | 1 | stick lever hub + drag clamp | 41.5 cm³ | 28 g | top face down | 65 × 66 × 34 | yes (34 cm²) | 2 |
@@ -21,7 +21,7 @@ Print settings for every printed part: PLA or PETG, 0.2 mm layers, at least 4 wa
 | slew-spool | 1 | wheel spool: Ø110 two-lane drum + tube + wheel flange | 124.2 cm³ | 85 g | as modelled (bottom down) | 113 × 113 × 145 | yes (21 cm²) | 4 |
 | slew-wheel | 1 | Ø184 horizontal hand wheel | 116.1 cm³ | 79 g | as modelled (bottom down) | 184 × 184 × 12 | yes (11 cm²) | 1 |
 | slew-tube-bushing | 1 | PEX turret-tube bushing in the pedestal shelf | 6.9 cm³ | 5 g | as modelled (bottom down) | 44 × 44 × 15 | none | 1 |
-| elbow-support | 1 | post + cable-tie saddle under the copper elbow | 19.7 cm³ | 13 g | as modelled (bottom down) | 44 × 24 × 57 | light (0.6 cm²) | 3 |
+| elbow-support | 1 | post + cable-tie saddle under the copper elbow | 24.4 cm³ | 17 g | as modelled (bottom down) | 44 × 24 × 57 | light (0.6 cm²) | 3 |
 | spool-riser | 1 | column from the box floor up to the slew spool | 58.4 cm³ | 40 g | as modelled (bottom down) | 52 × 52 × 94 | none | 1 |
 | slew-tube-post | 2 | slew PTFE sleeve anchor beside the spool | 30.3 cm³ | 21 g | as modelled (bottom down) | 24 × 36 × 110 | none | 1 |
 
@@ -31,15 +31,15 @@ Print settings for every printed part: PLA or PETG, 0.2 mm layers, at least 4 wa
 |---|---|---|---|---|---|---|---|---|
 | tower | 1 | EX-MA tower: circular flange = inner race, PEX clamp hub, centre funnel removed, lowered 13 mm | 130.2 cm³ | 89 g | on its +x side | 99 × 117 × 117 | yes (53 cm²) | 6 |
 | base | 1 | EX-MA base: centre post removed, lower race rim with nut slots, 4 screw holes to the pedestal | 157.6 cm³ | 107 g | as modelled (bottom down) | 140 × 140 × 21 | yes (28 cm²) | 2 |
-| boom-half-left | 1 | EX-MA boom half (+v): PTFE channels, stick-tube bulkhead, drum key sockets, joining lugs | 60.2 cm³ | 41 g | on its +y side | 218 × 123 × 24 | yes (12 cm²) | 4 |
-| boom-half-right | 1 | EX-MA boom half (-v): as the left half, mirrored | 56.1 cm³ | 38 g | on its -y side | 218 × 123 × 24 | yes (14 cm²) | 5 |
-| stick-half-left | 1 | EX-MA stick half (+v): PTFE channels, bucket-tube bulkhead, drum key sockets, joining lugs | 39.1 cm³ | 27 g | on its +y side | 190 × 107 × 18 | light (6.5 cm²) | 5 |
-| stick-half-right | 1 | EX-MA stick half (-v): as the left half, mirrored | 37.3 cm³ | 25 g | on its -y side | 190 × 107 × 18 | light (7.6 cm²) | 6 |
-| bucket-ear-left | 1 | EX-MA bucket ear G: hex socket for the bucket drum-axle | 2.2 cm³ | 2 g | on its +y side | 20 × 43 × 15 | light (1.1 cm²) | 1 |
-| bucket-ear-right | 1 | EX-MA bucket ear H: hex socket for the bucket drum-axle | 2.2 cm³ | 2 g | on its -y side | 20 × 43 × 15 | light (1.1 cm²) | 1 |
-| bucket | 1 | EX-MA bucket: repaired STEP body + bracket I + lugs O/P merged into one part | 25.4 cm³ | 17 g | on its -x side | 69 × 54 × 69 | yes (27 cm²) | 1 |
+| boom-half-left | 1 | EX-MA boom half (+v): PTFE channels, stick-tube bulkhead, drum key sockets, joining lugs | 60.0 cm³ | 41 g | on its +y side | 218 × 123 × 24 | yes (11 cm²) | 4 |
+| boom-half-right | 1 | EX-MA boom half (-v): as the left half, mirrored | 55.9 cm³ | 38 g | on its -y side | 218 × 123 × 24 | yes (14 cm²) | 5 |
+| stick-half-left | 1 | EX-MA stick half (+v): PTFE channels, bucket-tube bulkhead, drum key sockets, joining lugs | 42.8 cm³ | 29 g | on its +y side | 190 × 107 × 18 | light (5.9 cm²) | 5 |
+| stick-half-right | 1 | EX-MA stick half (-v): as the left half, mirrored | 41.1 cm³ | 28 g | on its -y side | 190 × 107 × 18 | light (6.9 cm²) | 6 |
+| bucket-ear-left | 1 | EX-MA bucket ear G: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its +y side | 20 × 43 × 15 | light (1.2 cm²) | 1 |
+| bucket-ear-right | 1 | EX-MA bucket ear H: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its -y side | 20 × 43 × 15 | light (1.2 cm²) | 1 |
+| bucket | 1 | EX-MA bucket: repaired STEP body + bracket I + lugs O/P merged into one part | 27.8 cm³ | 19 g | on its +x side | 69 × 54 × 69 | yes (27 cm²) | 1 |
 
-Printed total: 17 new prints + 9 modified EX-MA prints, about 0.97 kg of filament (estimate at ~55 % effective fill).
+Printed total: 17 new prints + 9 modified EX-MA prints, about 0.98 kg of filament (estimate at ~55 % effective fill).
 
 ## Plates (Bambu A1, 256 × 256 mm)
 
@@ -61,16 +61,16 @@ Every machine screw is an M3 from the kit; the longest needed is 35 mm. Column 3
 |---|---|---|---|
 | M3 × 12 socket cap | 8 | 16 of 32 | joint-drum key screws: lock the boom and stick drums to their arm members (4 per drum, 2 through each side wall; the heads sit in pockets in the wall) |
 | M3 × 12 socket cap | 8 | 16 of 32 | slewing-ring retaining ring: holds the turret down on the BBs (nuts slide into the slots in the base rim) |
-| M3 × 20 socket cap | 10 | 16 of 30 | joining lugs: clamp the two halves of the boom (5) and the stick (5) together |
-| M3 × 20 socket cap | 3 | 16 of 30 | lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction |
-| M3 × 20 socket cap | 3 | 16 of 30 | slew wheel to the spool flange |
+| M3 × 20 socket cap | 8 | 14 of 30 | joining lugs: clamp the two halves of the boom (4) and the stick (4) together |
+| M3 × 20 socket cap | 3 | 14 of 30 | lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction |
+| M3 × 20 socket cap | 3 | 14 of 30 | slew wheel to the spool flange |
 | M3 × 25 socket cap | 2 | 9 of 30 | pinch clamps on the PEX turret tube (turret hub, pedestal slew drum) |
 | M3 × 25 socket cap | 3 | 9 of 30 | dowel cross-pins through the lever hubs |
 | M3 × 25 socket cap | 4 | 9 of 30 | pedestal conduit fitting to the pedestal wall (fitting 6 + wall 12 mm) |
 | M3 × 35 socket cap | 4 | 4 of 20 | box conduit fitting through the box front and the sandbox wall (6 + 12 + 12 mm) |
 | M3 × 30 socket cap | 2 | 2 of 20 | box front to the sandbox wall, lower corners (12 + 12 mm) |
 | M3 × 10 button head | 8 | 8 of 42 | slotted rope-tail anchors = tension adjusters (2 per lever, 2 on the spool); the rope loop sits between two washers |
-| M3 nut | 47 | 47 of 576 | with the screws above |
+| M3 nut | 45 | 45 of 576 | with the screws above |
 | M3 flat washer | 36 | 36 of 576 | with the screws above |
 | M3 split-lock washer | 27 | 27 of 576 | with the screws above; split-lock washers under the nuts that hold moving or clamping parts |
 

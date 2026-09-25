@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import cadquery as cq
+import numpy as np
 
 HERE = Path(__file__).resolve().parent
 _spec = importlib.util.spec_from_file_location("exma", HERE / "2026-09-24-exma_common.py")
@@ -41,6 +42,7 @@ CLAMP_SLIT = 1.5
 AXLE_JOURNAL_D = 12.2            # turns in the existing Ø12.7 hole in the stick nose (no change to the stick)
 AXLE_HEX_AF = 12.0               # hex ends keyed into bucket ears G/H
 AXLE_Z = dict(drum=5.0, cone=9.5, journal=18.9, hex=24.5)   # half-lengths along the axle
+BUCKET_LIP = 1.8                 # flange above the groove bottom (was 2.8): leaves room for a 2 mm stick-nose wall
 
 SLEW_HUB_R, SLEW_BORE = 15.0, ex.TURRET_TUBE_OD + 0.3   # 3/4" PEX-B OD 22.23
 LEVER_SOCKET_D, LEVER_SOCKET_DEPTH = 16.2, 25.0   # 5/8" hardwood dowel handle
@@ -149,7 +151,7 @@ def bucket_drum_axle():
     hex ends key into ears G/H, an 8-32 rod through the bore clamps the ears to the shoulders."""
     pitch, width = ex.DRUM["bucket"]["pitch"], ex.DRUM["bucket"]["width"]
     rc = pitch / 2 - ROPE / 2
-    lip, ft = 2.8, 1.2
+    lip, ft = BUCKET_LIP, 1.2
     rf = rc + lip
     rj = AXLE_JOURNAL_D / 2
     zd, zc, zj = AXLE_Z["drum"], AXLE_Z["cone"], AXLE_Z["journal"]
@@ -181,6 +183,14 @@ def slew_drum():
     d = d.cut(z_cyl(SLEW_BORE / 2, -20, 30))
     for sign, z in ((1, zl), (-1, -zl)):                  # lane A (+v strand) upper, lane B lower
         a = ex.pedestal_slew_line(sign)["tangent_deg"] - sign * 180.0
+        # pad inside the rim so the pocket floor keeps >= 2 mm (the rim alone left 0.7 mm)
+        pad_half = math.degrees((CRIMP_LEN / 2 + 2.0) / (rc - 4.5))
+        pad = (cq.Workplane("XY").circle(rc - 1.0).circle(rc - 4.5 - 2.0).extrude(CRIMP_W + 4.0)
+               .translate((0, 0, z - CRIMP_W / 2 - 2.0)))
+        wedge = (cq.Workplane("XY").polyline([(0, 0)] + [((rc + 5) * math.cos(math.radians(t)), (rc + 5) * math.sin(math.radians(t)))
+                                                         for t in np.linspace(a - pad_half, a + pad_half, 9)]).close()
+                 .extrude(CRIMP_W + 4.0).translate((0, 0, z - CRIMP_W / 2 - 2.0)))
+        d = d.union(pad.intersect(wedge).intersect(z_cyl(rc, -width / 2, width / 2)))
         d = d.cut(crimp_pocket(rc, rc - 4.5, a, rf).translate((0, 0, z)))
     # split clamp on the PEX tube (pinch bolt outside the tube bore - cables run inside the tube)
     d = pinch_clamp(d, SLEW_BORE / 2, SLEW_HUB_R, -width / 2 + 6.0, 23.0, 14.0)
@@ -292,8 +302,12 @@ def conduit_fitting(end):
             body = body.cut(cq.Workplane("XY").circle(ROPE_HOLE / 2).workplane(offset=2.2).circle(3.5)
                             .loft().translate((x, y, FIT_T - 2.2 + 0.01)))
     if end == "box":
-        for x, y in tubes:
-            body = body.cut(z_cyl(PTFE_BORE / 2, 11, 22, x, y))          # tube end stop, from the conduit side
+        # tube end stop, from the conduit side: the four tubes touch each other, so they seat in one
+        # rounded window (separate counterbores 4 mm apart left 0.3 mm webs a 0.6 mm nozzle cannot print)
+        xc = (col["stick"] + col["bucket"]) / 2
+        w, h = abs(col["stick"] - col["bucket"]) + PTFE_BORE, abs(ex.FIT_ARM_ROWS[0] - ex.FIT_ARM_ROWS[1]) + PTFE_BORE
+        win = cq.Workplane("XY").rect(w, h).extrude(11).edges("|Z").fillet(PTFE_BORE / 2 - 0.05)
+        body = body.cut(win.translate((xc, sum(ex.FIT_ARM_ROWS) / 2, 11)))
     else:
         # the four tubes touch each other, so they slide through one rounded window (separate
         # Ø4.6 bores 4 mm apart would merge around a loose pillar)
@@ -438,12 +452,15 @@ def slew_tube_bushing():
 ELBOW_SUPPORT_H = ex.Z_ARM_LAYER - COPPER_OD / 2 - ex.PED_Z[0]   # sandbox floor -> copper underside
 
 
+ELBOW_SADDLE_W = 20.5           # was 16: the Ø16.3 cradle left 0.4 mm lips
+
+
 def elbow_support():
     """Post under the horizontal leg of the 1/2" copper elbow; a cable tie through the saddle holds
     the elbow down against the ropes' pull at the 90 deg turn."""
     h = ELBOW_SUPPORT_H
     p = cq.Workplane("XY").box(44, 24, 4).translate((0, 0, 2))
-    p = p.union(cq.Workplane("XY").box(20, 16, h + 5).translate((0, 0, (h + 5) / 2)))
+    p = p.union(cq.Workplane("XY").box(20, ELBOW_SADDLE_W, h + 5).translate((0, 0, (h + 5) / 2)))
     p = p.cut(cq.Workplane("YZ").circle(COPPER_OD / 2 + 0.2).extrude(30).translate((-15, 0, h + COPPER_OD / 2)))
     p = p.cut(cq.Workplane("XY").box(20 + 2, 3.0, 5.0).translate((0, 0, h - 5.0)))        # cable-tie slot
     for sx in (-1, 1):

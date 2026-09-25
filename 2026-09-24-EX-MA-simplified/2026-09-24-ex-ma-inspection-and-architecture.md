@@ -69,7 +69,7 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 
 - Plywood box 250 × 405 × 242 mm, bolted to the outside of the sandbox wall; the top is removable for service.
 - Left to right: boom, stick, bucket lever (70 mm apart), then the horizontal slew wheel (Ø184).
-- The three lever hubs turn on one 5/16in rod between two bearing blocks (sag ≤ 0.58 mm). Each hub has its own M3 drag clamp for holding friction (boom needs about 0.61 N·m).
+- The three lever hubs turn on one 5/16in rod between two bearing blocks (sag ≤ 0.58 mm). Each hub has its own M3 drag clamp for holding friction (boom needs about 0.64 N·m).
 - The top-panel slots are the lever hard stops (the dowel meets the slot end exactly at the end of travel).
 - Ropes leave the lever drums toward one conduit fitting, entering it at ≤ 22° with a fleet angle ≤ 11.3°.
 
@@ -116,6 +116,10 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 - Measured hardware: 3/4in PEX-B turret tube, 5/16in lever axle, 1/2in copper OD 15.88 — user.
 - Copper instead of PEX for the turret tube considered; kept PEX (the tube must turn with the turret) — user.
 - Working ranges kept larger than the earlier build's (slew ±60, boom ±35, stick −45…+25, bucket ±50) — user.
+- Hardware from the user's own kits (Fgruh M3 kit, Hillman 8-32 rod + nuts), split-lock washers instead of nylocs, wood screws on hand; PTFE kept — user.
+- Printing with a 0.6 mm nozzle: every wall checked in its print orientation (no patch ≥ 20 mm² under 1.0 mm) — user.
+- Stick nose (0.3–0.4 mm hood over the bucket drum, a 6 mm open slot beside it, a 0.9 mm ring round the pin) made a solid rounded end inside the original r 12 outline; bucket drum flange lip 2.8 → 1.8 mm so the hood is 2 mm thick — user (fill the slot; thicken inward).
+- Bucket floor 1.8 mm (it had a crack through the middle); bucket lug slits, back-plate top edge and the two unused link-pin holes in bracket I filled; clip recess in each ear filled — user (fix every thin spot).
 
 ## Where things are
 

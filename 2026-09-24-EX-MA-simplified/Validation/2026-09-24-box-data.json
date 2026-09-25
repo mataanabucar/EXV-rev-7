@@ -176,19 +176,19 @@
   "PEX deflection at the drum, with the shelf bushing (mm)": 0.3292369243616234,
   "radial load left on the slewing ring (N)": 19.912018807561473,
   "moment on the slewing ring without the bushing (N\u00b7m)": 5.46103173877057,
-  "boom: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.3031444903200934,
-  "boom: holding torque needed at the lever (N\u00b7m)": 0.6062889806401868,
-  "boom: drag-clamp M3 bolt force for it (N, mu 0.3)": 162.0384352830095,
-  "stick: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.0881522954851332,
-  "stick: holding torque needed at the lever (N\u00b7m)": 0.20342837419646123,
-  "stick: drag-clamp M3 bolt force for it (N, mu 0.3)": 54.368818335037076,
-  "bucket: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.009311371874493398,
-  "bucket: holding torque needed at the lever (N\u00b7m)": 0.03286366543938846,
-  "bucket: drag-clamp M3 bolt force for it (N, mu 0.3)": 8.783232246510426,
+  "boom: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.32174304094716694,
+  "boom: holding torque needed at the lever (N\u00b7m)": 0.6434860818943339,
+  "boom: drag-clamp M3 bolt force for it (N, mu 0.3)": 171.97983332379414,
+  "stick: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.09733343015422664,
+  "stick: holding torque needed at the lever (N\u00b7m)": 0.22461560804821532,
+  "stick: drag-clamp M3 bolt force for it (N, mu 0.3)": 60.03137584628913,
+  "bucket: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.010503009955396617,
+  "bucket: holding torque needed at the lever (N\u00b7m)": 0.03706944690139982,
+  "bucket: drag-clamp M3 bolt force for it (N, mu 0.3)": 9.907280792678966,
   "arm masses (g, printed at ~55 % fill)": {
-   "boom": 87.0,
-   "stick": 56.0,
-   "bucket": 25.0
+   "boom": 86.0,
+   "stick": 61.0,
+   "bucket": 27.0
   }
  },
  "cut_lengths": {

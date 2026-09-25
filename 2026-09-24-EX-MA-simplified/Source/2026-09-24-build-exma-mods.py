@@ -38,6 +38,7 @@ def _load(name, fn):
 ex = _load("exma", "2026-09-24-exma_common.py")
 rt = _load("routing", "2026-09-24-routing.py")
 bp = _load("parts", "2026-09-24-build-parts.py")
+WC = _load("wallcheck", "2026-09-25-wall-check.py")
 
 DZ = ex.TURRET_DZ
 WALL = 3.2                       # minimum wall kept when clearing boom / stick interiors
@@ -203,7 +204,7 @@ def axis_of(member):
     return rt.BOOM_ANG if member == "boom" else rt.STICK_ANG
 
 
-def joining_lugs(member_mesh_full, origin_uz, ang, stations, avoid):
+def joining_lugs(member_mesh_full, origin_uz, ang, stations, avoid, cut=None):
     """M3 lugs at the top and bottom walls across the split plane (v = 0)."""
     R = member_frame(ang)
     d3, n3 = R[:, 0], R[:, 2]
@@ -220,7 +221,10 @@ def joining_lugs(member_mesh_full, origin_uz, ang, stations, avoid):
         c = c0 + side * n3 * (wall_in - LUG["size"][2] / 2 + 1.0)
         if any(np.linalg.norm(poly - c, axis=1).min() < 5.0 for poly in avoid):
             continue
-        lugs.append(box(c, LUG["size"], R))          # sits 1 mm into the wall, never reaches the skin
+        lug = box(c, LUG["size"], R)                 # sits 1 mm into the wall, never reaches the skin
+        if cut is not None and (lug ^ cut).volume() > 0.5:
+            continue                                  # a tube channel would leave only thin flakes of it
+        lugs.append(lug)
         holes.append(cylinder(c - np.array([0, 6, 0]), c + np.array([0, 6, 0]), ex.M3_CLEAR / 2))
     return lugs, holes
 
@@ -283,17 +287,48 @@ def guide_lugs(names, member):
     return lugs, bores
 
 
+FLAKE_SKIN_DIST = 2.5   # only flakes this far from the outer skin are trimmed (internal features)
+FLAKE_MAX = 20.0        # only small features (bounding box, mm)
+
+
+def trim_flakes(man, full_orig):
+    """Remove internal rib flakes thinner than 1 mm left where cuts meet ribs at grazing angles (a
+    0.6 mm nozzle cannot print them). Patches come from the wall-thickness check; each one that lies
+    well inside the member (>= FLAKE_SKIN_DIST from the original outer skin) is cut out with its
+    bounding box grown by 0.4 mm."""
+    from scipy.spatial import cKDTree
+    pts, fi = trimesh.sample.sample_surface(full_orig, 40000, seed=3)
+    nrm = full_orig.face_normals[fi]
+    esc = ~full_orig.ray.intersects_any(pts + nrm * 0.05, nrm)
+    # faces near the split plane that look out along v through a screw hole are not outer skin
+    esc &= ~((np.abs(pts[:, 1]) < 10.0) & (np.abs(nrm[:, 1]) > 0.7))
+    skin = cKDTree(pts[esc])
+    removed = 0
+    for _ in range(2):
+        mesh = T(man)
+        p, th, per = WC.thickness(mesh)
+        for r in WC.regions(p, th, per, WC.HARD_MIN):
+            lo, hi = np.array(r["lo"]), np.array(r["hi"])
+            if (hi - lo).max() > FLAKE_MAX or skin.query((lo + hi) / 2)[0] < FLAKE_SKIN_DIST:
+                continue
+            if skin.query_ball_point((lo + hi) / 2, float(np.linalg.norm(hi - lo)) / 2 + 1.0):
+                continue                               # the cut box would touch outer skin
+            man = man - box((lo + hi) / 2, (hi - lo) + 0.8)
+            removed += 1
+    return man, removed
+
+
 def boom_halves():
     halves = [ex.load_3mf_object(*h) for h in ex.BOOM_HALVES]
     full = trimesh.util.concatenate(halves)
     names = list(rt.TUBES)
     bulk = stop_bulkhead(full, ["stick_hi", "stick_lo"], ["bucket_hi", "bucket_lo"], "boom")
     avoid = [rt.natural(n) for n in names]
+    cut = channels(guided(names, "boom"))
     lugs, lug_holes = joining_lugs(full, ex.P_BOOM0, rt.BOOM_ANG,
-                                   [(45.0, 1), (45.0, -1), (110.0, 1), (110.0, -1), (160.0, 1), (160.0, -1)], avoid)
+                                   [(45.0, 1), (45.0, -1), (110.0, 1), (110.0, -1), (160.0, 1), (160.0, -1)], avoid, cut)
     FEATURES['boom joining lugs (M3 + nut)'] = len(lugs)
     keys = [drum_key_rel(bp.BOOM_DRIVE_R, a, 90.0) for a in bp.BOOM_DRIVE_ANGS]
-    cut = channels(guided(names, "boom"))
     glugs, gbores = guide_lugs(names, "boom")
     drum_env = cylinder([ex.P_BOOM0[0], -8.0, ex.P_BOOM0[1]], [ex.P_BOOM0[0], 8.0, ex.P_BOOM0[1]], 18.2)
     out = []
@@ -312,8 +347,109 @@ def boom_halves():
         for key in keys:
             m = m - key_socket(ex.P_BOOM0, key, sgn * 16.5, sgn * (16.5 + KEY_HEAD_DEPTH))
         m = m - cut                                    # final pass: one consistent channel surface
-        out.append(keep_main(m, f"boom half {sgn:+d}").translate([0, 0, DZ]))
+        m, n = trim_flakes(keep_main(m, f"boom half {sgn:+d}"), full)
+        m = keep_main(m, f"boom half {sgn:+d} (after flake trim)")
+        FEATURES[f"boom half {sgn:+d} flakes trimmed"] = n
+        out.append(m.translate([0, 0, DZ]))
     return out
+
+
+# stick nose (user decision 2026-09-25): the original nose is a 0.3-0.4 mm hood around the bucket
+# drum, an empty ~6 mm slot between hood and side plate, and a 0.9 mm ring around the journal hole
+# - unprintable. It becomes a solid rounded end inside the original r 12 outline.
+NOSE_R = 11.75                   # fill radius (the original hood's outer surface is r 11.8-12.3)
+NOSE_CLEAR = 0.5                 # radial clearance to the bucket drum-axle
+NOSE_BOSS_R = 9.0                # full ring around the journal, both sides of the drum
+NOSE_DRUM_SECTOR = (229.0, 83.0)     # u-z angle range (deg, 0 = +u) filled next to the drum; the bucket
+                                     # ropes leave the drum at 68 / 242 deg towards their stops
+NOSE_SIDE_SECTOR = (185.0, 125.0)    # beside the drum (|v| > drum half-width): the whole nose tip, running on
+                                     # into the top and bottom walls so the outer face has no notch
+
+
+def nose_fill(v_out):
+    """Solid stick nose around the bucket drum-axle, flush with outer faces at +-v_out (both halves;
+    the caller cuts it per half and passes that half's own outer face: the halves are 17.6 / 17.4)."""
+    cu, cz = ex.P_BUCKET0
+    zd, zc = bp.AXLE_Z["drum"], bp.AXLE_Z["cone"]
+    rf = ex.DRUM["bucket"]["pitch"] / 2 - bp.ROPE / 2 + bp.BUCKET_LIP
+    rj = bp.AXLE_JOURNAL_D / 2
+    hole = 12.7 / 2                                     # the existing journal hole, carried through
+
+    def sector(r, a0, a1, v0, v1, r_at_v1=None):
+        """Sector prism about the pin axis between v0 < v1; r_at_v1 tapers it towards v1 (edge chamfer)."""
+        a1 = a1 + 360.0 if a1 <= a0 else a1
+        pts = [(0.0, 0.0)] + [(r * math.cos(math.radians(a)), r * math.sin(math.radians(a)))
+                              for a in np.linspace(a0, a1, int((a1 - a0) / 3) + 2)]
+        cs = mf.CrossSection([pts])
+        # local (x, y, z) -> design (u, v, z): u = cu + x, z = cz + y, v = -local z, so local z runs
+        # from -v1 (bottom) to -v0 (top): a taper at v1 is a scaled-down base
+        if r_at_v1 is None:
+            body = cs.extrude(v1 - v0)
+        else:
+            k = r_at_v1 / r
+            body = mf.CrossSection([[(x * k, y * k) for x, y in pts]]).extrude(v1 - v0, scale_top=[1 / k, 1 / k])
+        return body.translate([0, 0, -v1]).transform([[1, 0, 0, cu], [0, 0, -1, 0], [0, 1, 0, cz]])
+
+    def chamfered_sector(r, a0, a1, v_in, v_out):
+        """|v| from v_in to the outer face v_out (signed), with the plate's 0.8 mm edge chamfer at v_out."""
+        s = 1.0 if v_out > 0 else -1.0
+        v_c = v_out - s * 0.8
+        straight = sector(r, a0, a1, *sorted((v_in, v_c)))
+        if s > 0:
+            return straight + sector(r, a0, a1, v_c, v_out, r_at_v1=r - 0.8)
+        # for -v the outer face is v0: build the mirror (+v) piece and flip it about v = 0
+        return straight + sector(r, a0, a1, -v_c, -v_out, r_at_v1=r - 0.8).mirror([0, 1, 0])
+
+    def disc(r, v0, v1):
+        return sector(r, 0.0, 359.0, v0, v1) + sector(r, 180.0, 179.0, v0, v1)
+
+    pieces = [sector(NOSE_R, *NOSE_DRUM_SECTOR, -zd, zd)]
+    for sgn in (1, -1):
+        pieces.append(chamfered_sector(NOSE_R, *NOSE_SIDE_SECTOR, sgn * zd, sgn * v_out))
+        lo, hi = sorted((sgn * zc, sgn * v_out))
+        pieces.append(disc(NOSE_BOSS_R, lo, hi))
+    fill = mf.Manifold.batch_boolean(pieces, mf.OpType.Add)
+    # clearance around the drum-axle: flange, cone, journal (revolved about the pin axis)
+    prof = [(0.0, -30.0), (hole, -30.0), (hole, -zc), (rj + NOSE_CLEAR, -zc), (rf + NOSE_CLEAR, -zd),
+            (rf + NOSE_CLEAR, zd), (rj + NOSE_CLEAR, zc), (hole, zc), (hole, 30.0), (0.0, 30.0)]
+    rev = mf.Manifold.revolve(mf.CrossSection([[(r, z) for r, z in prof]]), 96)   # axis = local z
+    rev = rev.transform([[1, 0, 0, cu], [0, 0, -1, 0], [0, 1, 0, cz]])
+    return fill - rev
+
+
+# root fills (0.6 mm nozzle): behind the outer side plate at each member's root, inside the plate's
+# own outline, so the exterior is unchanged. (member: pivot, |v| from, |v| plate inner face + 0.2, radius)
+# (the boom root's chamfered lower-rear edge is thin in 3D but not within a print layer - the boom
+# halves print on their outer faces - so it needs no fill)
+ROOT_FILL = dict(stick=(11.7, (13.8, 15.0), 17.5))   # key-pocket rims 0.2-0.6 mm, knife edge at the rear chamfer
+
+
+def root_fill(half, sgn, member):
+    """Fill behind the side plate at a member root (inside its outline, within the fill radius of the
+    pivot); the pin bore and the key pockets are cut again afterwards."""
+    from shapely.geometry import Polygon, Point
+    from shapely.geometry.polygon import orient
+    cu, cz = origin_of(member)
+    v_from, (v_lo, v_hi), radius = ROOT_FILL[member]
+
+    def outline_at(v):
+        sec = half.section(plane_origin=[0, sgn * v, 0], plane_normal=[0, 1, 0])
+        loops = [Polygon(e[:, [0, 2]]) for e in sec.discrete if len(e) > 3] if sec is not None else []
+        return max(loops, key=lambda p: p.area) if loops else None
+
+    # the plate's inner face differs between the halves (e.g. boom 20.7 / 20.9): find it, then take
+    # the outline 0.1 mm inside the plate, where it is largest (the outer edges are chamfered)
+    vs = np.arange(v_lo, v_hi, 0.05)
+    areas = np.array([(lambda o: 0.0 if o is None else o.area)(outline_at(v)) for v in vs])
+    v_face = float(vs[np.argmax(areas > 0.97 * areas.max())]) + 0.1
+    v_plate = sgn * v_face
+    outline = outline_at(v_face)
+    region = Polygon(outline.exterior).intersection(Point(cu, cz).buffer(radius, 128))
+    region = orient(region, 1.0)                                    # CCW for the cross-section
+    cs = mf.CrossSection([np.array(region.exterior.coords)[:-1].tolist()])
+    v0, v1 = sorted((sgn * v_from, v_plate))
+    # local (x, y, z) -> design (u, v, z) = (x, -z, y): extrude along local z, v runs -z
+    return cs.extrude(v1 - v0).translate([0, 0, -v1]).transform([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0]])
 
 
 def stick_halves():
@@ -322,17 +458,18 @@ def stick_halves():
     names = ["bucket_hi", "bucket_lo"]
     bulk = stop_bulkhead(full, names, [], "stick")
     avoid = [rt.natural(n) for n in names]
+    cut = channels(guided(names, "stick"))
     lugs, lug_holes = joining_lugs(full, ex.P_STICK0, rt.STICK_ANG,
-                                   [(40.0, 1), (40.0, -1), (100.0, 1), (100.0, -1), (150.0, 1), (150.0, -1)], avoid)
+                                   [(40.0, 1), (40.0, -1), (100.0, 1), (100.0, -1), (150.0, 1), (150.0, -1)], avoid, cut)
     FEATURES['stick joining lugs (M3 + nut)'] = len(lugs)
     keys = [drum_key_rel(bp.STICK_DRIVE_R, a, math.degrees(rt.BOOM_ANG)) for a in bp.STICK_DRIVE_ANGS]
-    cut = channels(guided(names, "stick"))
     glugs, gbores = guide_lugs(names, "stick")
     out = []
     for i, h in enumerate(halves):
         sgn = -1 if i == 0 else 1
         m = M(h) - cut
         side = box([260, sgn * 50 + (-0.35 if sgn < 0 else 0.15), 170], [400, 100, 400])
+        nose_side = box([260, sgn * 50.1, 170], [400, 100, 400])     # nose fill meets the original seam face
         m = m + (bulk ^ side)
         for lug in lugs:
             m = m + (lug ^ side)
@@ -341,10 +478,18 @@ def stick_halves():
                 m = m + lug
         for hole in lug_holes + gbores:
             m = m - hole
+        m = m + root_fill(h, sgn, "stick")
+        m = m - cylinder([ex.P_STICK0[0], sgn * 5.0, ex.P_STICK0[1]], [ex.P_STICK0[0], sgn * 20.0, ex.P_STICK0[1]],
+                         ex.PIN_BORE / 2)                     # split-pin bore through the filled root
         for key in keys:
             m = m - key_socket(ex.P_STICK0, key, sgn * 10.7, sgn * (10.7 + KEY_HEAD_DEPTH))
+        nose = nose_fill(float(np.abs(h.bounds[:, 1]).max()))
+        m = m + (nose ^ nose_side)
         m = m - cut
-        out.append(keep_main(m, f"stick half {sgn:+d}").translate([0, 0, DZ]))
+        m, n = trim_flakes(keep_main(m, f"stick half {sgn:+d}"), full)
+        m = keep_main(m, f"stick half {sgn:+d} (after flake trim)")
+        FEATURES[f"stick half {sgn:+d} flakes trimmed"] = n
+        out.append(m.translate([0, 0, DZ]))
     return out
 
 
@@ -359,9 +504,17 @@ def ears():
     hexp = hexp.transform([[1, 0, 0, ex.P_BUCKET0[0]], [0, 0, -1, 0], [0, 1, 0, ex.P_BUCKET0[1]]])
     out = []
     for lab in ("G", "H"):
-        m = M(sh[lab]) - hexp
+        m = M(sh[lab])
+        # the removed clip K/N sat in a 4.9 x 2.5 mm recess on the ear's outer face; filled, since it
+        # left a 0.6 mm leg beside it (clear of the bucket; checked)
+        sgn = 1 if sh[lab].bounds[:, 1].mean() > 0 else -1
+        m = m + box([346.35, sgn * 14.65, 84.25 - DZ], [4.9, 2.6, 5.0])
+        m = m - hexp
         out.append(m.translate([0, 0, DZ]))
     return out
+
+
+BUCKET_FLOOR = 1.8                # floor thickness (3 lines of a 0.6 mm nozzle when printed on its side)
 
 
 def bucket():
@@ -369,8 +522,38 @@ def bucket():
     body = ex.load_step_mesh(ex.BUCKET_STEP)
     body.apply_translation(ex.BUCKET_STEP_OFFSET)
     m = M(body)
+    bm = body
     for lab in ("O", "P"):
         m = m + M(sh[lab])
+        # each lug bar meets the back plate at a shallow angle, leaving a wedge slit and 0.4 mm
+        # slivers: fill the wedge (hull of the bar and the plate right next to it; the ears cover it)
+        bar = max(sh[lab].split(only_watertight=False), key=lambda p: p.volume)
+        lo, hi = bar.bounds[0] - 1.5, bar.bounds[1] + 1.5
+        near = bm.vertices[np.all((bm.vertices >= lo) & (bm.vertices <= hi), axis=1)]
+        wedge = mf.Manifold.hull_points(np.vstack([bar.vertices, near]).tolist())
+        m = m + (wedge ^ M(bm.convex_hull))
+    # floor: the repaired STEP floor is 0.8-1.4 mm on a faceted underside (steps of 0.1-0.6 mm) with
+    # a zero-width crack inside (two ~0.67 mm layers to the slicer). Each downward-facing floor facet
+    # gets a prism BUCKET_FLOOR tall above it: the crack closes and the floor becomes BUCKET_FLOOR
+    # thick everywhere; the underside is untouched (user decision 2026-09-25)
+    nz, cz = bm.face_normals[:, 2], bm.triangles_center[:, 2]
+    floor = np.nonzero((nz < -0.95) & (cz < bm.bounds[0][2] + 4.0))[0]
+    prisms = [mf.Manifold.hull_points(np.vstack([bm.triangles[f] + [0, 0, 0.02],
+                                                 bm.triangles[f] + [0, 0, BUCKET_FLOOR]]).tolist()) for f in floor]
+    m = m + mf.Manifold.batch_boolean(prisms, mf.OpType.Add)
+    # back-plate top edge: a 34 deg knife edge (0.6 mm) under bracket I - a small ledge on the inside
+    # makes the edge 1.8 mm; and bracket I's two old link-pin holes (pins J/M removed, hidden behind
+    # the ears) are filled, since they left 0.85 mm under the bracket's top face (original frame)
+    z = -DZ
+    # front face 1.8 mm tall with a flat underside (it meets the slanted inner face at an obtuse 146
+    # deg); the cap runs through to the outer face, so it also closes the surface crack the original
+    # has in the lip
+    tri = [(342.1, 73.1 + z), (342.1, 71.3 + z), (344.7, 71.3 + z), (347.5, 72.0 + z), (346.3, 73.0 + z)]  # CCW
+    ledge = (mf.CrossSection([tri]).extrude(52.0).translate([0, 0, -26.0])
+             .transform([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0]]))
+    m = m + ledge
+    for u, zc in ((343.2, 89.9), (345.9, 84.9)):
+        m = m + cylinder([u, -10.2, zc + z], [u, 10.2, zc + z], 1.85)
     # bracket I is 4 touching sub-bodies (8 edges shared by 4 faces): union them one by one
     merged_I = True
     for piece in sh["I"].split(only_watertight=False):
@@ -460,6 +643,8 @@ def main():
     results["bucket"] = T(bk)
     lines = ["EX-MA modified parts - exterior deviation check (design mm)",
              "samples on the original outer skin; distance to the modified part's surface",
+             "excluded (approved): tower flange/bore, base rim + centre hole, stick nose tip within "
+             f"r {NOSE_R + 1.0:.2f} of the bucket pin (solid nose, 2026-09-25)",
              f"bucket bracket I merged into bucket: {merged_I}", ""]
     for name, mesh in results.items():
         results[name] = export_checked(mesh, out_stl / f"2026-09-24-{name}.stl", name)
@@ -481,6 +666,9 @@ def main():
                 ~((np.hypot(p[:, 0], p[:, 1]) < 31.0) & (p[:, 2] < TOWER_CLEAR_Z[1] - DZ + 1.0))   # flange, bore, funnel
         if name == "base":
             band = lambda p: (p[:, 2] < 14.0) & (np.hypot(p[:, 0], p[:, 1]) > 26.0)   # rim + centre hole approved
+        if name.startswith("stick"):
+            # solid nose approved 2026-09-25: the recessed surfaces of the old nose tip are now filled
+            band = lambda p: np.hypot(p[:, 0] - ex.P_BUCKET0[0], p[:, 2] - ex.P_BUCKET0[1]) > NOSE_R + 1.0
         n, p99, mx = exterior_deviation(orig, results[name], dz, band=band, context=ctx)
         lines.append(f"{name:18s} samples={n:6d}  p99={p99:6.3f}  max={mx:6.3f}")
     lines.append("")

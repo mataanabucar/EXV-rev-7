@@ -1,11 +1,11 @@
 # EX-MA — validation summary
 
 One line per criterion; details in the reports next to this file:
-`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, `2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`, `2026-09-25-full-assembly-check.json`.
+`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, `2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`, `2026-09-25-full-assembly-check.json`, `2026-09-25-wall-check.json`.
 
 | Check | Target | Result | Status |
 |---|---|---|---|
-| Exterior unchanged (boom, stick, base) | outer-skin p99 ≤ 0.05 mm | max p99 0.018 mm | pass |
+| Exterior unchanged (boom, stick, base) | outer-skin p99 ≤ 0.05 mm | max p99 0.026 mm | pass |
 | Exterior unchanged (tower) | deviation only at the approved flange join | p99 1.48 mm; the 282 samples > 0.3 mm lie at z 36.0–37.7 (flange top at z 38, original frame) | pass |
 | boom working range inside its contact-free range | -40…45° | -42…80° | pass |
 | stick working range inside its contact-free range | -45…50° | -54…150° | pass |
@@ -27,13 +27,14 @@ One line per criterion; details in the reports next to this file:
 | Every rope modelled as one continuous path | 8 rope tails, gap < 0.5 mm | max gap 0.00 mm | pass |
 | Full assembly STEP (zip): every item present, re-imports | 131 solids | 131 in file / 131 on re-import; 64 MB zipped | pass |
 | Full assembly: EX-MA meshes and ropes/tubes as valid solids | valid, volume error < 0.1 % | 9/9 parts (max 0.001 %), 14/14 ropes+tubes (max 0.000 %) | pass |
+| Walls printable with a 0.6 mm nozzle (in print orientation) | no patch ≥ 20 mm² under 1.0 mm | 25/25 parts; 44 small attached slivers listed | pass |
 | Every printed STL watertight, one body | 25 parts | 25/25 | pass |
 | Every printed part fits the A1 bed | ≤ 246 × 246 × 256 mm | 25/25 | pass |
 | Every part STEP imports as one solid | 16 files | 16/16 | pass |
 | Assembly STEP re-imports completely | 108 solids | 108 | pass |
 | 3MF plates reload, inside the bed, no overlaps | 7 plates | 7/7 | pass |
 
-**27 of 27 checks pass.**
+**28 of 28 checks pass.**
 
 ## Not checked by the model
 

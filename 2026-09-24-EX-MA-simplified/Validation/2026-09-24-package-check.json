@@ -32,12 +32,12 @@
    "bodies": 1,
    "fits_bed": true,
    "print_size": [
-    21.0,
-    21.0,
+    19.0,
+    19.0,
     49.0
    ],
    "orientation": "+z",
-   "support_mm2": 94.0
+   "support_mm2": 67.0
   },
   {
    "part": "slew-drum",
@@ -50,7 +50,7 @@
     31.0
    ],
    "orientation": "-z",
-   "support_mm2": 1398.0
+   "support_mm2": 1414.0
   },
   {
    "part": "slewing-ring-retaining-ring",
@@ -245,7 +245,7 @@
     24.0
    ],
    "orientation": "+y",
-   "support_mm2": 1192.0
+   "support_mm2": 1129.0
   },
   {
    "part": "boom-half-right",
@@ -258,7 +258,7 @@
     24.0
    ],
    "orientation": "-y",
-   "support_mm2": 1408.0
+   "support_mm2": 1355.0
   },
   {
    "part": "stick-half-left",
@@ -271,7 +271,7 @@
     17.5
    ],
    "orientation": "+y",
-   "support_mm2": 651.0
+   "support_mm2": 585.0
   },
   {
    "part": "stick-half-right",
@@ -284,7 +284,7 @@
     17.5
    ],
    "orientation": "-y",
-   "support_mm2": 757.0
+   "support_mm2": 693.0
   },
   {
    "part": "bucket-ear-left",
@@ -297,7 +297,7 @@
     14.5
    ],
    "orientation": "+y",
-   "support_mm2": 109.0
+   "support_mm2": 119.0
   },
   {
    "part": "bucket-ear-right",
@@ -310,7 +310,7 @@
     14.5
    ],
    "orientation": "-y",
-   "support_mm2": 112.0
+   "support_mm2": 121.0
   },
   {
    "part": "bucket",
@@ -322,8 +322,8 @@
     54.0,
     69.3
    ],
-   "orientation": "-x",
-   "support_mm2": 2672.0
+   "orientation": "+x",
+   "support_mm2": 2680.0
   }
  ],
  "steps": [
@@ -490,7 +490,7 @@
   "ptfe_total": 3685.393261546968,
   "n_balls": 57,
   "keys": 8,
-  "lugs": 10,
+  "lugs": 8,
   "m3_over_kit": [],
   "rod_832_used": 203.0,
   "nuts_832_used": 12

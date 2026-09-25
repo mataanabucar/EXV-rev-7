@@ -61,20 +61,20 @@ Closest rope/sleeve pair in the box: 2.4 mm surface to surface (boom upper / sti
 - PEX deflection at the drum, with the shelf bushing (mm): 0.33
 - radial load left on the slewing ring (N): 19.91
 - moment on the slewing ring without the bushing (N·m): 5.46
-- boom: arm gravity torque at the joint, upper bound (N·m): 0.30
-- boom: holding torque needed at the lever (N·m): 0.61
-- boom: drag-clamp M3 bolt force for it (N, mu 0.3): 162.04
-- stick: arm gravity torque at the joint, upper bound (N·m): 0.09
-- stick: holding torque needed at the lever (N·m): 0.20
-- stick: drag-clamp M3 bolt force for it (N, mu 0.3): 54.37
+- boom: arm gravity torque at the joint, upper bound (N·m): 0.32
+- boom: holding torque needed at the lever (N·m): 0.64
+- boom: drag-clamp M3 bolt force for it (N, mu 0.3): 171.98
+- stick: arm gravity torque at the joint, upper bound (N·m): 0.10
+- stick: holding torque needed at the lever (N·m): 0.22
+- stick: drag-clamp M3 bolt force for it (N, mu 0.3): 60.03
 - bucket: arm gravity torque at the joint, upper bound (N·m): 0.01
-- bucket: holding torque needed at the lever (N·m): 0.03
-- bucket: drag-clamp M3 bolt force for it (N, mu 0.3): 8.78
-- arm masses (g, printed at ~55 % fill): {'boom': 87.0, 'stick': 56.0, 'bucket': 25.0}
+- bucket: holding torque needed at the lever (N·m): 0.04
+- bucket: drag-clamp M3 bolt force for it (N, mu 0.3): 9.91
+- arm masses (g, printed at ~55 % fill): {'boom': 86.0, 'stick': 61.0, 'bucket': 27.0}
 
-## Approximate cut lengths (for the bill of materials)
+## Cut lengths (measured along the modelled cable paths)
 
-Without crimp tails: add about 60 mm for each double-crimp loop. Final lengths go in the B6 bill of materials.
+Measured along the continuous paths in 2026-09-24-cable-paths.py, without crimp tails (the bill of materials adds 60 mm per double-crimp loop).
 
 | Item | Length |
 |---|---|
