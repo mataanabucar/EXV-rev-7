@@ -360,10 +360,10 @@ def checklist():
     add("")
     fit = {
         7: "copper elbow pushes into the round socket; a PTFE tube slides freely through the rounded window",
-        3: "a printed knob slides onto the 5/16in rod; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring",
+        3: "each drum sits flat; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring",
         1: "PEX tube turns freely in the bushing; the spool riser sits flat",
         6: "4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor",
-        2: "the 5/16in rod slides through all three lever hubs and into their handle sockets; each drum sits flat",
+        2: "the 5/16in rod slides through all three lever hubs and into their handle sockets, and into a knob's bore",
         4: "the slew drum slides onto the PEX tube (clamp open); the spool turns on the 5/16in rod",
         5: "(with plate 06) the bucket drum-axle journals turn freely in both stick-half nose holes",
     }

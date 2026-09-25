@@ -30,13 +30,13 @@ Print the plates in this order; it follows the build order, so each step's parts
 - [ ] **`3MF/2026-09-24-plate-07.3mf`** — conduit-end-fitting-pedestal (supports: yes (28 cm²))
   - [ ] fit test: copper elbow pushes into the round socket; a PTFE tube slides freely through the rounded window
 - [ ] **`3MF/2026-09-24-plate-03.3mf`** — slewing-ring-retaining-ring (supports: none); lever-knob-3 (supports: light (1.5 cm²)); boom-drum (supports: light (1.4 cm²)); stick-drum (supports: light (1.3 cm²)); elbow-support (supports: light (0.6 cm²))
-  - [ ] fit test: a printed knob slides onto the 5/16in rod; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring
+  - [ ] fit test: each drum sits flat; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring
 - [ ] **`3MF/2026-09-24-plate-01.3mf`** — slew-wheel (supports: yes (11 cm²)); bucket (supports: yes (27 cm²)); spool-riser (supports: none); slew-tube-bushing (supports: none); bucket-ear-left (supports: light (1.2 cm²)); bucket-ear-right (supports: light (1.2 cm²)); slew-tube-post-1 (supports: none); slew-tube-post-2 (supports: none)
   - [ ] fit test: PEX tube turns freely in the bushing; the spool riser sits flat
 - [ ] **`3MF/2026-09-24-plate-06.3mf`** — tower (supports: yes (53 cm²)); stick-half-right (supports: light (6.9 cm²)); conduit-end-fitting-box (supports: yes (28 cm²))
   - [ ] fit test: 4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor
 - [ ] **`3MF/2026-09-24-plate-02.3mf`** — base (supports: yes (28 cm²)); lever-hub-stick (supports: yes (33 cm²)); lever-hub-boom (supports: yes (35 cm²)); lever-hub-bucket (supports: yes (26 cm²)); lever-knob-1 (supports: light (1.5 cm²)); lever-knob-2 (supports: light (1.5 cm²)); bucket-drum-axle (supports: light (0.7 cm²))
-  - [ ] fit test: the 5/16in rod slides through all three lever hubs and into their handle sockets; each drum sits flat
+  - [ ] fit test: the 5/16in rod slides through all three lever hubs and into their handle sockets, and into a knob's bore
 - [ ] **`3MF/2026-09-24-plate-04.3mf`** — boom-half-left (supports: yes (11 cm²)); slew-drum (supports: yes (14 cm²)); slew-spool (supports: yes (21 cm²))
   - [ ] fit test: the slew drum slides onto the PEX tube (clamp open); the spool turns on the 5/16in rod
 - [ ] **`3MF/2026-09-24-plate-05.3mf`** — boom-half-right (supports: yes (14 cm²)); stick-half-left (supports: light (5.8 cm²))
