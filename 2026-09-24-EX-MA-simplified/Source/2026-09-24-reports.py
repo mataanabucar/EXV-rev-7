@@ -28,6 +28,8 @@ BOX = json.loads((VAL / "2026-09-24-box-data.json").read_text())
 PKG = json.loads((VAL / "2026-09-24-package-check.json").read_text())
 EXT = (VAL / "2026-09-24-exterior-check.txt").read_text()
 CAB = json.loads((VAL / "2026-09-24-cable-paths.json").read_text())
+_FULL = VAL / "2026-09-25-full-assembly-check.json"
+FULL = json.loads(_FULL.read_text()) if _FULL.exists() else None
 VIEWS = [   # Preview/2026-09-24-<key>.png, rendered by render-scene.py (view set b7) + concept-render.mjs
     ("view1-complete-excavator", "Complete excavator: control box with the 3 levers and the slew wheel, pedestal, base, arm, bucket."),
     ("view2-full-system-cutaway", "Full-system cutaway (+v halves removed): every rope from its lever or wheel through the conduit, "
@@ -256,8 +258,12 @@ def architecture():
     add("## Where things are")
     add("")
     add("- `Source/` — every script (all parameters in `2026-09-24-exma_common.py`).")
-    add("- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step`; `3MF/` A1 plates; "
-        "`2026-09-24-ex-ma-assembly.glb` every part in one file.")
+    add("- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step` (new parts, wood, "
+        "hardware); `3MF/` A1 plates; `2026-09-24-ex-ma-assembly.glb` every part in one file.")
+    if FULL:
+        add(f"- `STEP/2026-09-25-ex-ma-full-assembly.zip` — the whole machine in one STEP file ({FULL['n_items']} solids: "
+            "printed parts, the modified EX-MA parts as exact solids, wood, hardware, ropes and PTFE tubes; "
+            f"{FULL['step_mb']:.0f} MB unzipped, zipped because GitHub refuses files over 100 MB).")
     add("- `2026-09-24-bill-of-materials.md`, `2026-09-24-cut-list.md`, `Validation/`, `Preview/`.")
     add("")
     add("## Review views")
@@ -323,6 +329,17 @@ def validation():
     gap = max(r["max_gap"] for r in CAB["ropes"])
     rows.append(("Every rope modelled as one continuous path", f"{len(CAB['ropes'])} rope tails, gap < 0.5 mm",
                  f"max gap {gap:.2f} mm", ok(gap < 0.5)))
+    if FULL:
+        rows.append(("Full assembly STEP (zip): every item present, re-imports", f"{FULL['n_items']} solids",
+                     f"{FULL['solids_in_file']} in file / {FULL['solids_on_reimport']} on re-import; {FULL['zip_mb']:.0f} MB zipped",
+                     ok(FULL["solids_in_file"] == FULL["n_items"] == FULL["solids_on_reimport"] and FULL["zip_mb"] < 100)))
+        mp, cb = FULL["mesh_parts"].values(), FULL["cables"].values()
+        rows.append(("Full assembly: EX-MA meshes and ropes/tubes as valid solids", "valid, volume error < 0.1 %",
+                     f"{sum(m['valid'] for m in mp)}/{len(mp)} parts (max {max(m['volume_error_pct'] for m in mp):.3f} %), "
+                     f"{sum(c['valid'] and c['solids'] == 1 for c in cb)}/{len(cb)} ropes+tubes "
+                     f"(max {max(c['volume_error_pct'] for c in cb):.3f} %)",
+                     ok(all(m["valid"] and m["volume_error_pct"] < 0.1 for m in mp)
+                        and all(c["valid"] and c["solids"] == 1 and c["volume_error_pct"] < 0.1 for c in cb))))
     parts = PKG["parts"]
     rows.append(("Every printed STL watertight, one body", f"{len(parts)} parts",
                  f"{sum(p['watertight'] and p['bodies'] == 1 for p in parts)}/{len(parts)}",
@@ -342,7 +359,7 @@ def validation():
     L = ["# EX-MA — validation summary", "",
          "One line per criterion; details in the reports next to this file:",
          "`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, "
-         "`2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`.", "",
+         "`2026-09-24-package-check.json`, `2026-09-24-cable-paths.json`, `2026-09-25-full-assembly-check.json`.", "",
          "| Check | Target | Result | Status |", "|---|---|---|---|"]
     for r in rows:
         L.append(f"| {r[0]} | {r[1]} | {r[2]} | {r[3]} |")
