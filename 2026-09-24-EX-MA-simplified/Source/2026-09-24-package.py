@@ -57,7 +57,7 @@ PLATE_GROUP = {
     "tower": "turret", "base": "base-ring", "slewing-ring-retaining-ring": "base-ring",
     "boom-half-left": "boom", "boom-half-right": "boom",
     "stick-half-left": "stick-bucket", "stick-half-right": "stick-bucket", "bucket": "stick-bucket",
-    "lever-hub-boom": "levers", "lever-hub-stick": "levers", "lever-hub-bucket": "levers",
+    "lever-hub-boom": "levers", "lever-hub-stick": "levers", "lever-hub-bucket": "levers", "lever-knob": "levers",
     "slew-spool": "slew-box", "spool-riser": "slew-box", "slew-tube-post": "slew-box", "slew-wheel": "wheel",
     "slew-drum": "pedestal", "slew-tube-bushing": "pedestal", "elbow-support": "pedestal",
     "conduit-end-fitting-box": "fittings", "conduit-end-fitting-pedestal": "fittings",
@@ -231,9 +231,10 @@ def hardware_solids():
     out["lever axle 5/16in rod"] = (cyl(ex.LEVER_AXLE_D / 2, (ex.AXLE_U, -y, ex.AXLE_Z), (ex.AXLE_U, y, ex.AXLE_Z)), "steel")
     out["slew spool axle 5/16in rod"] = (cyl(ex.LEVER_AXLE_D / 2, (*ex.WHEEL_C, ex.BOX_Z[0]), (*ex.WHEEL_C, ex.BOX_Z[1] + 32.0)), "steel")
     for j, (vh, vd) in ex.LEVERS.items():
-        a, b = (ex.AXLE_U, vh, ex.AXLE_Z + 9.0), (ex.AXLE_U, vh, ex.AXLE_Z + ex.HANDLE_LEN)
-        knob = cq.Solid.makeSphere(bx.KNOB_R, V(b[0], b[1], b[2] + bx.KNOB_R - 4.0), angleDegrees1=-90, angleDegrees2=90)
-        out[f"{j} handle (5/8in dowel + knob)"] = (cyl(ex.DOWEL_D / 2, a, b).fuse(knob).clean(), "dowel")
+        a, b = (ex.AXLE_U, vh, ex.AXLE_Z + 9.0), (ex.AXLE_U, vh, ex.AXLE_Z + ex.HANDLE_LEN + ex.KNOB_BORE_DEPTH)
+        knob = cq.Solid.makeSphere(bx.KNOB_R, V(b[0], b[1], b[2] - ex.KNOB_BORE_DEPTH + bx.KNOB_R - 4.0),
+                                   angleDegrees1=-90, angleDegrees2=90)
+        out[f"{j} handle (5/16in rod + printed knob)"] = (cyl(ex.HANDLE_D / 2, a, b).fuse(knob).clean(), "steel")
     u_a, u_b = ex.BOX_U[1] - ex.T_WOOD - ex.CONDUIT_SOCKET, ex.PED_U[0] + ex.T_WOOD + ex.CONDUIT_SOCKET
     pipe = cyl(ex.COND_R, (u_a, ex.MOUTH_V, ex.COND_Z), (u_b, ex.MOUTH_V, ex.COND_Z)).cut(
         cyl(ex.CONDUIT_ID / 2, (u_a - 1, ex.MOUTH_V, ex.COND_Z), (u_b + 1, ex.MOUTH_V, ex.COND_Z)))
@@ -340,7 +341,7 @@ def hardware_table():
         ("socket cap", 20, n_lev, n_lev, 0, n_lev, "lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction"),
         ("socket cap", 20, n_wheel, n_wheel, 0, n_wheel, "slew wheel to the spool flange"),
         ("socket cap", 25, 2, 2, 0, 2, "pinch clamps on the PEX turret tube (turret hub, pedestal slew drum)"),
-        ("socket cap", 25, n_lev, n_lev, 0, n_lev, "dowel cross-pins through the lever hubs"),
+        ("socket cap", 20, n_lev, n_lev, 0, n_lev, "handle pinch clamps: hold each 5/16in rod handle in its lever hub"),
         ("socket cap", 25, 4, 4, 8, 0, "pedestal conduit fitting to the pedestal wall (fitting 6 + wall 12 mm)"),
         ("socket cap", 35, 4, 4, 8, 0, "box conduit fitting through the box front and the sandbox wall (6 + 12 + 12 mm)"),
         ("socket cap", 30, 2, 2, 4, 0, "box front to the sandbox wall, lower corners (12 + 12 mm)"),
@@ -392,15 +393,14 @@ def hardware_table():
             buy.append(("PTFE tube 4 mm OD × 2 mm ID", 1, f"{v + 10:.0f} mm", k.replace("PTFE ", "") + " (+10 mm to trim)"))
     buy += [
         ("5/16in rod (have)", 2, f"{2 * ex.AXLE_BLOCK_V[1] + 20:.0f} mm, {ex.BOX_Z[1] + 32.0 - ex.BOX_Z[0]:.0f} mm", "lever axle; slew spool axle"),
+        ("5/16in rod (have)", 3, f"{ex.HANDLE_LEN - 9.0 + ex.KNOB_BORE_DEPTH:.0f} mm", "lever handles (printed knobs glued on top)"),
         ("5/16in nut + washer", 4, "5/16in", "2 on the lever axle (outside the bearing blocks), 2 on the spool axle"),
         ("6 mm airsoft BBs (or 1/4in steel balls)", n_balls, "Ø6", "slewing ring (+ ~5 spares)"),
         ("3/4in PEX-B tube (have)", 1, f"{ex.TUBE_Z[1] - ex.TUBE_Z[0]:.0f} mm", "turning turret tube"),
         ("1/2in copper (have)", 1, "90° sweep elbow (R ≈ 30) + 50 mm pipe", "fixed elbow in the pedestal (deburr both ends)"),
         ("2in sch 40 PVC", 1, f"{rt.CONDUIT_RUN:.0f} mm", "conduit between the box and the pedestal (seal with silicone at the sandbox wall)"),
-        ("5/8in hardwood dowel", 3, f"{ex.HANDLE_LEN - 9.0:.0f} mm", "lever handles"),
-        ("knob Ø30–40 mm (ball or drawer knob)", 3, "", "lever handle tops"),
         ("12 mm plywood", "see cut list", "", "control box, pedestal, sandbox (2026-09-24-cut-list.md)"),
-        ("glue", "", "wood glue; epoxy or CA", "panel joints; bucket ears to the bucket lugs (as in the original EX-MA)"),
+        ("glue", "", "wood glue; epoxy or CA", "panel joints; bucket ears to the bucket lugs (as in the original EX-MA); printed knobs on the handle rods"),
     ]
     sections = [
         ("From your M3 kit (Fgruh 2300 pc)", "Every machine screw is an M3 from the kit; the longest needed is 35 mm. "

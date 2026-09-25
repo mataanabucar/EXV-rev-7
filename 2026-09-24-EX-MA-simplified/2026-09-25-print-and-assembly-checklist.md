@@ -29,14 +29,14 @@ Print the plates in this order; it follows the build order, so each step's parts
 
 - [ ] **`3MF/2026-09-24-plate-07.3mf`** — conduit-end-fitting-pedestal (supports: yes (28 cm²))
   - [ ] fit test: copper elbow pushes into the round socket; a PTFE tube slides freely through the rounded window
-- [ ] **`3MF/2026-09-24-plate-03.3mf`** — slewing-ring-retaining-ring (supports: none); elbow-support (supports: light (0.6 cm²))
-  - [ ] fit test: (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring
+- [ ] **`3MF/2026-09-24-plate-03.3mf`** — slewing-ring-retaining-ring (supports: none); lever-knob-3 (supports: light (1.5 cm²)); boom-drum (supports: light (1.4 cm²)); stick-drum (supports: light (1.3 cm²)); elbow-support (supports: light (0.6 cm²))
+  - [ ] fit test: a printed knob slides onto the 5/16in rod; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring
 - [ ] **`3MF/2026-09-24-plate-01.3mf`** — slew-wheel (supports: yes (11 cm²)); bucket (supports: yes (27 cm²)); spool-riser (supports: none); slew-tube-bushing (supports: none); bucket-ear-left (supports: light (1.2 cm²)); bucket-ear-right (supports: light (1.2 cm²)); slew-tube-post-1 (supports: none); slew-tube-post-2 (supports: none)
   - [ ] fit test: PEX tube turns freely in the bushing; the spool riser sits flat
 - [ ] **`3MF/2026-09-24-plate-06.3mf`** — tower (supports: yes (53 cm²)); stick-half-right (supports: light (6.9 cm²)); conduit-end-fitting-box (supports: yes (28 cm²))
   - [ ] fit test: 4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor
-- [ ] **`3MF/2026-09-24-plate-02.3mf`** — base (supports: yes (28 cm²)); lever-hub-stick (supports: yes (34 cm²)); lever-hub-boom (supports: yes (36 cm²)); lever-hub-bucket (supports: yes (27 cm²)); boom-drum (supports: light (1.4 cm²)); stick-drum (supports: light (1.3 cm²)); bucket-drum-axle (supports: light (0.7 cm²))
-  - [ ] fit test: the 5/16in rod slides through all three lever hubs; each drum sits flat
+- [ ] **`3MF/2026-09-24-plate-02.3mf`** — base (supports: yes (28 cm²)); lever-hub-stick (supports: yes (33 cm²)); lever-hub-boom (supports: yes (35 cm²)); lever-hub-bucket (supports: yes (26 cm²)); lever-knob-1 (supports: light (1.5 cm²)); lever-knob-2 (supports: light (1.5 cm²)); bucket-drum-axle (supports: light (0.7 cm²))
+  - [ ] fit test: the 5/16in rod slides through all three lever hubs and into their handle sockets; each drum sits flat
 - [ ] **`3MF/2026-09-24-plate-04.3mf`** — boom-half-left (supports: yes (11 cm²)); slew-drum (supports: yes (14 cm²)); slew-spool (supports: yes (21 cm²))
   - [ ] fit test: the slew drum slides onto the PEX tube (clamp open); the spool turns on the 5/16in rod
 - [ ] **`3MF/2026-09-24-plate-05.3mf`** — boom-half-right (supports: yes (14 cm²)); stick-half-left (supports: light (5.8 cm²))
@@ -52,7 +52,7 @@ Print the plates in this order; it follows the build order, so each step's parts
 - [ ] 2 × 5/16in rod (have) (205 mm, 274 mm) — lever axle; slew spool axle
 - [ ] 1 × 3/4in PEX-B tube (have) (120 mm) — turning turret tube
 - [ ] 1 × 2in sch 40 PVC (141 mm) — conduit between the box and the pedestal (seal with silicone at the sandbox wall)
-- [ ] 3 × 5/8in hardwood dowel (216 mm) — lever handles
+- [ ] 3 × 5/16in rod (have) (230 mm) — lever handles (printed knobs glued on top)
 
 Rope and PTFE: cut each piece and label it with tape (each is listed again in the step that uses it).
 
@@ -147,7 +147,7 @@ Hardware:
 - [ ] 2 × 8-32 rod, stick split pin (boom tip → stick wall) (22 mm) — a jam pair (2 nuts) on the outer end
 - [ ] 1 × 8-32 rod, bucket pin (ears + drum-axle) (65 mm) — a jam pair at each end
 - [ ] 12 × 8-32 hex nuts (12 of 22) — jam nuts on the pins (two nuts tightened against each other)
-- [ ] glue (wood glue; epoxy or CA) — panel joints; bucket ears to the bucket lugs (as in the original EX-MA)
+- [ ] glue (wood glue; epoxy or CA) — panel joints; bucket ears to the bucket lugs (as in the original EX-MA); printed knobs on the handle rods
 
 **Check:** each joint swings through its full range without rubbing (boom −40…+45°, stick −45…+50°, bucket −55…+85°).
 
@@ -188,16 +188,15 @@ Hardware:
 
 ## 11. Top panel, handles and wheel
 
-- [ ] Screw the top panel on; push the dowels through the slots into the hub sockets and cross-pin them.
-- [ ] Put the knobs on the dowels; bolt the slew wheel to the spool flange.
+- [ ] Screw the top panel on; push the 5/16in rod handles through the slots into the hub sockets and tighten each handle's pinch clamp.
+- [ ] Glue a printed knob onto each handle (CA or epoxy); bolt the slew wheel to the spool flange.
 - [ ] Set each lever's drag clamp so the lever holds its position with the arm loaded (boom needs the most).
 
 Hardware:
 
-- [ ] 3 × M3 × 25 socket cap — dowel cross-pins through the lever hubs
+- [ ] 3 × M3 × 20 socket cap — handle pinch clamps: hold each 5/16in rod handle in its lever hub
 - [ ] 3 × M3 × 20 socket cap — slew wheel to the spool flange
 - [ ] 3 × M3 × 20 socket cap — lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction
-- [ ] 3 × knob Ø30–40 mm (ball or drawer knob) — lever handle tops
 
 **Check:** each lever stops at both ends of its slot (the slot is the hard stop); nothing rubs the top panel.
 

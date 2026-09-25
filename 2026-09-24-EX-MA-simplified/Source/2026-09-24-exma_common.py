@@ -100,7 +100,8 @@ LEVERS = dict(boom=(70.0, 19.0), stick=(0.0, -17.0), bucket=(-70.0, -32.0))   # 
 LEVER_HUB_V = dict(boom=(10.25, 80.0), stick=(-24.75, 9.75), bucket=(-80.0, -25.25))
 AXLE_BLOCK_V = (80.5, 92.5)        # |v| span of the two axle bearing blocks
 HANDLE_LEN = 225.0
-DOWEL_D = 15.9                     # 5/8" hardwood dowel handles
+HANDLE_D = LEVER_AXLE_D             # lever handles: 5/16" smooth rod (same stock as the axles)
+KNOB_BORE_DEPTH = 14.0             # the rod enters the printed knob this far (glued)
 WHEEL_C = (-340.0, -190.0)
 MOUTH_U = -210.0
 MOUTH_V = -8.0

@@ -8,21 +8,21 @@ Solid overlap threshold 1.0 mm³. Designed contacts (shafts in bores, parts scre
 
 ## Lever sweep (2° steps across each slot)
 
-| Lever | Swing | Slot length | Worst overlap during the sweep | Dowel vs slot end at the stop / 1.5° past |
+| Lever | Swing | Slot length | Worst overlap during the sweep | Handle vs slot end at the stop / 1.5° past |
 |---|---|---|---|---|
-| boom | 42.5° | 141.5 × 17.0 mm | none | 0.00 / 402 mm³ ; 0.00 / 402 mm³ |
-| stick | 41.2° | 137.2 × 17.0 mm | none | 0.00 / 408 mm³ ; 0.00 / 408 mm³ |
-| bucket | 39.7° | 132.3 × 17.0 mm | none | 0.00 / 416 mm³ ; 0.00 / 416 mm³ |
+| boom | 42.5° | 133.0 × 9.0 mm | none | 0.00 / 204 mm³ ; 0.00 / 204 mm³ |
+| stick | 41.2° | 128.7 × 9.0 mm | none | 0.00 / 207 mm³ ; 0.00 / 207 mm³ |
+| bucket | 39.7° | 123.9 × 9.0 mm | none | 0.00 / 211 mm³ ; 0.00 / 211 mm³ |
 
 The slot is the hard stop: ~0 overlap at the end of travel and a clear overlap 1.5° further.
 
 ## Slew wheel hand clearance
 
-| Lever | Closest approach of dowel/knob to the wheel over the lever swing |
+| Lever | Closest approach of handle/knob to the wheel over the lever swing |
 |---|---|
 | boom | 161 mm |
-| stick | 91 mm |
-| bucket | 22 mm |
+| stick | 95 mm |
+| bucket | 26 mm |
 
 ## Lever ropes in the box (drum tangent → box fitting hole)
 
@@ -62,11 +62,11 @@ Closest rope/sleeve pair in the box: 2.4 mm surface to surface (boom upper / sti
 - radial load left on the slewing ring (N): 19.91
 - moment on the slewing ring without the bushing (N·m): 5.46
 - boom: arm gravity torque at the joint, upper bound (N·m): 0.32
-- boom: holding torque needed at the lever (N·m): 0.64
-- boom: drag-clamp M3 bolt force for it (N, mu 0.3): 171.98
+- boom: holding torque needed at the lever (N·m): 0.65
+- boom: drag-clamp M3 bolt force for it (N, mu 0.3): 172.48
 - stick: arm gravity torque at the joint, upper bound (N·m): 0.10
-- stick: holding torque needed at the lever (N·m): 0.22
-- stick: drag-clamp M3 bolt force for it (N, mu 0.3): 60.03
+- stick: holding torque needed at the lever (N·m): 0.23
+- stick: drag-clamp M3 bolt force for it (N, mu 0.3): 60.32
 - bucket: arm gravity torque at the joint, upper bound (N·m): 0.01
 - bucket: holding torque needed at the lever (N·m): 0.04
 - bucket: drag-clamp M3 bolt force for it (N, mu 0.3): 9.91

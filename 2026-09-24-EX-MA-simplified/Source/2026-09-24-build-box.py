@@ -32,7 +32,7 @@ T = ex.T_WOOD
 CONDUIT_HOLE_D = 62.0             # 2" PVC OD 60.3
 ROD_HOLE_D = 8.5                  # 5/16" rod
 BOLT_HOLE_D = 4.6                 # M3 bolts (with washers) through fitting + panel + sandbox wall
-SLOT_W = ex.DOWEL_D + 1.1         # lever slot width
+SLOT_W = ex.HANDLE_D + 1.1        # lever slot width (5/16" rod handle)
 SPOOL_HOLE_D = 24.4               # top panel = upper bearing of the spool tube (Ø24)
 PEX_HOLE_D = ex.TURRET_TUBE_OD + 4.0   # pedestal top: clearance only
 BUSHING_HOLE_D = 30.4             # pedestal shelf: slew-tube-bushing body Ø30
@@ -53,10 +53,10 @@ def lever_deg(j):
 
 
 def slot_length(j):
-    """Top-panel slot = the lever's hard stop: the dowel touches the slot end at the top face."""
+    """Top-panel slot = the lever's hard stop: the handle rod touches the slot end at the top face."""
     a = math.radians(lever_deg(j) / 2)
     h = ex.BOX_Z[1] - ex.AXLE_Z
-    return 2 * (h * math.tan(a) + (ex.DOWEL_D / 2) / math.cos(a))
+    return 2 * (h * math.tan(a) + (ex.HANDLE_D / 2) / math.cos(a))
 
 
 # ---------------------------------------------------------------- panels
@@ -195,21 +195,22 @@ def lever_pose_T(j, deg):
 
 
 def lever_handle_mesh(j, deg=0.0):
-    """Dowel (from the hub socket floor) + knob, posed."""
+    """5/16" rod (from the hub socket floor into the knob) + printed knob, posed."""
     import trimesh
     vh = ex.LEVERS[j][0]
     a = np.array([ex.AXLE_U, vh, ex.AXLE_Z + 9.0])
     b = np.array([ex.AXLE_U, vh, ex.AXLE_Z + ex.HANDLE_LEN])
-    dowel = trimesh.creation.cylinder(radius=ex.DOWEL_D / 2, segment=np.array([a, b]), sections=32)
+    rod = trimesh.creation.cylinder(radius=ex.HANDLE_D / 2, segment=np.array([a, b + [0, 0, ex.KNOB_BORE_DEPTH]]),
+                                    sections=32)
     knob = trimesh.creation.icosphere(subdivisions=2, radius=KNOB_R)
     knob.apply_translation(b + [0, 0, KNOB_R - 4.0])
-    m = ex.from_manifold(ex.to_manifold(dowel) + ex.to_manifold(knob))     # one closed solid
+    m = ex.from_manifold(ex.to_manifold(rod) + ex.to_manifold(knob))       # one closed solid
     m.apply_transform(lever_pose_T(j, deg))
     return m
 
 
 def hardware():
-    """name -> (trimesh, colour key). Rods, dowels, conduit, copper elbow, PEX tube."""
+    """name -> (trimesh, colour key). Rods (axles, handles), conduit, copper elbow, PEX tube."""
     import trimesh
     H = {}
     cyl = lambda a, b, r, n=32: trimesh.creation.cylinder(radius=r, segment=np.array([a, b], float), sections=n)
@@ -218,7 +219,7 @@ def hardware():
     H["slew spool axle (5/16in rod)"] = (cyl((*ex.WHEEL_C, ex.BOX_Z[0]), (*ex.WHEEL_C, ex.BOX_Z[1] + 32.0),
                                              ex.LEVER_AXLE_D / 2), "steel")
     for j in ex.LEVERS:
-        H[f"{j} handle"] = (lever_handle_mesh(j), "dowel")
+        H[f"{j} handle"] = (lever_handle_mesh(j), "steel")
     u_a = ex.BOX_U[1] - T - ex.CONDUIT_SOCKET
     u_b = ex.PED_U[0] + T + ex.CONDUIT_SOCKET
     c = trimesh.creation.annulus(r_min=ex.CONDUIT_ID / 2, r_max=ex.COND_R, height=u_b - u_a, sections=64)
@@ -408,7 +409,7 @@ def cut_list(P):
           "(socket floor to socket floor).",
           f"- 5/16in rod: lever axle {2 * ex.AXLE_BLOCK_V[1] + 20:.0f} mm; slew spool axle "
           f"{ex.BOX_Z[1] + 32.0 - ex.BOX_Z[0]:.0f} mm.",
-          f"- 5/8in hardwood dowel handles: 3 × {ex.HANDLE_LEN - 9.0:.0f} mm.",
+          f"- 5/16in rod lever handles: 3 × {ex.HANDLE_LEN - 9.0 + ex.KNOB_BORE_DEPTH:.0f} mm.",
           "- 8-32 rod (joint pins only): 2 × 42 mm, 2 × 22 mm, 1 × 65 mm.", ""]
     return "\n".join(L)
 

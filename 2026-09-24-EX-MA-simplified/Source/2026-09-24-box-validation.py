@@ -157,7 +157,7 @@ def lever_sweep(parts):
                     v = (hub ^ ok).volume()
                     if v > worst[0]:
                         worst = (v, f"hub {j} {d:+.1f} vs hub {k} {dk:+.1f}")
-        # hard stop: the dowel touches the slot end at +-half; 1.5 deg further it cuts into the top
+        # hard stop: the handle rod touches the slot end at +-half; 1.5 deg further it cuts into the top
         stop = []
         for sgn in (1, -1):
             h_at = (M(bx.lever_handle_mesh(j, sgn * half)) ^ top).volume()
@@ -363,7 +363,7 @@ def main():
     if loose:
         L.append(f"- Swept meshes tested by vertex containment: {', '.join(loose)}.")
     L += ["", "## Lever sweep (2° steps across each slot)", "",
-          "| Lever | Swing | Slot length | Worst overlap during the sweep | Dowel vs slot end at the stop / 1.5° past |",
+          "| Lever | Swing | Slot length | Worst overlap during the sweep | Handle vs slot end at the stop / 1.5° past |",
           "|---|---|---|---|---|"]
     for r in sweep:
         w = f"{r['worst'][0]:.2f} mm³ ({r['worst'][1]})" if r["worst"][0] > 0 else "none"
@@ -371,7 +371,7 @@ def main():
         L.append(f"| {r['lever']} | {r['swing']:.1f}° | {r['slot']:.1f} × {bx.SLOT_W:.1f} mm | {w} | {st} |")
     L += ["", "The slot is the hard stop: ~0 overlap at the end of travel and a clear overlap 1.5° further.", "",
           "## Slew wheel hand clearance", "",
-          "| Lever | Closest approach of dowel/knob to the wheel over the lever swing |", "|---|---|"]
+          "| Lever | Closest approach of handle/knob to the wheel over the lever swing |", "|---|---|"]
     for j, d in wheel.items():
         L.append(f"| {j} | {d:.0f} mm |")
     L += ["", "## Lever ropes in the box (drum tangent → box fitting hole)", "",

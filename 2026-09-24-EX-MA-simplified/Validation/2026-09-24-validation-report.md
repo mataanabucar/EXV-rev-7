@@ -17,7 +17,7 @@ One line per criterion; details in the reports next to this file:
 | Box/pedestal/sandbox part overlaps | none | none | pass |
 | Lever sweep across each slot | no contact | worst 0.00 mm³ | pass |
 | Slots are the lever hard stops | 0 at the stop, contact 1.5° past | yes | pass |
-| Slew wheel hand clearance | ≥ 20 mm | 22 mm | pass |
+| Slew wheel hand clearance | ≥ 20 mm | 26 mm | pass |
 | Lever rope fleet angle / fitting entry | ≤ 12° / ≤ 30° | 11.3° / 21.4° | pass |
 | Rope wrap on the lever drums | ≥ 20° | 52° | pass |
 | Rope wrap on the slew drums at ±90° | ≥ 20° | 90° | pass |
@@ -27,10 +27,10 @@ One line per criterion; details in the reports next to this file:
 | Every rope modelled as one continuous path | 8 rope tails, gap < 0.5 mm | max gap 0.00 mm | pass |
 | Full assembly STEP (zip): every item present, re-imports | 131 solids | 131 in file / 131 on re-import; 63 MB zipped | pass |
 | Full assembly: EX-MA meshes and ropes/tubes as valid solids | valid, volume error < 0.1 % | 9/9 parts (max 0.000 %), 14/14 ropes+tubes (max 0.000 %) | pass |
-| Walls printable with a 0.6 mm nozzle (in print orientation) | no patch ≥ 20 mm² under 1.0 mm | 25/25 parts; 44 small attached slivers listed | pass |
-| Every printed STL watertight, one body | 25 parts | 25/25 | pass |
-| Every printed part fits the A1 bed | ≤ 246 × 246 × 256 mm | 25/25 | pass |
-| Every part STEP imports as one solid | 16 files | 16/16 | pass |
+| Walls printable with a 0.6 mm nozzle (in print orientation) | no patch ≥ 20 mm² under 1.0 mm | 26/26 parts; 44 small attached slivers listed | pass |
+| Every printed STL watertight, one body | 26 parts | 26/26 | pass |
+| Every printed part fits the A1 bed | ≤ 246 × 246 × 256 mm | 26/26 | pass |
+| Every part STEP imports as one solid | 17 files | 17/17 | pass |
 | Assembly STEP re-imports completely | 108 solids | 108 | pass |
 | 3MF plates reload, inside the bed, no overlaps | 7 plates | 7/7 | pass |
 

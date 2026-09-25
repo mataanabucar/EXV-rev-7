@@ -8,16 +8,17 @@ Print settings for every printed part: 0.6 mm nozzle, PLA or PETG, 0.2 mm layers
 
 | Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Plate |
 |---|---|---|---|---|---|---|---|---|
-| boom-drum | 1 | Ø30 pitch single-groove boom drum | 10.6 cm³ | 7 g | top face down | 35 × 35 × 14 | light (1.4 cm²) | 2 |
-| stick-drum | 1 | Ø26 pitch single-groove stick drum | 5.8 cm³ | 4 g | top face down | 30 × 30 × 10 | light (1.3 cm²) | 2 |
+| boom-drum | 1 | Ø30 pitch single-groove boom drum | 10.6 cm³ | 7 g | top face down | 35 × 35 × 14 | light (1.4 cm²) | 3 |
+| stick-drum | 1 | Ø26 pitch single-groove stick drum | 5.8 cm³ | 4 g | top face down | 30 × 30 × 10 | light (1.3 cm²) | 3 |
 | bucket-drum-axle | 1 | Ø17 pitch bucket drum with journals and hex ends | 6.6 cm³ | 5 g | top face down | 19 × 19 × 49 | light (0.7 cm²) | 2 |
 | slew-drum | 1 | Ø110 pitch two-lane slew drum on the rotating 3/4in PEX turret tube | 78.9 cm³ | 54 g | as modelled (bottom down) | 113 × 113 × 31 | yes (14 cm²) | 4 |
 | slewing-ring-retaining-ring | 1 | upper outer race, 8 x M3x12 | 19.9 cm³ | 14 g | top face down | 140 × 140 × 6 | none | 3 |
 | conduit-end-fitting-box | 1 | box end of the conduit: PTFE tube anchors | 133.8 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 6 |
 | conduit-end-fitting-pedestal | 1 | pedestal end: PTFE tubes slide through into the copper elbow | 132.9 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 7 |
-| lever-hub-boom | 1 | boom lever hub + drag clamp, drum offset toward centre | 50.9 cm³ | 35 g | top face down | 65 × 66 × 70 | yes (36 cm²) | 2 |
-| lever-hub-stick | 1 | stick lever hub + drag clamp | 41.5 cm³ | 28 g | top face down | 65 × 66 × 34 | yes (34 cm²) | 2 |
-| lever-hub-bucket | 1 | bucket lever hub + drag clamp, drum offset toward centre | 46.6 cm³ | 32 g | top face down | 65 × 66 × 55 | yes (27 cm²) | 2 |
+| lever-hub-boom | 1 | boom lever hub + drag clamp, drum offset toward centre | 54.2 cm³ | 37 g | top face down | 65 × 66 × 70 | yes (35 cm²) | 2 |
+| lever-hub-stick | 1 | stick lever hub + drag clamp | 44.9 cm³ | 31 g | top face down | 65 × 66 × 34 | yes (33 cm²) | 2 |
+| lever-hub-bucket | 1 | bucket lever hub + drag clamp, drum offset toward centre | 49.9 cm³ | 34 g | top face down | 65 × 66 × 55 | yes (26 cm²) | 2 |
+| lever-knob | 3 | Ø36 ball knob, glued on the 5/16in rod handle | 22.8 cm³ | 16 g | as modelled (bottom down) | 36 × 36 × 32 | light (1.5 cm²) | 2, 3 |
 | slew-spool | 1 | wheel spool: Ø110 two-lane drum + tube + wheel flange | 124.2 cm³ | 85 g | as modelled (bottom down) | 113 × 113 × 145 | yes (21 cm²) | 4 |
 | slew-wheel | 1 | Ø184 horizontal hand wheel | 116.1 cm³ | 79 g | as modelled (bottom down) | 184 × 184 × 12 | yes (11 cm²) | 1 |
 | slew-tube-bushing | 1 | PEX turret-tube bushing in the pedestal shelf | 6.9 cm³ | 5 g | as modelled (bottom down) | 44 × 44 × 15 | none | 1 |
@@ -39,15 +40,15 @@ Print settings for every printed part: 0.6 mm nozzle, PLA or PETG, 0.2 mm layers
 | bucket-ear-right | 1 | EX-MA bucket ear H: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its -y side | 20 × 43 × 15 | light (1.2 cm²) | 1 |
 | bucket | 1 | EX-MA bucket: repaired STEP body + bracket I + lugs O/P merged into one part | 27.8 cm³ | 19 g | on its +x side | 69 × 54 × 69 | yes (27 cm²) | 1 |
 
-Printed total: 17 new prints + 9 modified EX-MA prints, about 0.98 kg of filament (estimate at ~55 % effective fill).
+Printed total: 20 new prints + 9 modified EX-MA prints, about 1.03 kg of filament (estimate at ~55 % effective fill).
 
 ## Plates (Bambu A1, 256 × 256 mm)
 
 | Plate | Parts |
 |---|---|
 | `3MF/2026-09-24-plate-01.3mf` | slew-wheel, bucket, spool-riser, slew-tube-bushing, bucket-ear-left, bucket-ear-right, slew-tube-post #1, slew-tube-post #2 |
-| `3MF/2026-09-24-plate-02.3mf` | base, lever-hub-stick, lever-hub-boom, lever-hub-bucket, boom-drum, stick-drum, bucket-drum-axle |
-| `3MF/2026-09-24-plate-03.3mf` | slewing-ring-retaining-ring, elbow-support |
+| `3MF/2026-09-24-plate-02.3mf` | base, lever-hub-stick, lever-hub-boom, lever-hub-bucket, lever-knob #1, lever-knob #2, bucket-drum-axle |
+| `3MF/2026-09-24-plate-03.3mf` | slewing-ring-retaining-ring, lever-knob #3, boom-drum, stick-drum, elbow-support |
 | `3MF/2026-09-24-plate-04.3mf` | boom-half-left, slew-drum, slew-spool |
 | `3MF/2026-09-24-plate-05.3mf` | boom-half-right, stick-half-left |
 | `3MF/2026-09-24-plate-06.3mf` | tower, stick-half-right, conduit-end-fitting-box |
@@ -61,12 +62,12 @@ Every machine screw is an M3 from the kit; the longest needed is 35 mm. Column 3
 |---|---|---|---|
 | M3 × 12 socket cap | 8 | 16 of 32 | joint-drum key screws: lock the boom and stick drums to their arm members (4 per drum, 2 through each side wall; the heads sit in pockets in the wall) |
 | M3 × 12 socket cap | 8 | 16 of 32 | slewing-ring retaining ring: holds the turret down on the BBs (nuts slide into the slots in the base rim) |
-| M3 × 20 socket cap | 8 | 14 of 30 | joining lugs: clamp the two halves of the boom (4) and the stick (4) together |
-| M3 × 20 socket cap | 3 | 14 of 30 | lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction |
-| M3 × 20 socket cap | 3 | 14 of 30 | slew wheel to the spool flange |
-| M3 × 25 socket cap | 2 | 9 of 30 | pinch clamps on the PEX turret tube (turret hub, pedestal slew drum) |
-| M3 × 25 socket cap | 3 | 9 of 30 | dowel cross-pins through the lever hubs |
-| M3 × 25 socket cap | 4 | 9 of 30 | pedestal conduit fitting to the pedestal wall (fitting 6 + wall 12 mm) |
+| M3 × 20 socket cap | 8 | 17 of 30 | joining lugs: clamp the two halves of the boom (4) and the stick (4) together |
+| M3 × 20 socket cap | 3 | 17 of 30 | lever drag clamps: squeeze the 5/16in rod to set each lever's holding friction |
+| M3 × 20 socket cap | 3 | 17 of 30 | slew wheel to the spool flange |
+| M3 × 25 socket cap | 2 | 6 of 30 | pinch clamps on the PEX turret tube (turret hub, pedestal slew drum) |
+| M3 × 20 socket cap | 3 | 17 of 30 | handle pinch clamps: hold each 5/16in rod handle in its lever hub |
+| M3 × 25 socket cap | 4 | 6 of 30 | pedestal conduit fitting to the pedestal wall (fitting 6 + wall 12 mm) |
 | M3 × 35 socket cap | 4 | 4 of 20 | box conduit fitting through the box front and the sandbox wall (6 + 12 + 12 mm) |
 | M3 × 30 socket cap | 2 | 2 of 20 | box front to the sandbox wall, lower corners (12 + 12 mm) |
 | M3 × 10 button head | 8 | 8 of 42 | slotted rope-tail anchors = tension adjusters (2 per lever, 2 on the spool); the rope loop sits between two washers |
@@ -115,15 +116,14 @@ PTFE tube = the white 4 mm OD / 2 mm ID filament (Bowden) tube used on 3D printe
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 339 mm | slew sleeve A (post -> pedestal fitting) (+10 mm to trim) |
 | PTFE tube 4 mm OD × 2 mm ID | 1 | 407 mm | slew sleeve B (post -> pedestal fitting) (+10 mm to trim) |
 | 5/16in rod (have) | 2 | 205 mm, 274 mm | lever axle; slew spool axle |
+| 5/16in rod (have) | 3 | 230 mm | lever handles (printed knobs glued on top) |
 | 5/16in nut + washer | 4 | 5/16in | 2 on the lever axle (outside the bearing blocks), 2 on the spool axle |
 | 6 mm airsoft BBs (or 1/4in steel balls) | 57 | Ø6 | slewing ring (+ ~5 spares) |
 | 3/4in PEX-B tube (have) | 1 | 120 mm | turning turret tube |
 | 1/2in copper (have) | 1 | 90° sweep elbow (R ≈ 30) + 50 mm pipe | fixed elbow in the pedestal (deburr both ends) |
 | 2in sch 40 PVC | 1 | 141 mm | conduit between the box and the pedestal (seal with silicone at the sandbox wall) |
-| 5/8in hardwood dowel | 3 | 216 mm | lever handles |
-| knob Ø30–40 mm (ball or drawer knob) | 3 |  | lever handle tops |
 | 12 mm plywood | see cut list |  | control box, pedestal, sandbox (2026-09-24-cut-list.md) |
-| glue |  | wood glue; epoxy or CA | panel joints; bucket ears to the bucket lugs (as in the original EX-MA) |
+| glue |  | wood glue; epoxy or CA | panel joints; bucket ears to the bucket lugs (as in the original EX-MA); printed knobs on the handle rods |
 
 Rope total: 7.1 m (have at least 9 m, which includes 20 % spare). PTFE tube total: 3.7 m — buy one 5 m roll.
 

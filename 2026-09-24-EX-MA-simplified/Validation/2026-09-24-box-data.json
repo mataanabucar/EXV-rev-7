@@ -11,14 +11,14 @@
    "stop": [
     [
      0.0,
-     401.9839252882872
+     203.95359922957448
     ],
     [
      0.0,
-     401.9839253914593
+     203.95360167830532
     ]
    ],
-   "slot": 141.5011359853317
+   "slot": 132.96043556600432
   },
   {
    "lever": "stick",
@@ -30,14 +30,14 @@
    "stop": [
     [
      0.0,
-     408.2934471919375
+     207.0180271008348
     ],
     [
      0.0,
-     408.29344965560097
+     207.01802401350957
     ]
    ],
-   "slot": 137.1581114392803
+   "slot": 128.6553081452912
   },
   {
    "lever": "bucket",
@@ -49,20 +49,20 @@
    "stop": [
     [
      0.0,
-     416.06903612842996
+     210.82884115132146
     ],
     [
      0.0,
-     416.06903357838286
+     210.82884005205503
     ]
    ],
-   "slot": 132.3200344736986
+   "slot": 123.85810263213514
   }
  ],
  "wheel": {
-  "boom": 160.85843869864664,
-  "stick": 91.16336650834126,
-  "bucket": 21.74142524735564
+  "boom": 161.42503941921797,
+  "stick": 95.12510349418095,
+  "bucket": 25.712586902333474
  },
  "ropes": [
   {
@@ -73,7 +73,7 @@
     62.07006222528716,
     104.57006222528716
    ],
-   "clear": 7.963191484796854,
+   "clear": 7.991787828355103,
    "clear_to": "lever-hub-stick",
    "length": 117.68959172331255
   },
@@ -97,7 +97,7 @@
     62.73672889195382,
     103.9033955586205
    ],
-   "clear": 7.61154638720284,
+   "clear": 7.614485808367994,
    "clear_to": "lever-hub-bucket",
    "length": 115.77063530965007
   },
@@ -109,7 +109,7 @@
     53.08714471025226,
     94.25381137691895
    ],
-   "clear": 7.605273905615813,
+   "clear": 7.617464020558923,
    "clear_to": "lever-hub-bucket",
    "length": 116.15007533359585
   },
@@ -133,7 +133,7 @@
     53.83714471025226,
     93.50381137691895
    ],
-   "clear": 4.678301912956804,
+   "clear": 4.661375900652038,
    "clear_to": "lever-hub-stick",
    "length": 117.51527560279129
   }
@@ -176,12 +176,12 @@
   "PEX deflection at the drum, with the shelf bushing (mm)": 0.3292369243616234,
   "radial load left on the slewing ring (N)": 19.912018807561473,
   "moment on the slewing ring without the bushing (N\u00b7m)": 5.46103173877057,
-  "boom: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.32174304094716694,
-  "boom: holding torque needed at the lever (N\u00b7m)": 0.6434860818943339,
-  "boom: drag-clamp M3 bolt force for it (N, mu 0.3)": 171.97983332379414,
-  "stick: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.09733343015422664,
-  "stick: holding torque needed at the lever (N\u00b7m)": 0.22461560804821532,
-  "stick: drag-clamp M3 bolt force for it (N, mu 0.3)": 60.03137584628913,
+  "boom: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.32267062996283663,
+  "boom: holding torque needed at the lever (N\u00b7m)": 0.6453412599256733,
+  "boom: drag-clamp M3 bolt force for it (N, mu 0.3)": 172.4756532297608,
+  "stick: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.0978008419379638,
+  "stick: holding torque needed at the lever (N\u00b7m)": 0.2256942506260703,
+  "stick: drag-clamp M3 bolt force for it (N, mu 0.3)": 60.319656783476375,
   "bucket: arm gravity torque at the joint, upper bound (N\u00b7m)": 0.010503009955396617,
   "bucket: holding torque needed at the lever (N\u00b7m)": 0.03706944690139982,
   "bucket: drag-clamp M3 bolt force for it (N, mu 0.3)": 9.907280792678966,

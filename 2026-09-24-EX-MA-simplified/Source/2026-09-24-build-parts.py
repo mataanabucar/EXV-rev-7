@@ -45,7 +45,8 @@ AXLE_Z = dict(drum=5.0, cone=9.5, journal=18.9, hex=24.5)   # half-lengths along
 BUCKET_LIP = 1.8                 # flange above the groove bottom (was 2.8): leaves room for a 2 mm stick-nose wall
 
 SLEW_HUB_R, SLEW_BORE = 15.0, ex.TURRET_TUBE_OD + 0.3   # 3/4" PEX-B OD 22.23
-LEVER_SOCKET_D, LEVER_SOCKET_DEPTH = 16.2, 25.0   # 5/8" hardwood dowel handle
+LEVER_SOCKET_D, LEVER_SOCKET_DEPTH = ex.HANDLE_D + 0.36, 25.0   # 5/16" rod handle, pinch-clamped
+KNOB_R = 18.0                    # printed ball knob (glued on the handle rod)
 SPOOL_TUBE_R, SPOOL_LEN = 12.0, 145.0
 WHEEL_R_OUT, WHEEL_R_IN, WHEEL_T = 92.0, 78.0, 12.0
 BOLT_CIRCLE_SPOOL = 16.0
@@ -354,7 +355,7 @@ def slot_anchor(part, rc, angle_deg, hole_dir, r0, r1, z_slot, z_hole):
 
 
 def lever_hub(name):
-    """Printed lever hub: Ø60 single-groove drum + sleeve + dowel socket, turns on the common
+    """Printed lever hub: Ø60 single-groove drum + sleeve + handle socket, turns on the common
     5/16" rod. Local Z = design v - drum v; the handle points local +Y (up); local +X = design -u.
 
     - Sleeves run to LEVER_HUB_V so the three hubs and the two bearing blocks stack 0.5 mm apart.
@@ -375,7 +376,14 @@ def lever_hub(name):
     hub = hub.intersect(cq.Workplane("XY").box(200, 200, z1 - z0).translate((0, 0, (z0 + z1) / 2)))
     hub = hub.cut(cq.Workplane("XZ").circle(LEVER_SOCKET_D / 2).extrude(-LEVER_SOCKET_DEPTH)
                   .translate((0, 34 - LEVER_SOCKET_DEPTH, off)))
-    hub = hub.cut(x_hole(M3, 30, 24.0, off))                       # dowel cross-pin
+    # handle pinch clamp: slit from the socket to the +z face, M3 across it (head +x, nut -x)
+    hub = hub.cut(cq.Workplane("XY").box(CLAMP_SLIT, LEVER_SOCKET_DEPTH + 2, 11.0)
+                  .translate((0, 34 - LEVER_SOCKET_DEPTH / 2 + 1, off + 5.5)))
+    yp, zp = 34 - LEVER_SOCKET_DEPTH / 2, off + 7.0
+    hub = hub.cut(x_hole(M3, 30, yp, zp))
+    hub = hub.cut(cq.Workplane("YZ").circle(M3_HEAD_D / 2).extrude(12).translate((8.0, yp, zp)))
+    hub = hub.cut(cq.Workplane("YZ").polygon(6, M3_NUT_AF / math.cos(math.pi / 6)).extrude(12)
+                  .translate((-20.0, yp, zp)))
     hub = hub.cut(z_cyl(AXLE_BORE / 2, -200, 200))
     # drag clamp
     slit_y0, slit_y1 = -AXLE_BORE / 2 + 0.5, -17.0
@@ -391,6 +399,19 @@ def lever_hub(name):
     for a, hd in ((25.0, 1), (-25.0, -1)):
         hub = slot_anchor(hub, rc, a, hd, 12.0, r_in - 3.0, zs, 0.0)
     return hub
+
+
+def lever_knob():
+    """Ball knob for a lever handle: Ø36 with a flat base (print base down) and a blind bore for the
+    5/16" rod, glued."""
+    zc = KNOB_R - 4.0                                   # ball centre above the flat base
+    r0 = math.sqrt(KNOB_R ** 2 - zc ** 2)
+    rb = LEVER_SOCKET_D / 2 - 0.1                       # glue bore for the rod
+    zt = zc + math.sqrt(KNOB_R ** 2 - 1.0)              # 1 mm flat top: no sphere pole (clean STL)
+    k = (cq.Workplane("XZ").moveTo(rb, 0).lineTo(r0, 0).threePointArc((KNOB_R, zc), (1.0, zt)).lineTo(0, zt)
+         .lineTo(0, ex.KNOB_BORE_DEPTH).lineTo(rb, ex.KNOB_BORE_DEPTH).close()
+         .revolve(360, (0, 0, 0), (0, 1, 0)))
+    return k
 
 
 def slew_spool():
@@ -514,6 +535,7 @@ PARTS = {
     "lever-hub-boom": (lambda: lever_hub("boom"), 1, "boom lever hub + drag clamp, drum offset toward centre"),
     "lever-hub-stick": (lambda: lever_hub("stick"), 1, "stick lever hub + drag clamp"),
     "lever-hub-bucket": (lambda: lever_hub("bucket"), 1, "bucket lever hub + drag clamp, drum offset toward centre"),
+    "lever-knob": (lever_knob, 3, "Ø36 ball knob, glued on the 5/16in rod handle"),
     "slew-spool": (slew_spool, 1, "wheel spool: Ø110 two-lane drum + tube + wheel flange"),
     "slew-wheel": (slew_wheel, 1, "Ø184 horizontal hand wheel"),
     "slew-tube-bushing": (slew_tube_bushing, 1, "PEX turret-tube bushing in the pedestal shelf"),

@@ -102,7 +102,7 @@
     69.8
    ],
    "orientation": "+z",
-   "support_mm2": 3584.0
+   "support_mm2": 3479.0
   },
   {
    "part": "lever-hub-stick",
@@ -115,7 +115,7 @@
     34.5
    ],
    "orientation": "+z",
-   "support_mm2": 3374.0
+   "support_mm2": 3268.0
   },
   {
    "part": "lever-hub-bucket",
@@ -128,7 +128,20 @@
     54.8
    ],
    "orientation": "+z",
-   "support_mm2": 2726.0
+   "support_mm2": 2577.0
+  },
+  {
+   "part": "lever-knob",
+   "watertight": true,
+   "bodies": 1,
+   "fits_bed": true,
+   "print_size": [
+    36.0,
+    36.0,
+    32.0
+   ],
+   "orientation": "-z",
+   "support_mm2": 147.0
   },
   {
    "part": "slew-spool",
@@ -360,6 +373,10 @@
    "solids": 1
   },
   {
+   "step": "2026-09-24-lever-knob.step",
+   "solids": 1
+  },
+  {
    "step": "2026-09-24-slew-drum.step",
    "solids": 1
   },
@@ -416,8 +433,8 @@
     "lever-hub-stick",
     "lever-hub-boom",
     "lever-hub-bucket",
-    "boom-drum",
-    "stick-drum",
+    "lever-knob-1",
+    "lever-knob-2",
     "bucket-drum-axle"
    ],
    "reloaded": 7,
@@ -428,9 +445,12 @@
    "plate": "2026-09-24-plate-03.3mf",
    "parts": [
     "slewing-ring-retaining-ring",
+    "lever-knob-3",
+    "boom-drum",
+    "stick-drum",
     "elbow-support"
    ],
-   "reloaded": 2,
+   "reloaded": 5,
    "inside_bed": true,
    "bbox_overlap": false
   },

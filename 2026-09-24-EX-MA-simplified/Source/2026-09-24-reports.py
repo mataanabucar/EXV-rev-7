@@ -189,7 +189,7 @@ def architecture():
     add(f"- The three lever hubs turn on one 5/16in rod between two bearing blocks (sag ≤ "
         f"{an['lever axle sag, threaded (root 6.6)']:.2f} mm). Each hub has its own M3 drag clamp for holding friction "
         f"(boom needs about {an['boom: holding torque needed at the lever (N·m)']:.2f} N·m).")
-    add("- The top-panel slots are the lever hard stops (the dowel meets the slot end exactly at the end of travel).")
+    add("- The top-panel slots are the lever hard stops (the handle rod meets the slot end exactly at the end of travel).")
     add("- Ropes leave the lever drums toward one conduit fitting, entering it at ≤ 22° with a fleet angle ≤ 11.3°.")
     add("")
     add("## 10. Constraints found and how they were solved")
@@ -234,7 +234,8 @@ def architecture():
         "lever drum (rim holes → loops on the slotted anchors); set tension by sliding the anchors outward.",
         "Slew ropes: sleeves from the posts through the box fitting and conduit into the pedestal counterbores; rope crimp in "
         "the pedestal drum lane pocket, loop on the spool anchor; centre the wheel, tension.",
-        "Top panel on, dowels through the slots into the hub sockets (M3 cross-pin), knobs; set each lever's drag clamp.",
+        "Top panel on, 5/16in rod handles through the slots into the hub sockets (M3 pinch clamp), printed knobs glued on; "
+        "set each lever's drag clamp.",
     ], 1):
         add(f"{i}. {s}")
     add("")
@@ -359,10 +360,10 @@ def checklist():
     add("")
     fit = {
         7: "copper elbow pushes into the round socket; a PTFE tube slides freely through the rounded window",
-        3: "(after plate 02) a BB rolls freely in the race between the base rim and the retaining ring",
+        3: "a printed knob slides onto the 5/16in rod; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring",
         1: "PEX tube turns freely in the bushing; the spool riser sits flat",
         6: "4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor",
-        2: "the 5/16in rod slides through all three lever hubs; each drum sits flat",
+        2: "the 5/16in rod slides through all three lever hubs and into their handle sockets; each drum sits flat",
         4: "the slew drum slides onto the PEX tube (clamp open); the spool turns on the 5/16in rod",
         5: "(with plate 06) the bucket drum-axle journals turn freely in both stick-half nose holes",
     }
@@ -381,10 +382,10 @@ def checklist():
     add("- [ ] Wood: every panel in `2026-09-24-cut-list.md` (12 mm plywood), holes and slots as listed there")
     L += hw("8-32 rod,")
     L += hw("8-32 rod used")
-    L += hw("5/16in rod (have)")
+    L += hw("5/16in rod (have)", "axle")
     L += hw("PEX-B")
     L += hw("2in sch 40")
-    L += hw("5/8in hardwood dowel")
+    L += hw("5/16in rod (have)", "handles")
     add("")
     add("Rope and PTFE: cut each piece and label it with tape (each is listed again in the step that uses it).")
     add("")
@@ -462,10 +463,11 @@ def checklist():
          [("rope (have)", "slew rope"), ("PTFE tube", "slew sleeve")],
          "wheel left turns the arm left; the wheel reaches ±90° with rope still wrapped on both drums"),
         ("11. Top panel, handles and wheel",
-         ["Screw the top panel on; push the dowels through the slots into the hub sockets and cross-pin them.",
-          "Put the knobs on the dowels; bolt the slew wheel to the spool flange.",
+         ["Screw the top panel on; push the 5/16in rod handles through the slots into the hub sockets and tighten "
+          "each handle's pinch clamp.",
+          "Glue a printed knob onto each handle (CA or epoxy); bolt the slew wheel to the spool flange.",
           "Set each lever's drag clamp so the lever holds its position with the arm loaded (boom needs the most)."],
-         [("dowel cross-pins",), ("slew wheel to the spool",), ("lever drag clamps",), ("knob",)],
+         [("handle pinch clamps",), ("slew wheel to the spool",), ("lever drag clamps",)],
          "each lever stops at both ends of its slot (the slot is the hard stop); nothing rubs the top panel"),
     ]
     for title, actions, keys, check in steps + rig:

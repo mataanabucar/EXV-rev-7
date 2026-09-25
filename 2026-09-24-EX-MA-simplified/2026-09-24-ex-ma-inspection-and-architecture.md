@@ -69,8 +69,8 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 
 - Plywood box 250 × 405 × 242 mm, bolted to the outside of the sandbox wall; the top is removable for service.
 - Left to right: boom, stick, bucket lever (70 mm apart), then the horizontal slew wheel (Ø184).
-- The three lever hubs turn on one 5/16in rod between two bearing blocks (sag ≤ 0.58 mm). Each hub has its own M3 drag clamp for holding friction (boom needs about 0.64 N·m).
-- The top-panel slots are the lever hard stops (the dowel meets the slot end exactly at the end of travel).
+- The three lever hubs turn on one 5/16in rod between two bearing blocks (sag ≤ 0.58 mm). Each hub has its own M3 drag clamp for holding friction (boom needs about 0.65 N·m).
+- The top-panel slots are the lever hard stops (the handle rod meets the slot end exactly at the end of travel).
 - Ropes leave the lever drums toward one conduit fitting, entering it at ≤ 22° with a fleet angle ≤ 11.3°.
 
 ## 10. Constraints found and how they were solved
@@ -101,7 +101,7 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 6. Arm: boom drum between the boom halves (4 key screws), boom split pins; stick drum and stick split pins; bucket drum-axle in the stick nose, ears glued to the bucket lugs, bucket pin; close the halves with the lug screws.
 7. Arm ropes: joint at mid-range, midpoint crimp in the drum pocket, feed the two tails back to the box and onto the lever drum (rim holes → loops on the slotted anchors); set tension by sliding the anchors outward.
 8. Slew ropes: sleeves from the posts through the box fitting and conduit into the pedestal counterbores; rope crimp in the pedestal drum lane pocket, loop on the spool anchor; centre the wheel, tension.
-9. Top panel on, dowels through the slots into the hub sockets (M3 cross-pin), knobs; set each lever's drag clamp.
+9. Top panel on, 5/16in rod handles through the slots into the hub sockets (M3 pinch clamp), printed knobs glued on; set each lever's drag clamp.
 
 **Service:** the box top and the pedestal +u wall come off; every crimp and loop is reachable; any drum or rope can be replaced by opening one arm half (lug screws) without touching the exterior shells' glue.
 

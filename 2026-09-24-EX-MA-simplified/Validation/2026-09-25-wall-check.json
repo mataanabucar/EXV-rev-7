@@ -1954,8 +1954,8 @@
   {
    "part": "lever-hub-boom",
    "print_orientation": "top face down",
-   "samples": 34689,
-   "p1_mm": 2.91,
+   "samples": 34385,
+   "p1_mm": 3.91,
    "thin_patches": [],
    "small_slivers": [],
    "between_1_0_and_1_8": [],
@@ -1964,8 +1964,8 @@
   {
    "part": "lever-hub-bucket",
    "print_orientation": "top face down",
-   "samples": 32557,
-   "p1_mm": 2.91,
+   "samples": 32261,
+   "p1_mm": 3.84,
    "thin_patches": [],
    "small_slivers": [],
    "between_1_0_and_1_8": [],
@@ -1974,8 +1974,18 @@
   {
    "part": "lever-hub-stick",
    "print_orientation": "top face down",
-   "samples": 29319,
-   "p1_mm": 2.9,
+   "samples": 28955,
+   "p1_mm": 3.8,
+   "thin_patches": [],
+   "small_slivers": [],
+   "between_1_0_and_1_8": [],
+   "ok": true
+  },
+  {
+   "part": "lever-knob",
+   "print_orientation": "as modelled (bottom down)",
+   "samples": 7560,
+   "p1_mm": 11.04,
    "thin_patches": [],
    "small_slivers": [],
    "between_1_0_and_1_8": [],
