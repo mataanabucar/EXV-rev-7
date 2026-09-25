@@ -120,7 +120,8 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 ## Where things are
 
 - `Source/` — every script (all parameters in `2026-09-24-exma_common.py`).
-- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step`; `3MF/` A1 plates; `2026-09-24-ex-ma-assembly.glb` every part in one file.
+- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step` (new parts, wood, hardware); `3MF/` A1 plates; `2026-09-24-ex-ma-assembly.glb` every part in one file.
+- `STEP/2026-09-25-ex-ma-full-assembly.zip` — the whole machine in one STEP file (131 solids: printed parts, the modified EX-MA parts as exact solids, wood, hardware, ropes and PTFE tubes; 337 MB unzipped, zipped because GitHub refuses files over 100 MB).
 - `2026-09-24-bill-of-materials.md`, `2026-09-24-cut-list.md`, `Validation/`, `Preview/`.
 
 ## Review views

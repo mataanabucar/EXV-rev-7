@@ -9,7 +9,7 @@ Contents:
   - the 8 ropes (Ø1.6) and 6 PTFE tubes (Ø4/Ø2) along the modelled paths (2026-09-24-cable-paths.py),
     built from mitred straight pieces within 0.05 mm of the path
 Writes:
-  STEP/2026-09-25-ex-ma-full-assembly.zip        (holds 2026-09-25-ex-ma-full-assembly.step, ~150+ MB unzipped)
+  STEP/2026-09-25-ex-ma-full-assembly.zip        (holds 2026-09-25-ex-ma-full-assembly.step, ~340 MB unzipped, ~64 MB zipped)
   Validation/2026-09-25-full-assembly-check.json
 The unzipped STEP is written to work_dir (default: a temporary folder), never into the repo:
 GitHub refuses files over 100 MB.

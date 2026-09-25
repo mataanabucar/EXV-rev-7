@@ -1,0 +1,211 @@
+{
+ "file": "STEP/2026-09-25-ex-ma-full-assembly.zip",
+ "contains": "2026-09-25-ex-ma-full-assembly.step",
+ "items": {
+  "printed parts (new)": 17,
+  "modified EX-MA parts": 9,
+  "wood panels": 21,
+  "hardware": 70,
+  "ropes": 8,
+  "PTFE tubes": 6
+ },
+ "n_items": 131,
+ "solids_in_file": 131,
+ "solids_on_reimport": 131,
+ "reimport_status": 1,
+ "step_mb": 336.9,
+ "zip_mb": 63.6,
+ "mesh_parts": {
+  "tower": {
+   "triangles": 4536,
+   "faces": 2313,
+   "merged_planar_faces": 633,
+   "shells": 1,
+   "valid": true,
+   "volume": 130227.5,
+   "volume_error_pct": 0.0,
+   "seconds": 3.1
+  },
+  "base": {
+   "triangles": 9606,
+   "faces": 4475,
+   "merged_planar_faces": 2302,
+   "shells": 1,
+   "valid": true,
+   "volume": 157572.2,
+   "volume_error_pct": 0.0,
+   "seconds": 8.9
+  },
+  "boom-half-left": {
+   "triangles": 57408,
+   "faces": 28447,
+   "merged_planar_faces": 6203,
+   "shells": 1,
+   "valid": true,
+   "volume": 60222.0,
+   "volume_error_pct": 0.0001,
+   "seconds": 98.0
+  },
+  "boom-half-right": {
+   "triangles": 53298,
+   "faces": 53298,
+   "merged_planar_faces": 6155,
+   "shells": 1,
+   "valid": true,
+   "volume": 56076.5,
+   "volume_error_pct": 0.0,
+   "fallback": "triangle sewing",
+   "seconds": 166.8
+  },
+  "stick-half-left": {
+   "triangles": 19644,
+   "faces": 9309,
+   "merged_planar_faces": 2480,
+   "shells": 1,
+   "valid": true,
+   "volume": 39051.2,
+   "volume_error_pct": 0.0008,
+   "seconds": 26.1
+  },
+  "stick-half-right": {
+   "triangles": 18864,
+   "faces": 8871,
+   "merged_planar_faces": 2450,
+   "shells": 1,
+   "valid": true,
+   "volume": 37295.8,
+   "volume_error_pct": 0.001,
+   "seconds": 25.7
+  },
+  "bucket-ear-left": {
+   "triangles": 1038,
+   "faces": 530,
+   "merged_planar_faces": 252,
+   "shells": 1,
+   "valid": true,
+   "volume": 2223.2,
+   "volume_error_pct": 0.0,
+   "seconds": 1.2
+  },
+  "bucket-ear-right": {
+   "triangles": 1348,
+   "faces": 731,
+   "merged_planar_faces": 290,
+   "shells": 1,
+   "valid": true,
+   "volume": 2246.5,
+   "volume_error_pct": 0.0,
+   "seconds": 1.9
+  },
+  "bucket": {
+   "triangles": 2764,
+   "faces": 1102,
+   "merged_planar_faces": 640,
+   "shells": 1,
+   "valid": true,
+   "volume": 25423.8,
+   "volume_error_pct": 0.0,
+   "seconds": 3.1
+  }
+ },
+ "cables": {
+  "rope boom upper tail": {
+   "length": 629.8,
+   "segments": 56,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope boom lower tail": {
+   "length": 633.8,
+   "segments": 55,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope stick upper tail": {
+   "length": 847.4,
+   "segments": 123,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "PTFE stick upper tail 1": {
+   "length": 625.9,
+   "segments": 87,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope stick lower tail": {
+   "length": 853.4,
+   "segments": 130,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "PTFE stick lower tail 1": {
+   "length": 636.6,
+   "segments": 94,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope bucket upper tail": {
+   "length": 1024.3,
+   "segments": 162,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "PTFE bucket upper tail 1": {
+   "length": 792.2,
+   "segments": 130,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope bucket lower tail": {
+   "length": 1028.4,
+   "segments": 168,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "PTFE bucket lower tail 1": {
+   "length": 801.1,
+   "segments": 140,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope slew rope A": {
+   "length": 769.4,
+   "segments": 123,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "PTFE slew rope A 1": {
+   "length": 316.5,
+   "segments": 30,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "rope slew rope B": {
+   "length": 840.1,
+   "segments": 135,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  },
+  "PTFE slew rope B 1": {
+   "length": 385.0,
+   "segments": 40,
+   "valid": true,
+   "solids": 1,
+   "volume_error_pct": 0.0
+  }
+ }
+}
