@@ -275,6 +275,8 @@ def architecture():
             "printed parts, the modified EX-MA parts as exact solids, wood, hardware, ropes and PTFE tubes; "
             f"{FULL['step_mb']:.0f} MB unzipped, zipped because GitHub refuses files over 100 MB).")
     add("- `2026-09-24-bill-of-materials.md`, `2026-09-24-cut-list.md`, `Validation/`, `Preview/`.")
+    add("- `2026-09-25-print-and-assembly-checklist.md` — print order with fit tests, cut list for rope and tube, "
+        "and the build, rigging and test steps with the hardware for each.")
     add("")
     add("## Review views")
     add("")
@@ -285,6 +287,214 @@ def architecture():
     for i, (k, d) in enumerate(VIEWS, 1):
         add(f"{i}. `Preview/2026-09-24-{k}.png` — {d}")
     return "\n".join(L) + "\n"
+
+
+# ---------------------------------------------------------------- print + assembly checklist
+PLATE_ORDER = [7, 3, 1, 6, 2, 4, 5]     # build order: pedestal, box, turret, arm (see checklist())
+
+
+def checklist():
+    """Step-by-step print and assembly checklist from the same data as the BOM (package.py) and the
+    validation files. Returns (markdown, unused hardware rows)."""
+    pk = _load("package", "2026-09-24-package.py")
+    sections, totals = pk.hardware_table()
+    rows = [(title, r) for title, _, _, rr in sections for r in rr]
+    used = set()
+
+    def hw(*keys):
+        """Checkbox lines for every hardware row whose item or use contains all the keys."""
+        out = []
+        for i, (title, r) in enumerate(rows):
+            text = f"{r[0]} {r[3]}".lower()
+            if all(k.lower() in text for k in keys):
+                used.add(i)
+                num = isinstance(r[1], (int, float))
+                qty = f"{r[1]} × " if num else ""
+                size = [str(x) for x in (r[2], "" if num else r[1]) if x and not title.startswith("From your M3")]
+                use = r[3].replace("with the screws above", "for the M3 screws in the steps below")
+                out.append(f"- [ ] {qty}{r[0]}{' (' + ', '.join(size) + ')' if size else ''} — {use}")
+        if not out:
+            raise KeyError(keys)
+        return out
+
+    parts = {p["part"]: p for p in PKG["parts"]}
+    sup = lambda a: "none" if a < 50 else (f"light ({a / 100:.1f} cm²)" if a < 800 else f"yes ({a / 100:.0f} cm²)")
+    plates = {int(p["plate"].split("-")[-1].split(".")[0]): p for p in PKG["plates"]}
+    L = []
+    add = L.append
+    add("# EX-MA manual excavator — print and assembly checklist")
+    add("")
+    add("Tick the boxes as you go. Quantities, lengths and plates come from the build scripts (the same data as "
+        "`2026-09-24-bill-of-materials.md`), so this list matches the files in `STL/`, `3MF/` and the cut list. "
+        "Directions: u = along the arm, v = sideways (+v = operator's left), z = up.")
+    add("")
+    add("## 1. Before you start")
+    add("")
+    add("**Tools**")
+    add("")
+    for t in ("2.5 mm hex key (M3 socket cap) and 2 mm hex key (M3 button head)",
+              "5.5 mm wrench or nut driver (M3 nuts), 11/32in wrench (8-32 nuts), 1/2in wrench (5/16in nuts)",
+              "crimp tool for 1/16in sleeves, wire-rope cutter",
+              "PTFE tube cutter (or a new razor blade: cut square), pipe cutter or hacksaw (PVC, copper), deburring tool",
+              "drill with 3.5 mm and 2 mm bits (M3 clearance, wood-screw pilots), screwdriver",
+              "wood glue, CA or epoxy (bucket ears), silicone (conduit seal), a few cable ties",
+              "fine marker and masking tape to label rope and tube pieces"):
+        add(f"- [ ] {t}")
+    add("")
+    add("**Sort the hardware** (one small bag per step below)")
+    add("")
+    L += hw("M3 nut")
+    L += hw("M3 flat washer")
+    L += hw("M3 split-lock washer")
+    L += hw("#4-40")
+    add("")
+    add("## 2. Print (0.6 mm nozzle)")
+    add("")
+    add("Settings for every part: PLA or PETG, 0.6 mm nozzle, 0.2 mm layers, at least 4 walls, 40 % infill for drums, "
+        "hubs, clamps and anything carrying a pin (20 % elsewhere). The plates in `3MF/` already have each part in "
+        "its print orientation; every wall was checked for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).")
+    add("")
+    add("Print the plates in this order; it follows the build order, so each step's parts are ready when you get "
+        "there. After each plate, do its fit test before printing the next.")
+    add("")
+    fit = {
+        7: "copper elbow pushes into the round socket; a PTFE tube slides freely through the rounded window",
+        3: "(after plate 02) a BB rolls freely in the race between the base rim and the retaining ring",
+        1: "PEX tube turns freely in the bushing; the spool riser sits flat",
+        6: "4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor",
+        2: "the 5/16in rod slides through all three lever hubs; each drum sits flat",
+        4: "the slew drum slides onto the PEX tube (clamp open); the spool turns on the 5/16in rod",
+        5: "(with plate 06) the bucket drum-axle journals turn freely in both stick-half nose holes",
+    }
+    for k in PLATE_ORDER:
+        pl = plates[k]
+        names = []
+        for n in pl["parts"]:
+            base = n.split("#")[0].strip().rsplit("-", 1)[0] if n.split("-")[-1].isdigit() else n
+            a = parts.get(base, parts.get(n))
+            names.append(f"{n} (supports: {sup(a['support_mm2'])})" if a else n)
+        add(f"- [ ] **`3MF/{pl['plate']}`** — " + "; ".join(names))
+        add(f"  - [ ] fit test: {fit[k]}")
+    add("")
+    add("## 3. Cut the stock")
+    add("")
+    add("- [ ] Wood: every panel in `2026-09-24-cut-list.md` (12 mm plywood), holes and slots as listed there")
+    L += hw("8-32 rod,")
+    L += hw("8-32 rod used")
+    L += hw("5/16in rod (have)")
+    L += hw("PEX-B")
+    L += hw("2in sch 40")
+    L += hw("5/8in hardwood dowel")
+    add("")
+    add("Rope and PTFE: cut each piece and label it with tape (each is listed again in the step that uses it).")
+    add("")
+    for r in [r for _, r in rows if "galvanized" in r[0] or r[0].startswith("PTFE tube")]:
+        add(f"- [ ] {r[2]} — {r[3].split(':')[0].split(' (')[0]}")
+    add("")
+
+    steps = [
+        ("4. Sandbox and pedestal",
+         ["Build the sandbox (floor + 4 walls) and the pedestal walls on the sandbox floor; leave the pedestal's "
+          "+u wall off for access.",
+          "Fit the pedestal conduit fitting to the -u pedestal wall.",
+          "Push the copper elbow into the fitting's socket; screw the elbow support to the floor under it and "
+          "cable-tie the elbow down.",
+          "Fit the shelf on its cleats and screw the PEX bushing to it."],
+         [("pedestal conduit fitting",), ("1/2in copper",), ("#6 × 3/4in",), ("#6 × 1-1/4in",), ("12 mm plywood",)],
+         "the elbow's top opening is centred under the bushing; the copper does not move when pulled"),
+        ("5. Control box",
+         ["Build the box (floor, rear, sides, front) with the top left off.",
+          "Screw the two bearing blocks, the spool riser and the two sleeve posts to the floor (from below).",
+          "Slide the three lever hubs onto the lever axle rod (order boom, stick, bucket from +v) and set the rod in "
+          "the bearing blocks with a nut and washer outside each block.",
+          "Put the slew spool on its axle rod over the riser (washer between).",
+          "Fit the box conduit fitting inside the box front; bolt through the fitting, the box front and the sandbox "
+          "wall; bolt the lower corners of the box front to the sandbox wall.",
+          "Cut the conduit to length, fit it between the two fittings and seal it at the sandbox wall."],
+         [("box conduit fitting through",), ("box front to the sandbox wall",), ("5/16in nut",), ("2in sch 40",)],
+         "each lever hub turns freely on the axle; the spool turns freely"),
+        ("6. Slewing ring and turret",
+         ["Screw the base to the pedestal top.",
+          "Clamp the turret hub on the PEX tube; feed the tube down through the base, the pedestal top, the bushing "
+          "and into the slew drum (clamp still loose).",
+          "Drop the BBs into the base race, lower the turret onto them, and bolt the retaining ring on (nuts slide into "
+          "the slots in the base rim).",
+          "Clamp the slew drum on the PEX tube at the slew-rope layer (level with the pedestal fitting's upper holes)."],
+         [("#8 × 1in",), ("slewing-ring retaining ring",), ("airsoft",), ("pinch clamps on the PEX",)],
+         "the turret turns by hand with no rocking and no lift; if it rocks, shim under the retaining ring"),
+        ("7. PTFE tubes",
+         ["Seat each arm tube in the box fitting's window (conduit side), then feed it through the conduit, the "
+          "pedestal window, the copper elbow and up the PEX tube into the tower.",
+          "Lay each tube along its channels in the boom (and, for the bucket tubes, the stick) to its stop bulkhead; "
+          "trim the 10 mm extra so it seats on the stop."],
+         [("PTFE tube", "arm stop")],
+         "each tube slides a few mm in the arm when pushed; the spare length coils loosely in the conduit"),
+        ("8. Arm",
+         ["Boom: set the boom drum between the boom halves with its 4 key screws (heads in the wall pockets); fit the "
+          "two boom split pins through the tower cheeks into the boom walls; close the halves with the lug screws.",
+          "Stick: the same with the stick drum and the stick split pins through the boom tip.",
+          "Bucket: glue the ears onto the bucket lugs; put the bucket drum-axle into the stick nose (hex ends into the "
+          "ears) and fit the bucket pin through ears and drum-axle."],
+         [("joint-drum key screws",), ("joining lugs",), ("boom split pin",), ("stick split pin",), ("bucket pin",),
+          ("8-32 hex nuts",), ("bucket ears to the bucket lugs",)],
+         "each joint swings through its full range without rubbing (boom −40…+45°, stick −45…+50°, bucket −55…+85°)"),
+    ]
+    rig = [
+        ("9. Arm ropes (boom, stick, bucket)",
+         ["Set the joint to the middle of its working range and the lever vertical.",
+          "Seat the rope's midpoint single crimp in the joint drum's pocket; wrap one tail each way in the groove.",
+          "Feed both tails back: boom ropes straight down the PEX tube; stick and bucket ropes inside their PTFE tubes; "
+          "then through the conduit and the box fitting to the lever drum.",
+          "Pass each tail through its rim hole on the lever drum, crimp a loop (double crimp) and hook it between two "
+          "washers on its slotted anchor.",
+          "Tension: slide the anchors outward until the rope is taut with the lever vertical, then tighten.",
+          "Direction check: pushing a lever forward should give boom down / stick out / bucket dump. If one is "
+          "reversed, reverse that rope's wrap on its joint drum."],
+         [("rope (have)", "circuit"), ("single crimp sleeve",), ("double crimp sleeve",), ("slotted rope-tail anchors",)],
+         "moving one lever moves only its own joint (hold the others and watch their ropes)"),
+        ("10. Slew ropes",
+         ["Feed each slew PTFE sleeve from its post beside the spool through the box fitting and the conduit into its "
+          "angled counterbore in the pedestal fitting.",
+          "Crimp the slew rope's end (single crimp) into its lane pocket on the pedestal slew drum; run the rope through "
+          "its sleeve to the spool.",
+          "With the arm pointing straight out and the wheel centred, loop the rope (double crimp) onto the spool anchor "
+          "and tension it."],
+         [("rope (have)", "slew rope"), ("PTFE tube", "slew sleeve")],
+         "wheel left turns the arm left; the wheel reaches ±90° with rope still wrapped on both drums"),
+        ("11. Top panel, handles and wheel",
+         ["Screw the top panel on; push the dowels through the slots into the hub sockets and cross-pin them.",
+          "Put the knobs on the dowels; bolt the slew wheel to the spool flange.",
+          "Set each lever's drag clamp so the lever holds its position with the arm loaded (boom needs the most)."],
+         [("dowel cross-pins",), ("slew wheel to the spool",), ("lever drag clamps",), ("knob",)],
+         "each lever stops at both ends of its slot (the slot is the hard stop); nothing rubs the top panel"),
+    ]
+    for title, actions, keys, check in steps + rig:
+        add(f"## {title}")
+        add("")
+        for a_ in actions:
+            add(f"- [ ] {a_}")
+        if keys:
+            add("")
+            add("Hardware:")
+            add("")
+            for k in keys:
+                L.extend(hw(*k))
+        add("")
+        add(f"**Check:** {check}.")
+        add("")
+    add("## 12. Final function test")
+    add("")
+    for t in ("Each lever end to end: its joint moves through its whole working range and stops at the slot ends.",
+              "Wheel ±90°: the arm follows 1:1 and no rope jumps its groove.",
+              "No coupling: move the boom and the stick through their ranges while watching the bucket (it must not move).",
+              "Ropes stay in their grooves at every end stop; no PTFE tube is pinched at the joints.",
+              "Re-tension every circuit after the first hour of use (rope stretch and crimp seating)."):
+        add(f"- [ ] {t}")
+    add("")
+    add("**Service:** the box top and the pedestal +u wall come off; any drum or rope can be replaced by opening one "
+        "arm half (lug screws).")
+    unused = [f"{t}: {r[0]}" for i, (t, r) in enumerate(rows) if i not in used]
+    return "\n".join(L) + "\n", unused
 
 
 # ---------------------------------------------------------------- validation roll-up
@@ -391,6 +601,9 @@ def validation():
 
 
 def main():
+    text, unused = checklist()
+    (ex.OUT / "2026-09-25-print-and-assembly-checklist.md").write_text(text)
+    print("checklist: hardware rows not used in any step:", unused or "none")
     (ex.OUT / "2026-09-24-ex-ma-inspection-and-architecture.md").write_text(architecture())
     text, n_fail = validation()
     (VAL / "2026-09-24-validation-report.md").write_text(text)
