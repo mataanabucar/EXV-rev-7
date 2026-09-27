@@ -411,89 +411,202 @@
  ],
  "plates": [
   {
-   "plate": "2026-09-24-plate-01.3mf",
-   "parts": [
-    "slew-wheel",
-    "bucket",
-    "spool-riser",
-    "slew-tube-bushing",
-    "bucket-ear-left",
-    "bucket-ear-right",
-    "slew-tube-post-1",
-    "slew-tube-post-2"
+   "file": "2026-09-27-bambu-arm-shell-petg.3mf",
+   "plates": [
+    {
+     "plate": 1,
+     "name": "Arm shell",
+     "parts": [
+      "boom-half-right",
+      "boom-half-left",
+      "stick-half-right",
+      "stick-half-left"
+     ]
+    }
    ],
-   "reloaded": 8,
-   "inside_bed": true,
-   "bbox_overlap": false
+   "objects": 4,
+   "inside_own_plate": true,
+   "footprint_overlap": false,
+   "max_height_mm": 24.0,
+   "fits_height": true,
+   "slicer": "bambu",
+   "project": "arm-shell-petg",
+   "material": "PETG",
+   "filament": "Generic PETG @BBL A1"
   },
   {
-   "plate": "2026-09-24-plate-02.3mf",
-   "parts": [
-    "base",
-    "lever-hub-stick",
-    "lever-hub-boom",
-    "lever-hub-bucket",
-    "lever-knob-1",
-    "lever-knob-2",
-    "bucket-drum-axle"
+   "file": "2026-09-27-bambu-other-parts-plaplus.3mf",
+   "plates": [
+    {
+     "plate": 1,
+     "name": "Pedestal",
+     "parts": [
+      "conduit-end-fitting-pedestal",
+      "slew-drum",
+      "slew-tube-bushing",
+      "elbow-support"
+     ]
+    },
+    {
+     "plate": 2,
+     "name": "Control box (1/2)",
+     "parts": [
+      "slew-wheel",
+      "lever-hub-stick",
+      "lever-hub-boom",
+      "spool-riser",
+      "lever-knob-1",
+      "lever-knob-2",
+      "lever-knob-3",
+      "slew-tube-post-1",
+      "slew-tube-post-2"
+     ]
+    },
+    {
+     "plate": 3,
+     "name": "Control box (2/2)",
+     "parts": [
+      "conduit-end-fitting-box",
+      "slew-spool",
+      "lever-hub-bucket"
+     ]
+    },
+    {
+     "plate": 4,
+     "name": "Turret + slewing ring (1/2)",
+     "parts": [
+      "base",
+      "tower"
+     ]
+    },
+    {
+     "plate": 5,
+     "name": "Turret + slewing ring (2/2)",
+     "parts": [
+      "slewing-ring-retaining-ring"
+     ]
+    },
+    {
+     "plate": 6,
+     "name": "Arm mechanism + bucket",
+     "parts": [
+      "bucket",
+      "boom-drum",
+      "stick-drum",
+      "bucket-ear-right",
+      "bucket-ear-left",
+      "bucket-drum-axle"
+     ]
+    }
    ],
-   "reloaded": 7,
-   "inside_bed": true,
-   "bbox_overlap": false
+   "objects": 25,
+   "inside_own_plate": true,
+   "footprint_overlap": false,
+   "max_height_mm": 145.0,
+   "fits_height": true,
+   "slicer": "bambu",
+   "project": "other-parts-plaplus",
+   "material": "PLA+",
+   "filament": "SUNLU PLA+ 2.0 @BBL A1"
   },
   {
-   "plate": "2026-09-24-plate-03.3mf",
-   "parts": [
-    "slewing-ring-retaining-ring",
-    "lever-knob-3",
-    "boom-drum",
-    "stick-drum",
-    "elbow-support"
+   "file": "2026-09-27-orca-arm-shell-petg.3mf",
+   "plates": [
+    {
+     "plate": 1,
+     "name": "Arm shell",
+     "parts": [
+      "boom-half-right",
+      "boom-half-left",
+      "stick-half-right",
+      "stick-half-left"
+     ]
+    }
    ],
-   "reloaded": 5,
-   "inside_bed": true,
-   "bbox_overlap": false
+   "objects": 4,
+   "inside_own_plate": true,
+   "footprint_overlap": false,
+   "max_height_mm": 24.0,
+   "fits_height": true,
+   "slicer": "orca",
+   "project": "arm-shell-petg",
+   "material": "PETG",
+   "filament": "Generic PETG @BBL A1"
   },
   {
-   "plate": "2026-09-24-plate-04.3mf",
-   "parts": [
-    "boom-half-left",
-    "slew-drum",
-    "slew-spool"
+   "file": "2026-09-27-orca-other-parts-plaplus.3mf",
+   "plates": [
+    {
+     "plate": 1,
+     "name": "Pedestal",
+     "parts": [
+      "conduit-end-fitting-pedestal",
+      "slew-drum",
+      "slew-tube-bushing",
+      "elbow-support"
+     ]
+    },
+    {
+     "plate": 2,
+     "name": "Control box (1/2)",
+     "parts": [
+      "slew-wheel",
+      "lever-hub-stick",
+      "lever-hub-boom",
+      "spool-riser",
+      "lever-knob-1",
+      "lever-knob-2",
+      "lever-knob-3",
+      "slew-tube-post-1",
+      "slew-tube-post-2"
+     ]
+    },
+    {
+     "plate": 3,
+     "name": "Control box (2/2)",
+     "parts": [
+      "conduit-end-fitting-box",
+      "slew-spool",
+      "lever-hub-bucket"
+     ]
+    },
+    {
+     "plate": 4,
+     "name": "Turret + slewing ring (1/2)",
+     "parts": [
+      "base",
+      "tower"
+     ]
+    },
+    {
+     "plate": 5,
+     "name": "Turret + slewing ring (2/2)",
+     "parts": [
+      "slewing-ring-retaining-ring"
+     ]
+    },
+    {
+     "plate": 6,
+     "name": "Arm mechanism + bucket",
+     "parts": [
+      "bucket",
+      "boom-drum",
+      "stick-drum",
+      "bucket-ear-right",
+      "bucket-ear-left",
+      "bucket-drum-axle"
+     ]
+    }
    ],
-   "reloaded": 3,
-   "inside_bed": true,
-   "bbox_overlap": false
-  },
-  {
-   "plate": "2026-09-24-plate-05.3mf",
-   "parts": [
-    "boom-half-right",
-    "stick-half-left"
-   ],
-   "reloaded": 2,
-   "inside_bed": true,
-   "bbox_overlap": false
-  },
-  {
-   "plate": "2026-09-24-plate-06.3mf",
-   "parts": [
-    "tower",
-    "stick-half-right",
-    "conduit-end-fitting-box"
-   ],
-   "reloaded": 3,
-   "inside_bed": true,
-   "bbox_overlap": false
-  },
-  {
-   "plate": "2026-09-24-plate-07.3mf",
-   "parts": [
-    "conduit-end-fitting-pedestal"
-   ],
-   "reloaded": 1,
-   "inside_bed": true,
-   "bbox_overlap": false
+   "objects": 25,
+   "inside_own_plate": true,
+   "footprint_overlap": false,
+   "max_height_mm": 145.0,
+   "fits_height": true,
+   "slicer": "orca",
+   "project": "other-parts-plaplus",
+   "material": "PLA+",
+   "filament": "SUNLU PLA+ 2.0 @BBL A1"
   }
  ],
  "assembly": {

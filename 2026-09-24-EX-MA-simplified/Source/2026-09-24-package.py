@@ -5,7 +5,7 @@ Run:  <cadenv>/bin/python 2026-09-24-package.py [--skip-step]
 Writes:
   STEP/2026-09-24-ex-ma-assembly.step   (exact B-rep: new printed parts, wood, hardware; built pose)
   2026-09-24-ex-ma-assembly.glb         (every part incl. the modified EX-MA meshes, ropes and sleeves)
-  3MF/2026-09-24-plate-<nn>.3mf
+  3MF/2026-09-27-{bambu,orca}-{arm-shell-petg,other-parts-plaplus}.3mf  (via 2026-09-27-slicer-projects.py)
   2026-09-24-bill-of-materials.md
   Validation/2026-09-24-package-check.json (read by the validation roll-up)
 """
@@ -31,11 +31,12 @@ def _load(name, fn):
 asm = _load("asm", "2026-09-24-assembly.py")
 bx = _load("bx", "2026-09-24-build-box.py")
 bp = _load("bp", "2026-09-24-build-parts.py")
+sp = _load("sp", "2026-09-27-slicer-projects.py")
 ex, rt = asm.ex, asm.rt
 OUT = ex.OUT
 STL, STEP, TMF, VAL = OUT / "STL", OUT / "STEP", OUT / "3MF", OUT / "Validation"
 
-BED, BED_MARGIN, GAP, BED_Z = 256.0, 5.0, 8.0, 256.0
+BED, BED_MARGIN, BED_Z = 256.0, 5.0, 256.0
 DENSITY = 1.24e-3                   # g/mm3 (PLA; PETG 1.27)
 FILL = 0.55                         # effective solid fraction at 4 walls + 40 % infill
 OVERHANG_NZ = -math.sin(math.radians(45.0))   # faces pointing further down than 45 deg need support
@@ -50,17 +51,6 @@ MOD_DESC = {
     "bucket-ear-left": "EX-MA bucket ear G: hex socket for the bucket drum-axle",
     "bucket-ear-right": "EX-MA bucket ear H: hex socket for the bucket drum-axle",
     "bucket": "EX-MA bucket: repaired STEP body + bracket I + lugs O/P merged into one part",
-}
-PLATE_GROUP = {
-    "boom-drum": "arm-drums", "stick-drum": "arm-drums", "bucket-drum-axle": "arm-drums",
-    "bucket-ear-left": "arm-drums", "bucket-ear-right": "arm-drums",
-    "tower": "turret", "base": "base-ring", "slewing-ring-retaining-ring": "base-ring",
-    "boom-half-left": "boom", "boom-half-right": "boom",
-    "stick-half-left": "stick-bucket", "stick-half-right": "stick-bucket", "bucket": "stick-bucket",
-    "lever-hub-boom": "levers", "lever-hub-stick": "levers", "lever-hub-bucket": "levers", "lever-knob": "levers",
-    "slew-spool": "slew-box", "spool-riser": "slew-box", "slew-tube-post": "slew-box", "slew-wheel": "wheel",
-    "slew-drum": "pedestal", "slew-tube-bushing": "pedestal", "elbow-support": "pedestal",
-    "conduit-end-fitting-box": "fittings", "conduit-end-fitting-pedestal": "fittings",
 }
 COLORS = dict(printed=(0.94, 0.54, 0.14), exma_dark=(0.18, 0.20, 0.23), exma_yellow=(0.95, 0.76, 0.10),
               wood=(0.78, 0.60, 0.36), ply=(0.86, 0.75, 0.56), steel=(0.60, 0.64, 0.67), copper=(0.72, 0.45, 0.20),
@@ -127,76 +117,6 @@ def orient(mesh, name=""):
         if best is None or score < best[0]:
             best = (score, m, label, support, contact)
     return best[1], best[2], best[3], best[4]
-
-
-def pack_plates(rows):
-    """First-fit shelf packing of every print instance onto 256 x 256 plates (largest first);
-    each plate is named after the groups it holds."""
-    usable = BED - 2 * BED_MARGIN
-    inst = []
-    for r in rows:
-        for k in range(r["qty"]):
-            ext = r["oriented"].extents
-            w, d = ext[0], ext[1]
-            rot = False
-            if w > usable and d <= usable:
-                w, d, rot = d, w, True
-            inst.append(dict(row=r, k=k, w=w, d=d, h=ext[2], rot=rot, group=PLATE_GROUP[r["name"]]))
-    plates = []
-    for it in sorted(inst, key=lambda i: (-i["d"], -i["w"])):
-        placed = False
-        for p in plates:
-            for sh in p["shelves"]:                                  # existing shelf with room
-                if it["d"] <= sh["h"] and sh["x"] + it["w"] <= usable:
-                    it["pos"] = (BED_MARGIN + sh["x"], BED_MARGIN + sh["y"])
-                    sh["x"] += it["w"] + GAP
-                    placed = True
-                    break
-            if not placed:                                           # new shelf on this plate
-                y = (p["shelves"][-1]["y"] + p["shelves"][-1]["h"] + GAP) if p["shelves"] else 0.0
-                if y + it["d"] <= usable:
-                    p["shelves"].append(dict(y=y, h=it["d"], x=it["w"] + GAP))
-                    it["pos"] = (BED_MARGIN, BED_MARGIN + y)
-                    placed = True
-            if placed:
-                p["items"].append(it)
-                break
-        if not placed:
-            plates.append(dict(items=[it], shelves=[dict(y=0.0, h=it["d"], x=it["w"] + GAP)]))
-            it["pos"] = (BED_MARGIN, BED_MARGIN)
-    for p in plates:
-        p["group"] = "-".join(dict.fromkeys(i["group"] for i in p["items"]))
-    return plates
-
-
-def write_plates(plates):
-    TMF.mkdir(exist_ok=True)
-    checks = []
-    for n, p in enumerate(plates, 1):
-        scene = trimesh.Scene()
-        boxes = []
-        for it in p["items"]:
-            m = it["row"]["oriented"].copy()
-            if it["rot"]:
-                m.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, (0, 0, 1)))
-                m.apply_translation(-m.bounds[0])
-            m.apply_translation((it["pos"][0], it["pos"][1], 0.0))
-            name = it["row"]["name"] + (f"-{it['k'] + 1}" if it["row"]["qty"] > 1 else "")
-            scene.add_geometry(m, node_name=name, geom_name=name)
-            boxes.append((name, m.bounds))
-        path = TMF / f"2026-09-24-plate-{n:02d}.3mf"
-        scene.export(str(path))
-        back = trimesh.load(str(path))
-        n_geo = len(back.geometry) if isinstance(back, trimesh.Scene) else 1
-        inside = all(b[0][0] >= -1e-6 and b[0][1] >= -1e-6 and b[1][0] <= BED + 1e-6 and b[1][1] <= BED + 1e-6
-                     and b[1][2] <= BED_Z for _, b in boxes)
-        overlap = any(not (a[1][0] <= c[0][0] or c[1][0] <= a[0][0] or a[1][1] <= c[0][1] or c[1][1] <= a[0][1])
-                      for i, (_, a) in enumerate(boxes) for (_, c) in boxes[i + 1:])
-        checks.append(dict(plate=path.name, parts=[b[0] for b in boxes], reloaded=n_geo, inside_bed=inside,
-                           bbox_overlap=overlap))
-        for it in p["items"]:
-            it["row"].setdefault("plates", set()).add(n)
-    return checks
 
 
 # ---------------------------------------------------------------- assembly STEP
@@ -422,12 +342,14 @@ def bom_md(rows, plates, H, totals):
          "Everything needed to build the simplified EX-MA arm, the wooden control box, the pedestal and the "
          "sandbox. Counts come from the build scripts (drum keys, lugs, bolts, balls), lengths from the "
          "validated rope and tube paths.", "",
-         "Print settings for every printed part: 0.6 mm nozzle, PLA or PETG, 0.2 mm layers, at least 4 walls and "
-         "40 % infill (drums, hubs, clamps and anything carrying a pin), otherwise 20 %. Orientation below is the "
-         "one with the least support area; plates are in `3MF/`. Every wall was checked in that orientation for "
-         "the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).", ""]
+         "Print settings (already in the slicer project files in `3MF/`, see Plates below): Bambu Lab A1, 0.6 mm "
+         "nozzle, your \"A1 0.6 Fast Start\" printer preset, process \"0.30mm Strength @BBL A1 0.6 nozzle\" (0.3 mm "
+         "layers, 4 walls, 25 % infill), 40 % infill on drums, hubs, clamps and anything carrying a pin, tree "
+         "supports on the parts marked \"yes\" below. Arm shell (boom and stick halves) in PETG, everything else "
+         "in SUNLU PLA+ 2.0. Orientation below is the one with the least support area; every wall was checked in "
+         "that orientation for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).", ""]
     for kind, title in (("new", "Printed parts — new"), ("modified", "Printed parts — modified EX-MA parts")):
-        L += [f"## {title}", "", "| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Plate |",
+        L += [f"## {title}", "", "| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Project, plate |",
               "|---|---|---|---|---|---|---|---|---|"]
         for r in rows:
             if r["kind"] != kind:
@@ -437,17 +359,30 @@ def bom_md(rows, plates, H, totals):
                                                     else f"yes ({r['support'] / 100:.0f} cm²)")
             L.append(f"| {r['name']} | {r['qty']} | {r['desc']} | {r['mesh'].volume / 1000:.1f} cm³ | "
                      f"{r['mesh'].volume * DENSITY * FILL:.0f} g | {ORIENT_TEXT[r['orient']]} | {e[0]:.0f} × {e[1]:.0f} × {e[2]:.0f} | {sup} | "
-                     f"{', '.join(str(p) for p in sorted(r.get('plates', [])))} |")
+                     f"{', '.join(sorted(r.get('plates', [])))} |")
         L.append("")
     n_new = sum(r["qty"] for r in rows if r["kind"] == "new")
     n_mod = sum(r["qty"] for r in rows if r["kind"] == "modified")
     mass = sum(r["qty"] * r["mesh"].volume for r in rows) * DENSITY * FILL
     L += [f"Printed total: {n_new} new prints + {n_mod} modified EX-MA prints, about {mass / 1000:.2f} kg of filament "
           "(estimate at ~55 % effective fill).", "",
-          "## Plates (Bambu A1, 256 × 256 mm)", "", "| Plate | Parts |", "|---|---|"]
-    for n, p in enumerate(plates, 1):
-        names = [it["row"]["name"] + (f" #{it['k'] + 1}" if it["row"]["qty"] > 1 else "") for it in p["items"]]
-        L.append(f"| `3MF/2026-09-24-plate-{n:02d}.3mf` | {', '.join(names)} |")
+          "## Plates (Bambu A1, 256 × 256 mm)", "",
+          "Two slicer projects, each saved for Bambu Studio 2.8.2.61 and for OrcaSlicer (nightly); open the one "
+          "for your slicer — each opens with all of its plates, already named. The `bambu-` and `orca-` files hold "
+          "the same parts in the same places.", "",
+          "| Project | Material | Plate | Parts |", "|---|---|---|---|"]
+    for c in plates:
+        if c["slicer"] != "bambu":
+            continue
+        f = c["file"].replace("bambu-", "{bambu,orca}-")
+        for p in c["plates"]:
+            L.append(f"| `3MF/{f}` | {c['material']} ({c['filament']}) | {p['plate']} — {p['name']} | {', '.join(p['parts'])} |")
+    L += ["", "## Part count by group", "", "| Group | Parts | Prints |", "|---|---|---|"]
+    by = {r["name"]: r for r in rows}
+    for g, names in sp.GROUPS.items():
+        L.append(f"| {g} | " + ", ".join(n + (f" ×{by[n]['qty']}" if by[n]["qty"] > 1 else "") for n in names)
+                 + f" | {sum(by[n]['qty'] for n in names)} |")
+    L.append(f"| **Total** | {len(rows)} different parts (STL files) | **{sum(r['qty'] for r in rows)}** |")
     for title, intro, hdr, items in H:
         L += ["", f"## {title}", ""] + ([intro, ""] if intro else [])
         L += ["| " + " | ".join(hdr) + " |", "|" + "---|" * len(hdr)]
@@ -508,10 +443,16 @@ def main():
     rows = printed_parts()
     for r in rows:
         r["oriented"], r["orient"], r["support"], r["contact"] = orient(r["mesh"], r["name"])
-    plates = pack_plates(rows)
-    plate_checks = write_plates(plates)
+    plate_checks = sp.write_projects(rows)
+    for c in plate_checks:
+        if c["slicer"] == "bambu":
+            for p in c["plates"]:
+                for inst in p["parts"]:
+                    base = inst if inst in {r["name"] for r in rows} else inst.rsplit("-", 1)[0]
+                    next(r for r in rows if r["name"] == base).setdefault("plates", set()).add(
+                        f"{c['project'].split('-')[0]} {p['plate']}")
     H, totals = hardware_table()
-    (OUT / "2026-09-24-bill-of-materials.md").write_text(bom_md(rows, plates, H, totals))
+    (OUT / "2026-09-24-bill-of-materials.md").write_text(bom_md(rows, plate_checks, H, totals))
     part_checks = []
     for r in rows:
         m = r["mesh"]
@@ -539,12 +480,13 @@ def main():
             asm_check = json.loads(old.read_text()).get("assembly")
     (VAL / "2026-09-24-package-check.json").write_text(json.dumps(dict(
         parts=part_checks, steps=step_checks, plates=plate_checks, assembly=asm_check, totals=totals), indent=1))
-    print(f"plates: {len(plates)}  parts: {len(rows)}  assembly: {asm_check}")
+    print(f"projects: {len(plate_checks)}  parts: {len(rows)}  assembly: {asm_check}")
     for c in part_checks:
         print(f"  {c['part']:30s} wt={c['watertight']} bodies={c['bodies']} bed={c['fits_bed']} "
               f"{c['orientation']} support={c['support_mm2']:.0f} mm2 size={c['print_size']}")
     for c in plate_checks:
-        print(f"  {c['plate']:45s} n={len(c['parts'])} reload={c['reloaded']} inside={c['inside_bed']} overlap={c['bbox_overlap']}")
+        print(f"  {c['file']:45s} plates={len(c['plates'])} objects={c['objects']} inside={c['inside_own_plate']} "
+              f"overlap={c['footprint_overlap']} max_h={c['max_height_mm']}")
 
 
 if __name__ == "__main__":

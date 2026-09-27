@@ -32,7 +32,7 @@ One line per criterion; details in the reports next to this file:
 | Every printed part fits the A1 bed | ≤ 246 × 246 × 256 mm | 26/26 | pass |
 | Every part STEP imports as one solid | 17 files | 17/17 | pass |
 | Assembly STEP re-imports completely | 108 solids | 108 | pass |
-| 3MF plates reload, inside the bed, no overlaps | 7 plates | 7/7 | pass |
+| Slicer projects: every object on its own plate's bed, no overlaps, under 250 mm tall | 4 files | 4/4 (4/25/4/25 objects) | pass |
 
 **28 of 28 checks pass.**
 

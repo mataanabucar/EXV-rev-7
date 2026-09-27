@@ -120,11 +120,13 @@ Worst tube bend radius 15.3 mm; tube surface ≥ 0.6 mm from every part; the Bow
 - Printing with a 0.6 mm nozzle: every wall checked in its print orientation (no patch ≥ 20 mm² under 1.0 mm) — user.
 - Stick nose (0.3–0.4 mm hood over the bucket drum, a 6 mm open slot beside it, a 0.9 mm ring round the pin) made a solid rounded end inside the original r 12 outline; bucket drum flange lip 2.8 → 1.8 mm so the hood is 2 mm thick — user (fill the slot; thicken inward).
 - Bucket floor 1.8 mm (it had a crack through the middle); bucket lug slits, back-plate top edge and the two unused link-pin holes in bracket I filled; clip recess in each ear filled — user (fix every thin spot).
+- Lever handles from the same 5/16in smooth rod as the axles, held by an M3 pinch clamp in the hub; printed knobs glued on — user.
+- Slicer project files instead of loose plates: arm shell (4 halves on one plate) in PETG, everything else in SUNLU PLA+ 2.0, each for Bambu Studio 2.8.2.61 and OrcaSlicer nightly; plates grouped by build step — user.
 
 ## Where things are
 
 - `Source/` — every script (all parameters in `2026-09-24-exma_common.py`).
-- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step` (new parts, wood, hardware); `3MF/` A1 plates; `2026-09-24-ex-ma-assembly.glb` every part in one file.
+- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step` (new parts, wood, hardware); `3MF/` slicer projects (Bambu Studio and OrcaSlicer, all plates inside); `2026-09-24-ex-ma-assembly.glb` every part in one file.
 - `STEP/2026-09-25-ex-ma-full-assembly.zip` — the whole machine in one STEP file (131 solids: printed parts, the modified EX-MA parts as exact solids, wood, hardware, ropes and PTFE tubes; 334 MB unzipped, zipped because GitHub refuses files over 100 MB).
 - `2026-09-24-bill-of-materials.md`, `2026-09-24-cut-list.md`, `Validation/`, `Preview/`.
 - `2026-09-25-print-and-assembly-checklist.md` — print order with fit tests, cut list for rope and tube, and the build, rigging and test steps with the hardware for each.

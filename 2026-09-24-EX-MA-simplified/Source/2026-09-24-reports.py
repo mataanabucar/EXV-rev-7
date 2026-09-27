@@ -263,6 +263,10 @@ def architecture():
         "thick — user (fill the slot; thicken inward).",
         "Bucket floor 1.8 mm (it had a crack through the middle); bucket lug slits, back-plate top edge and the two unused "
         "link-pin holes in bracket I filled; clip recess in each ear filled — user (fix every thin spot).",
+        "Lever handles from the same 5/16in smooth rod as the axles, held by an M3 pinch clamp in the hub; printed "
+        "knobs glued on — user.",
+        "Slicer project files instead of loose plates: arm shell (4 halves on one plate) in PETG, everything else in "
+        "SUNLU PLA+ 2.0, each for Bambu Studio 2.8.2.61 and OrcaSlicer nightly; plates grouped by build step — user.",
     ]:
         add(f"- {d}")
     add("")
@@ -270,7 +274,8 @@ def architecture():
     add("")
     add("- `Source/` — every script (all parameters in `2026-09-24-exma_common.py`).")
     add("- `STL/` printed parts; `STEP/` new parts, wood and `2026-09-24-ex-ma-assembly.step` (new parts, wood, "
-        "hardware); `3MF/` A1 plates; `2026-09-24-ex-ma-assembly.glb` every part in one file.")
+        "hardware); `3MF/` slicer projects (Bambu Studio and OrcaSlicer, all plates inside); "
+        "`2026-09-24-ex-ma-assembly.glb` every part in one file.")
     if FULL:
         add(f"- `STEP/2026-09-25-ex-ma-full-assembly.zip` — the whole machine in one STEP file ({FULL['n_items']} solids: "
             "printed parts, the modified EX-MA parts as exact solids, wood, hardware, ropes and PTFE tubes; "
@@ -291,7 +296,23 @@ def architecture():
 
 
 # ---------------------------------------------------------------- print + assembly checklist
-PLATE_ORDER = [7, 3, 1, 6, 2, 4, 5]     # build order: pedestal, box, turret, arm (see checklist())
+PROJECT_ORDER = ["other-parts-plaplus", "arm-shell-petg"]   # plates inside follow the build order
+FIT = [  # (parts on the plate that trigger it, fit test)
+    ({"conduit-end-fitting-pedestal"}, "copper elbow pushes into the pedestal fitting's round socket; a PTFE tube "
+     "slides freely through its rounded window"),
+    ({"slew-tube-bushing"}, "the PEX tube turns freely in the bushing"),
+    ({"slew-drum"}, "the slew drum slides onto the PEX tube (clamp open)"),
+    ({"lever-hub-boom", "lever-hub-stick", "lever-hub-bucket"},
+     "the 5/16in rod slides through each lever hub and into its handle socket"),
+    ({"lever-knob"}, "the 5/16in rod goes into each knob's bore"),
+    ({"slew-spool"}, "the spool turns on the 5/16in rod"),
+    ({"spool-riser"}, "the spool riser sits flat"),
+    ({"conduit-end-fitting-box"}, "4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor"),
+    ({"tower"}, "the PEX tube slides into the tower's centre bore"),
+    ({"slewing-ring-retaining-ring"}, "a BB rolls freely in the race between the base rim and the retaining ring"),
+    ({"boom-drum", "stick-drum"}, "each drum sits flat"),
+    ({"stick-half-left", "stick-half-right"}, "the bucket drum-axle journals turn freely in both stick-half nose holes"),
+]
 
 
 def checklist():
@@ -320,7 +341,7 @@ def checklist():
 
     parts = {p["part"]: p for p in PKG["parts"]}
     sup = lambda a: "none" if a < 50 else (f"light ({a / 100:.1f} cm²)" if a < 800 else f"yes ({a / 100:.0f} cm²)")
-    plates = {int(p["plate"].split("-")[-1].split(".")[0]): p for p in PKG["plates"]}
+    projects = {c["project"]: c for c in PKG["plates"] if c["slicer"] == "bambu"}
     L = []
     add = L.append
     add("# EX-MA manual excavator — print and assembly checklist")
@@ -351,32 +372,30 @@ def checklist():
     add("")
     add("## 2. Print (0.6 mm nozzle)")
     add("")
-    add("Settings for every part: PLA or PETG, 0.6 mm nozzle, 0.2 mm layers, at least 4 walls, 40 % infill for drums, "
-        "hubs, clamps and anything carrying a pin (20 % elsewhere). The plates in `3MF/` already have each part in "
-        "its print orientation; every wall was checked for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).")
+    add("Open the project file for your slicer from `3MF/` (`2026-09-27-bambu-…` for Bambu Studio 2.8.2.61, "
+        "`2026-09-27-orca-…` for OrcaSlicer); each opens with all of its plates, named, and the settings already in: "
+        "your \"A1 0.6 Fast Start\" printer, \"0.30mm Strength @BBL A1 0.6 nozzle\" (4 walls), 40 % infill on drums, "
+        "hubs, clamps and pinned parts, tree supports where marked. Every part is already in its print orientation; "
+        "every wall was checked for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).")
     add("")
     add("Print the plates in this order; it follows the build order, so each step's parts are ready when you get "
         "there. After each plate, do its fit test before printing the next.")
     add("")
-    fit = {
-        7: "copper elbow pushes into the round socket; a PTFE tube slides freely through the rounded window",
-        3: "each drum sits flat; (after plate 02) a BB rolls freely in the race between the base rim and the retaining ring",
-        1: "PEX tube turns freely in the bushing; the spool riser sits flat",
-        6: "4 PTFE tubes seat together in the box fitting's rounded window and stop on its floor",
-        2: "the 5/16in rod slides through all three lever hubs and into their handle sockets, and into a knob's bore",
-        4: "the slew drum slides onto the PEX tube (clamp open); the spool turns on the 5/16in rod",
-        5: "(with plate 06) the bucket drum-axle journals turn freely in both stick-half nose holes",
-    }
-    for k in PLATE_ORDER:
-        pl = plates[k]
-        names = []
-        for n in pl["parts"]:
-            base = n.split("#")[0].strip().rsplit("-", 1)[0] if n.split("-")[-1].isdigit() else n
-            a = parts.get(base, parts.get(n))
-            names.append(f"{n} (supports: {sup(a['support_mm2'])})" if a else n)
-        add(f"- [ ] **`3MF/{pl['plate']}`** — " + "; ".join(names))
-        add(f"  - [ ] fit test: {fit[k]}")
-    add("")
+    for proj in PROJECT_ORDER:
+        c = projects[proj]
+        add(f"**`3MF/{c['file'].replace('bambu-', '{bambu,orca}-')}`** — {c['material']} ({c['filament']})")
+        add("")
+        for pl in c["plates"]:
+            names, bases = [], set()
+            for n in pl["parts"]:
+                base = n if n in parts else n.rsplit("-", 1)[0]
+                bases.add(base)
+                names.append(f"{n} (supports: {sup(parts[base]['support_mm2'])})")
+            add(f"- [ ] plate {pl['plate']} — **{pl['name']}**: " + "; ".join(names))
+            for keys, text in FIT:
+                if keys & bases:
+                    add(f"  - [ ] fit test: {text}")
+        add("")
     add("## 3. Cut the stock")
     add("")
     add("- [ ] Wood: every panel in `2026-09-24-cut-list.md` (12 mm plywood), holes and slots as listed there")
@@ -582,9 +601,10 @@ def validation():
     rows.append(("Assembly STEP re-imports completely", f"{a['items']} solids", f"{a['solids_on_reimport']}",
                  ok(a["items"] == a["solids_on_reimport"])))
     pl = PKG["plates"]
-    rows.append(("3MF plates reload, inside the bed, no overlaps", f"{len(pl)} plates",
-                 f"{sum(p['inside_bed'] and not p['bbox_overlap'] and p['reloaded'] == len(p['parts']) for p in pl)}/{len(pl)}",
-                 ok(all(p['inside_bed'] and not p['bbox_overlap'] and p['reloaded'] == len(p['parts']) for p in pl))))
+    good = lambda c: c["inside_own_plate"] and not c["footprint_overlap"] and c["fits_height"]
+    rows.append(("Slicer projects: every object on its own plate's bed, no overlaps, under 250 mm tall",
+                 f"{len(pl)} files", f"{sum(good(c) for c in pl)}/{len(pl)} ({'/'.join(str(c['objects']) for c in pl)} objects)",
+                 ok(all(good(c) for c in pl))))
     L = ["# EX-MA — validation summary", "",
          "One line per criterion; details in the reports next to this file:",
          "`2026-09-24-exterior-check.txt`, `2026-09-24-kinematics-report.md`, `2026-09-24-box-report.md`, "

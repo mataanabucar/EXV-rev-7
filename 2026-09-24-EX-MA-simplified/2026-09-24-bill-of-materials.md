@@ -2,57 +2,70 @@
 
 Everything needed to build the simplified EX-MA arm, the wooden control box, the pedestal and the sandbox. Counts come from the build scripts (drum keys, lugs, bolts, balls), lengths from the validated rope and tube paths.
 
-Print settings for every printed part: 0.6 mm nozzle, PLA or PETG, 0.2 mm layers, at least 4 walls and 40 % infill (drums, hubs, clamps and anything carrying a pin), otherwise 20 %. Orientation below is the one with the least support area; plates are in `3MF/`. Every wall was checked in that orientation for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
+Print settings (already in the slicer project files in `3MF/`, see Plates below): Bambu Lab A1, 0.6 mm nozzle, your "A1 0.6 Fast Start" printer preset, process "0.30mm Strength @BBL A1 0.6 nozzle" (0.3 mm layers, 4 walls, 25 % infill), 40 % infill on drums, hubs, clamps and anything carrying a pin, tree supports on the parts marked "yes" below. Arm shell (boom and stick halves) in PETG, everything else in SUNLU PLA+ 2.0. Orientation below is the one with the least support area; every wall was checked in that orientation for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
 
 ## Printed parts — new
 
-| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Plate |
+| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Project, plate |
 |---|---|---|---|---|---|---|---|---|
-| boom-drum | 1 | Ø30 pitch single-groove boom drum | 10.6 cm³ | 7 g | top face down | 35 × 35 × 14 | light (1.4 cm²) | 3 |
-| stick-drum | 1 | Ø26 pitch single-groove stick drum | 5.8 cm³ | 4 g | top face down | 30 × 30 × 10 | light (1.3 cm²) | 3 |
-| bucket-drum-axle | 1 | Ø17 pitch bucket drum with journals and hex ends | 6.6 cm³ | 5 g | top face down | 19 × 19 × 49 | light (0.7 cm²) | 2 |
-| slew-drum | 1 | Ø110 pitch two-lane slew drum on the rotating 3/4in PEX turret tube | 78.9 cm³ | 54 g | as modelled (bottom down) | 113 × 113 × 31 | yes (14 cm²) | 4 |
-| slewing-ring-retaining-ring | 1 | upper outer race, 8 x M3x12 | 19.9 cm³ | 14 g | top face down | 140 × 140 × 6 | none | 3 |
-| conduit-end-fitting-box | 1 | box end of the conduit: PTFE tube anchors | 133.8 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 6 |
-| conduit-end-fitting-pedestal | 1 | pedestal end: PTFE tubes slide through into the copper elbow | 132.9 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | 7 |
-| lever-hub-boom | 1 | boom lever hub + drag clamp, drum offset toward centre | 54.2 cm³ | 37 g | top face down | 65 × 66 × 70 | yes (35 cm²) | 2 |
-| lever-hub-stick | 1 | stick lever hub + drag clamp | 44.9 cm³ | 31 g | top face down | 65 × 66 × 34 | yes (33 cm²) | 2 |
-| lever-hub-bucket | 1 | bucket lever hub + drag clamp, drum offset toward centre | 49.9 cm³ | 34 g | top face down | 65 × 66 × 55 | yes (26 cm²) | 2 |
-| lever-knob | 3 | Ø36 ball knob, glued on the 5/16in rod handle | 22.8 cm³ | 16 g | as modelled (bottom down) | 36 × 36 × 32 | light (1.5 cm²) | 2, 3 |
-| slew-spool | 1 | wheel spool: Ø110 two-lane drum + tube + wheel flange | 124.2 cm³ | 85 g | as modelled (bottom down) | 113 × 113 × 145 | yes (21 cm²) | 4 |
-| slew-wheel | 1 | Ø184 horizontal hand wheel | 116.1 cm³ | 79 g | as modelled (bottom down) | 184 × 184 × 12 | yes (11 cm²) | 1 |
-| slew-tube-bushing | 1 | PEX turret-tube bushing in the pedestal shelf | 6.9 cm³ | 5 g | as modelled (bottom down) | 44 × 44 × 15 | none | 1 |
-| elbow-support | 1 | post + cable-tie saddle under the copper elbow | 24.4 cm³ | 17 g | as modelled (bottom down) | 44 × 24 × 57 | light (0.6 cm²) | 3 |
-| spool-riser | 1 | column from the box floor up to the slew spool | 58.4 cm³ | 40 g | as modelled (bottom down) | 52 × 52 × 94 | none | 1 |
-| slew-tube-post | 2 | slew PTFE sleeve anchor beside the spool | 30.3 cm³ | 21 g | as modelled (bottom down) | 24 × 36 × 110 | none | 1 |
+| boom-drum | 1 | Ø30 pitch single-groove boom drum | 10.6 cm³ | 7 g | top face down | 35 × 35 × 14 | light (1.4 cm²) | other 6 |
+| stick-drum | 1 | Ø26 pitch single-groove stick drum | 5.8 cm³ | 4 g | top face down | 30 × 30 × 10 | light (1.3 cm²) | other 6 |
+| bucket-drum-axle | 1 | Ø17 pitch bucket drum with journals and hex ends | 6.6 cm³ | 5 g | top face down | 19 × 19 × 49 | light (0.7 cm²) | other 6 |
+| slew-drum | 1 | Ø110 pitch two-lane slew drum on the rotating 3/4in PEX turret tube | 78.9 cm³ | 54 g | as modelled (bottom down) | 113 × 113 × 31 | yes (14 cm²) | other 1 |
+| slewing-ring-retaining-ring | 1 | upper outer race, 8 x M3x12 | 19.9 cm³ | 14 g | top face down | 140 × 140 × 6 | none | other 5 |
+| conduit-end-fitting-box | 1 | box end of the conduit: PTFE tube anchors | 133.8 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | other 3 |
+| conduit-end-fitting-pedestal | 1 | pedestal end: PTFE tubes slide through into the copper elbow | 132.9 cm³ | 91 g | as modelled (bottom down) | 100 × 100 × 26 | yes (28 cm²) | other 1 |
+| lever-hub-boom | 1 | boom lever hub + drag clamp, drum offset toward centre | 54.2 cm³ | 37 g | top face down | 65 × 66 × 70 | yes (35 cm²) | other 2 |
+| lever-hub-stick | 1 | stick lever hub + drag clamp | 44.9 cm³ | 31 g | top face down | 65 × 66 × 34 | yes (33 cm²) | other 2 |
+| lever-hub-bucket | 1 | bucket lever hub + drag clamp, drum offset toward centre | 49.9 cm³ | 34 g | top face down | 65 × 66 × 55 | yes (26 cm²) | other 3 |
+| lever-knob | 3 | Ø36 ball knob, glued on the 5/16in rod handle | 22.8 cm³ | 16 g | as modelled (bottom down) | 36 × 36 × 32 | light (1.5 cm²) | other 2 |
+| slew-spool | 1 | wheel spool: Ø110 two-lane drum + tube + wheel flange | 124.2 cm³ | 85 g | as modelled (bottom down) | 113 × 113 × 145 | yes (21 cm²) | other 3 |
+| slew-wheel | 1 | Ø184 horizontal hand wheel | 116.1 cm³ | 79 g | as modelled (bottom down) | 184 × 184 × 12 | yes (11 cm²) | other 2 |
+| slew-tube-bushing | 1 | PEX turret-tube bushing in the pedestal shelf | 6.9 cm³ | 5 g | as modelled (bottom down) | 44 × 44 × 15 | none | other 1 |
+| elbow-support | 1 | post + cable-tie saddle under the copper elbow | 24.4 cm³ | 17 g | as modelled (bottom down) | 44 × 24 × 57 | light (0.6 cm²) | other 1 |
+| spool-riser | 1 | column from the box floor up to the slew spool | 58.4 cm³ | 40 g | as modelled (bottom down) | 52 × 52 × 94 | none | other 2 |
+| slew-tube-post | 2 | slew PTFE sleeve anchor beside the spool | 30.3 cm³ | 21 g | as modelled (bottom down) | 24 × 36 × 110 | none | other 2 |
 
 ## Printed parts — modified EX-MA parts
 
-| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Plate |
+| Part | Qty | What it does | Volume | Est. mass | Print orientation | Print size (x × y × z) | Supports | Project, plate |
 |---|---|---|---|---|---|---|---|---|
-| tower | 1 | EX-MA tower: circular flange = inner race, PEX clamp hub, centre funnel removed, lowered 13 mm | 130.2 cm³ | 89 g | on its +x side | 99 × 117 × 117 | yes (53 cm²) | 6 |
-| base | 1 | EX-MA base: centre post removed, lower race rim with nut slots, 4 screw holes to the pedestal | 157.6 cm³ | 107 g | as modelled (bottom down) | 140 × 140 × 21 | yes (28 cm²) | 2 |
-| boom-half-left | 1 | EX-MA boom half (+v): PTFE channels, stick-tube bulkhead, drum key sockets, joining lugs | 60.0 cm³ | 41 g | on its +y side | 218 × 123 × 24 | yes (11 cm²) | 4 |
-| boom-half-right | 1 | EX-MA boom half (-v): as the left half, mirrored | 55.9 cm³ | 38 g | on its -y side | 218 × 123 × 24 | yes (14 cm²) | 5 |
-| stick-half-left | 1 | EX-MA stick half (+v): PTFE channels, bucket-tube bulkhead, drum key sockets, joining lugs | 42.8 cm³ | 29 g | on its +y side | 190 × 107 × 18 | light (5.9 cm²) | 5 |
-| stick-half-right | 1 | EX-MA stick half (-v): as the left half, mirrored | 41.1 cm³ | 28 g | on its -y side | 190 × 107 × 18 | light (6.9 cm²) | 6 |
-| bucket-ear-left | 1 | EX-MA bucket ear G: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its +y side | 20 × 43 × 15 | light (1.2 cm²) | 1 |
-| bucket-ear-right | 1 | EX-MA bucket ear H: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its -y side | 20 × 43 × 15 | light (1.2 cm²) | 1 |
-| bucket | 1 | EX-MA bucket: repaired STEP body + bracket I + lugs O/P merged into one part | 27.8 cm³ | 19 g | on its +x side | 69 × 54 × 69 | yes (27 cm²) | 1 |
+| tower | 1 | EX-MA tower: circular flange = inner race, PEX clamp hub, centre funnel removed, lowered 13 mm | 130.2 cm³ | 89 g | on its +x side | 99 × 117 × 117 | yes (53 cm²) | other 4 |
+| base | 1 | EX-MA base: centre post removed, lower race rim with nut slots, 4 screw holes to the pedestal | 157.6 cm³ | 107 g | as modelled (bottom down) | 140 × 140 × 21 | yes (28 cm²) | other 4 |
+| boom-half-left | 1 | EX-MA boom half (+v): PTFE channels, stick-tube bulkhead, drum key sockets, joining lugs | 60.0 cm³ | 41 g | on its +y side | 218 × 123 × 24 | yes (11 cm²) | arm 1 |
+| boom-half-right | 1 | EX-MA boom half (-v): as the left half, mirrored | 55.9 cm³ | 38 g | on its -y side | 218 × 123 × 24 | yes (14 cm²) | arm 1 |
+| stick-half-left | 1 | EX-MA stick half (+v): PTFE channels, bucket-tube bulkhead, drum key sockets, joining lugs | 42.8 cm³ | 29 g | on its +y side | 190 × 107 × 18 | light (5.9 cm²) | arm 1 |
+| stick-half-right | 1 | EX-MA stick half (-v): as the left half, mirrored | 41.1 cm³ | 28 g | on its -y side | 190 × 107 × 18 | light (6.9 cm²) | arm 1 |
+| bucket-ear-left | 1 | EX-MA bucket ear G: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its +y side | 20 × 43 × 15 | light (1.2 cm²) | other 6 |
+| bucket-ear-right | 1 | EX-MA bucket ear H: hex socket for the bucket drum-axle | 2.3 cm³ | 2 g | on its -y side | 20 × 43 × 15 | light (1.2 cm²) | other 6 |
+| bucket | 1 | EX-MA bucket: repaired STEP body + bracket I + lugs O/P merged into one part | 27.8 cm³ | 19 g | on its +x side | 69 × 54 × 69 | yes (27 cm²) | other 6 |
 
 Printed total: 20 new prints + 9 modified EX-MA prints, about 1.03 kg of filament (estimate at ~55 % effective fill).
 
 ## Plates (Bambu A1, 256 × 256 mm)
 
-| Plate | Parts |
-|---|---|
-| `3MF/2026-09-24-plate-01.3mf` | slew-wheel, bucket, spool-riser, slew-tube-bushing, bucket-ear-left, bucket-ear-right, slew-tube-post #1, slew-tube-post #2 |
-| `3MF/2026-09-24-plate-02.3mf` | base, lever-hub-stick, lever-hub-boom, lever-hub-bucket, lever-knob #1, lever-knob #2, bucket-drum-axle |
-| `3MF/2026-09-24-plate-03.3mf` | slewing-ring-retaining-ring, lever-knob #3, boom-drum, stick-drum, elbow-support |
-| `3MF/2026-09-24-plate-04.3mf` | boom-half-left, slew-drum, slew-spool |
-| `3MF/2026-09-24-plate-05.3mf` | boom-half-right, stick-half-left |
-| `3MF/2026-09-24-plate-06.3mf` | tower, stick-half-right, conduit-end-fitting-box |
-| `3MF/2026-09-24-plate-07.3mf` | conduit-end-fitting-pedestal |
+Two slicer projects, each saved for Bambu Studio 2.8.2.61 and for OrcaSlicer (nightly); open the one for your slicer — each opens with all of its plates, already named. The `bambu-` and `orca-` files hold the same parts in the same places.
+
+| Project | Material | Plate | Parts |
+|---|---|---|---|
+| `3MF/2026-09-27-{bambu,orca}-arm-shell-petg.3mf` | PETG (Generic PETG @BBL A1) | 1 — Arm shell | boom-half-right, boom-half-left, stick-half-right, stick-half-left |
+| `3MF/2026-09-27-{bambu,orca}-other-parts-plaplus.3mf` | PLA+ (SUNLU PLA+ 2.0 @BBL A1) | 1 — Pedestal | conduit-end-fitting-pedestal, slew-drum, slew-tube-bushing, elbow-support |
+| `3MF/2026-09-27-{bambu,orca}-other-parts-plaplus.3mf` | PLA+ (SUNLU PLA+ 2.0 @BBL A1) | 2 — Control box (1/2) | slew-wheel, lever-hub-stick, lever-hub-boom, spool-riser, lever-knob-1, lever-knob-2, lever-knob-3, slew-tube-post-1, slew-tube-post-2 |
+| `3MF/2026-09-27-{bambu,orca}-other-parts-plaplus.3mf` | PLA+ (SUNLU PLA+ 2.0 @BBL A1) | 3 — Control box (2/2) | conduit-end-fitting-box, slew-spool, lever-hub-bucket |
+| `3MF/2026-09-27-{bambu,orca}-other-parts-plaplus.3mf` | PLA+ (SUNLU PLA+ 2.0 @BBL A1) | 4 — Turret + slewing ring (1/2) | base, tower |
+| `3MF/2026-09-27-{bambu,orca}-other-parts-plaplus.3mf` | PLA+ (SUNLU PLA+ 2.0 @BBL A1) | 5 — Turret + slewing ring (2/2) | slewing-ring-retaining-ring |
+| `3MF/2026-09-27-{bambu,orca}-other-parts-plaplus.3mf` | PLA+ (SUNLU PLA+ 2.0 @BBL A1) | 6 — Arm mechanism + bucket | bucket, boom-drum, stick-drum, bucket-ear-right, bucket-ear-left, bucket-drum-axle |
+
+## Part count by group
+
+| Group | Parts | Prints |
+|---|---|---|
+| Arm shell | boom-half-left, boom-half-right, stick-half-left, stick-half-right | 4 |
+| Arm mechanism + bucket | boom-drum, stick-drum, bucket-drum-axle, bucket, bucket-ear-left, bucket-ear-right | 6 |
+| Turret + slewing ring | tower, base, slewing-ring-retaining-ring | 3 |
+| Pedestal | slew-drum, slew-tube-bushing, elbow-support, conduit-end-fitting-pedestal | 4 |
+| Control box | lever-hub-boom, lever-hub-stick, lever-hub-bucket, lever-knob ×3, slew-spool, spool-riser, slew-tube-post ×2, slew-wheel, conduit-end-fitting-box | 12 |
+| **Total** | 26 different parts (STL files) | **29** |
 
 ## From your M3 kit (Fgruh 2300 pc)
 
