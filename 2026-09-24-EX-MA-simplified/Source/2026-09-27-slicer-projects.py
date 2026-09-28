@@ -55,7 +55,14 @@ PROJECTS = {
     "arm-shell-petg": dict(groups=["Arm shell"], filament="Generic PETG @BBL A1", colour="#F4EE2A",
                            material="PETG"),
     "other-parts-plaplus": dict(groups=["Pedestal", "Control box", "Turret + slewing ring", "Arm mechanism + bucket"],
-                                filament="SUNLU PLA+ 2.0 @BBL A1", colour="#000000", material="PLA+"),
+                                filament="SUNLU PLA+ 2.0 @BBL A1", colour="#000000", material="PLA+",
+                                overrides=dict(
+                                    # the 22 mm3/s flow cap held every 0.3 x 0.62 mm line to ~118 mm/s; 28 at 230 C
+                                    # lifts that to ~150 mm/s; outer wall, top surface and first layer unchanged
+                                    process=dict(inner_wall_speed=["200"], sparse_infill_speed=["200"],
+                                                 internal_solid_infill_speed=["200"], support_speed=["200"],
+                                                 gap_infill_speed=["80"], default_acceleration=["10000"]),
+                                    filament=dict(filament_max_volumetric_speed=["28"], nozzle_temperature=["230"]))),
 }
 # 40 % infill: drums, hubs, clamps and anything carrying a pin; the rest keeps the process's 25 %
 LOAD_PARTS = {"boom-drum", "stick-drum", "bucket-drum-axle", "slew-drum", "lever-hub-boom", "lever-hub-stick",
@@ -103,8 +110,16 @@ def _resolve(idx, name):
 def project_settings(slicer, project, profiles_root=None):
     """Full project_settings.config for one slicer + filament, cached in CACHE."""
     cache = CACHE / f"2026-09-27-{slicer}-{project}.json"
-    if profiles_root is None:
-        return json.loads(cache.read_text())
+    cfg = json.loads(cache.read_text()) if profiles_root is None else _base_settings(slicer, project, profiles_root, cache)
+    ov = PROJECTS[project].get("overrides", {})
+    diff = cfg["different_settings_to_system"]
+    for i, kind in enumerate(("process", "filament")):
+        cfg.update(ov.get(kind, {}))
+        diff[i] = ";".join(sorted(set(filter(None, diff[i].split(";"))) | set(ov.get(kind, {}))))
+    return cfg
+
+
+def _base_settings(slicer, project, profiles_root, cache):
     tmpl = json.loads(zipfile.ZipFile(TEMPLATE_3MF).read("Metadata/project_settings.config"))
     n_old = len(tmpl["filament_colour"])
     cfg = copy.deepcopy(tmpl)

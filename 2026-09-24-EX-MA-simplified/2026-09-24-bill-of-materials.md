@@ -2,7 +2,7 @@
 
 Everything needed to build the simplified EX-MA arm, the wooden control box, the pedestal and the sandbox. Counts come from the build scripts (drum keys, lugs, bolts, balls), lengths from the validated rope and tube paths.
 
-Print settings (already in the slicer project files in `3MF/`, see Plates below): Bambu Lab A1, 0.6 mm nozzle, your "A1 0.6 Fast Start" printer preset, process "0.30mm Strength @BBL A1 0.6 nozzle" (0.3 mm layers, 4 walls, 25 % infill), 40 % infill on drums, hubs, clamps and anything carrying a pin, tree supports on the parts marked "yes" below. Arm shell (boom and stick halves) in PETG, everything else in SUNLU PLA+ 2.0. Orientation below is the one with the least support area; every wall was checked in that orientation for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
+Print settings (already in the slicer project files in `3MF/`, see Plates below): Bambu Lab A1, 0.6 mm nozzle, your "A1 0.6 Fast Start" printer preset, process "0.30mm Strength @BBL A1 0.6 nozzle" (0.3 mm layers, 4 walls, 25 % infill), 40 % infill on drums, hubs, clamps and anything carrying a pin, tree supports on the parts marked "yes" below. Arm shell (boom and stick halves) in PETG, everything else in SUNLU PLA+ 2.0. The PLA+ project prints faster: flow cap 28 mm³/s at 230 °C (profile: 22 at 220), inner walls, infill and supports 200 mm/s, acceleration 10000; outer walls, top surfaces and the first layer are unchanged. If infill looks under-extruded on the first plate, set the filament's max volumetric speed to 25. Orientation below is the one with the least support area; every wall was checked in that orientation for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
 
 ## Printed parts — new
 

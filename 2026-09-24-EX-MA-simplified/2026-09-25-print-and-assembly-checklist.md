@@ -23,7 +23,7 @@ Tick the boxes as you go. Quantities, lengths and plates come from the build scr
 
 ## 2. Print (0.6 mm nozzle)
 
-Open the project file for your slicer from `3MF/` (`2026-09-27-bambu-…` for Bambu Studio 2.8.2.61, `2026-09-27-orca-…` for OrcaSlicer); each opens with all of its plates, named, and the settings already in: your "A1 0.6 Fast Start" printer, "0.30mm Strength @BBL A1 0.6 nozzle" (4 walls), 40 % infill on drums, hubs, clamps and pinned parts, tree supports where marked. Every part is already in its print orientation; every wall was checked for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
+Open the project file for your slicer from `3MF/` (`2026-09-27-bambu-…` for Bambu Studio 2.8.2.61, `2026-09-27-orca-…` for OrcaSlicer); each opens with all of its plates, named, and the settings already in: your "A1 0.6 Fast Start" printer, "0.30mm Strength @BBL A1 0.6 nozzle" (4 walls), 40 % infill on drums, hubs, clamps and pinned parts, tree supports where marked. The PLA+ project is set to print faster (flow cap 28 mm³/s at 230 °C, inner walls/infill/supports 200 mm/s, acceleration 10000; outer walls, top surfaces and first layer unchanged); if infill looks under-extruded on the first plate, lower the filament's max volumetric speed to 25. Every part is already in its print orientation; every wall was checked for the 0.6 mm nozzle (`Validation/2026-09-25-wall-check.json`).
 
 Print the plates in this order; it follows the build order, so each step's parts are ready when you get there. After each plate, do its fit test before printing the next.
 
