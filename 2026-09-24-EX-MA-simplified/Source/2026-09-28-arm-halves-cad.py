@@ -561,25 +561,58 @@ def read_brep(path):
 
 
 def export_checked(shape, path):
-    """Write the solid to STEP and read it back; when the STEP reader rebuilds a face differently,
-    try the face-merged and the repaired shape. Returns the solid that reads back valid, or None."""
-    from OCP.ShapeFix import ShapeFix_Shape
+    """Write the solid to STEP and read it back. When the STEP reader rebuilds a face differently
+    (tiny sliver faces next to the joining plane), try the solid with same-surface faces merged,
+    repaired, with small faces removed, or repaired after reading back. Returns the solid that
+    reads back valid, or None (the in-memory solid is then kept as <path>.failed.brep)."""
+    from OCP.ShapeFix import ShapeFix_Shape, ShapeFix_FixSmallFace
+    from OCP.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+    from OCP.BRepTools import BRepTools
 
     def fixed(s):
         fx = ShapeFix_Shape(s.wrapped)
         fx.Perform()
         return cq.Shape.cast(fx.Shape())
-    for cand in (lambda: shape, lambda: safe_clean(shape), lambda: fixed(shape), lambda: fixed(safe_clean(shape))):
+
+    def no_small_faces(s):
+        fx = ShapeFix_FixSmallFace()
+        fx.Init(s.wrapped)
+        fx.SetPrecision(1e-3)
+        fx.Perform()
+        return fixed(cq.Shape.cast(fx.FixShape()))
+
+    def unified(s, lin):
+        u = ShapeUpgrade_UnifySameDomain(s.wrapped, True, True, False)
+        u.SetLinearTolerance(lin)
+        u.SetAngularTolerance(1e-3)
+        u.Build()
+        return cq.Shape.cast(u.Shape())
+
+    def readback(s):
+        s.exportStep(str(path))
+        back = cq.importers.importStep(str(path)).solids().vals()
+        return back[0] if len(back) == 1 else None
+
+    cands = [lambda: shape, lambda: safe_clean(shape), lambda: fixed(shape), lambda: no_small_faces(shape),
+             lambda: fixed(unified(shape, 1e-3)), lambda: no_small_faces(fixed(unified(shape, 1e-3)))]
+    for cand in cands:
         try:
             s = cand()
-            if not (s.isValid() and len(s.Solids()) == 1):
+            if not (s.isValid() and len(s.Solids()) == 1 and abs(s.Volume() - shape.Volume()) < 1.0):
                 continue
-            s.exportStep(str(path))
-            back = cq.importers.importStep(str(path)).solids().vals()
-            if len(back) == 1 and back[0].isValid() and abs(back[0].Volume() - s.Volume()) < 1.0:
-                return back[0]
+            back = readback(s)
+            if back is None:
+                continue
+            if not back.isValid():
+                back = fixed(back).Solids()[0]          # repair what the reader rebuilt, then again
+                if not back.isValid():
+                    continue
+                back = readback(back)
+            if back is not None and back.isValid() and abs(back.Volume() - shape.Volume()) < 1.0:
+                return back
         except Exception:
             continue
+    BRepTools.Write_s(shape.wrapped, str(path) + ".failed.brep")
     return None
 
 
