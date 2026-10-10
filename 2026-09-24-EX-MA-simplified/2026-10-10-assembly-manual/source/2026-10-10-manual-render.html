@@ -1,0 +1,445 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EX-MA manual figure renderer</title>
+<!--
+  Technical-illustration renderer for the assembly manual.
+  Loads scene.json / scene.bin (2026-10-10-manual-scene-export.py) and exposes
+  window.renderFigure(spec) -> { png (data URL), w, h, callouts, arrows }.
+  Shading: Lambert + hemisphere light; ink outlines from a screen-space pass over object id,
+  normal and depth (silhouettes, creases, part boundaries). Callouts and arrows are returned as
+  2D geometry (output pixels) and drawn as vector SVG by the page builder.
+  Driven by 2026-10-10-manual-figures.mjs.
+-->
+<style>html,body{margin:0;background:#fff}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./three.module.js","three/addons/":"./addons/"}}</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const COLORS = {
+  printed: '#f2a65a', petg: '#f2cf5b', exma: '#6f7f8f', exma_dark: '#4a5562', ear: '#5b8fd1',
+  knob: '#3a414b', ply: '#e8d3a8', ply_box: '#d9b783', steel: '#b4bcc4', zinc: '#c9d0d6',
+  copper: '#c98a55', pvc: '#eef1f4', pex: '#f4f6f8', bb: '#f6f2e6',
+  boom: '#2e9e44', stick: '#2a6fdb', bucket: '#d93a2b', slew: '#8e44ad', ptfe: '#ffffff',
+  highlight: '#ff7a00', context: '#e3e6ea', context_wood: '#efe7d8',
+};
+
+let SCENE = null, BIN = null;
+const GEOM = new Map();            // object index -> BufferGeometry (creased normals)
+
+window.loadScene = async (base) => {
+  SCENE = await (await fetch(base + '/scene.json')).json();
+  BIN = await (await fetch(base + '/scene.bin')).arrayBuffer();
+  return SCENE.objects.length;
+};
+
+function geometry(i) {
+  if (GEOM.has(i)) return GEOM.get(i);
+  const o = SCENE.objects[i];
+  const pos = new Float32Array(BIN, o.v_off, o.v_n * 3);
+  const idx = new Uint32Array(BIN, o.t_off, o.t_n * 3);
+  let g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g = toCreasedNormals(g, THREE.MathUtils.degToRad(28));
+  g.computeBoundingBox();
+  GEOM.set(i, g);
+  return g;
+}
+
+// ---------------------------------------------------------------- selection
+function matches(o, sel) {
+  if (Array.isArray(sel)) return sel.some(s => matches(o, s));
+  if (sel === 'all') return true;
+  const k = sel.indexOf(':');
+  const kind = sel.slice(0, k), val = sel.slice(k + 1);
+  if (kind === 'name') return o.name === val;
+  if (kind === 'group') return o.group === val;
+  if (kind === 'member') return o.member === val;
+  if (kind === 'kind') return o.kind === val;
+  if (kind === 're') return new RegExp(val, 'i').test(o.name);
+  throw new Error('bad selector ' + sel);
+}
+
+// ---------------------------------------------------------------- posing (mirrors Source/2026-09-24-assembly.py)
+function rotV(c, deg) {               // rotation about +v through (u, z) = c, CCW seen from +v
+  const a = THREE.MathUtils.degToRad(deg), co = Math.cos(a), si = Math.sin(a);
+  const R = new THREE.Matrix4().set(co, 0, -si, 0, 0, 1, 0, 0, si, 0, co, 0, 0, 0, 0, 1);
+  const T1 = new THREE.Matrix4().makeTranslation(-c[0], 0, -c[1]);
+  const T2 = new THREE.Matrix4().makeTranslation(c[0], 0, c[1]);
+  return T2.multiply(R).multiply(T1);
+}
+function leverT(deg) {                // + tilts the handle toward +u (build-box.lever_pose_T)
+  const a = THREE.MathUtils.degToRad(deg), co = Math.cos(a), si = Math.sin(a);
+  const R = new THREE.Matrix4().set(co, 0, si, 0, 0, 1, 0, 0, -si, 0, co, 0, 0, 0, 0, 1);
+  const [u, z] = SCENE.pose.AXLE;
+  return new THREE.Matrix4().makeTranslation(u, 0, z).multiply(R).multiply(new THREE.Matrix4().makeTranslation(-u, 0, -z));
+}
+function memberMatrix(member, pose) {
+  const P = SCENE.pose;
+  const Tb = rotV(P.P_BOOM, pose.boom || 0);
+  const Ts = Tb.clone().multiply(rotV(P.P_STICK, pose.stick || 0));
+  const Tk = Ts.clone().multiply(rotV(P.P_BUCKET, pose.bucket || 0));
+  const Tz = new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(pose.slew || 0));
+  if (member === 'boom') return Tz.multiply(Tb);
+  if (member === 'stick') return Tz.multiply(Ts);
+  if (member === 'bucket') return Tz.multiply(Tk);
+  if (member === 'turret') return Tz;
+  if (member.startsWith('lever-')) return leverT((pose.levers || {})[member.slice(6)] || 0);
+  if (member === 'wheel') {
+    const c = P.WHEEL_C, a = THREE.MathUtils.degToRad(pose.wheel || 0);
+    return new THREE.Matrix4().makeTranslation(c[0], c[1], 0).multiply(new THREE.Matrix4().makeRotationZ(a))
+      .multiply(new THREE.Matrix4().makeTranslation(-c[0], -c[1], 0));
+  }
+  return new THREE.Matrix4();
+}
+
+// ---------------------------------------------------------------- materials
+const idVS = `
+  #include <common>
+  #include <clipping_planes_pars_vertex>
+  varying vec3 vN;
+  void main(){
+    #include <begin_vertex>
+    #include <project_vertex>
+    #include <clipping_planes_vertex>
+    vN = normalize(normalMatrix * normal);
+  }`;
+const idFS = `
+  #include <common>
+  #include <clipping_planes_pars_fragment>
+  uniform float uId; uniform float uStyle;
+  varying vec3 vN;
+  void main(){
+    #include <clipping_planes_fragment>
+    vec3 n = normalize(vN);
+    if (!gl_FrontFacing) n = -n;
+    gl_FragColor = vec4(n.xy * 0.5 + 0.5, uId, uStyle);
+  }`;
+function idMaterial(id, style) {
+  return new THREE.ShaderMaterial({ vertexShader: idVS, fragmentShader: idFS, clipping: true, side: THREE.DoubleSide,
+    uniforms: { uId: { value: id }, uStyle: { value: style } } });
+}
+
+const compVS = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+const compFS = `
+  uniform sampler2D tColor; uniform sampler2D tId; uniform sampler2D tDepth;
+  uniform vec2 uTexel; uniform float uNear; uniform float uFar; uniform float uOrtho;
+  uniform float uDepthTol; uniform float uCrease; uniform float uWidth;
+  uniform vec3 uInk; uniform vec3 uInkSoft;
+  varying vec2 vUv;
+  float lin(float d){
+    if (uOrtho > 0.5) return uNear + d * (uFar - uNear);
+    float z = d * 2.0 - 1.0; return (2.0 * uNear * uFar) / (uFar + uNear - z * (uFar - uNear));
+  }
+  vec3 nrm(vec4 s){ vec2 xy = s.xy * 2.0 - 1.0; return vec3(xy, sqrt(max(0.0, 1.0 - dot(xy, xy)))); }
+  void main(){
+    vec4 c = texture2D(tColor, vUv);
+    vec4 s0 = texture2D(tId, vUv);
+    float d0 = lin(texture2D(tDepth, vUv).r);
+    float edge = 0.0; float soft = 0.0;
+    vec2 offs[8];
+    offs[0]=vec2(1,0); offs[1]=vec2(-1,0); offs[2]=vec2(0,1); offs[3]=vec2(0,-1);
+    offs[4]=vec2(0.7,0.7); offs[5]=vec2(-0.7,0.7); offs[6]=vec2(0.7,-0.7); offs[7]=vec2(-0.7,-0.7);
+    for (int i = 0; i < 8; i++){
+      vec2 uv = vUv + offs[i] * uTexel * uWidth;
+      vec4 s = texture2D(tId, uv);
+      float d = lin(texture2D(tDepth, uv).r);
+      bool bg0 = s0.a < 0.1, bg = s.a < 0.1;
+      if (bg0 && bg) continue;
+      float st = max(s0.a, s.a);
+      float e = 0.0;
+      if (bg0 != bg) e = 1.0;                                       // silhouette against the paper
+      else {
+        if (abs(s.b - s0.b) > 0.002) e = 1.0;                       // part boundary
+        if (abs(d - d0) > uDepthTol) e = 1.0;                       // depth step (fold behind)
+        if (dot(nrm(s), nrm(s0)) < uCrease) e = max(e, 0.85);       // crease
+      }
+      // the nearer pixel owns the line, so lines stay one-sided and crisp
+      if (e > 0.0 && !bg0 && !bg && d0 > d + 0.0001) e = 0.0;
+      if (st > 0.75) edge = max(edge, e); else soft = max(soft, e);
+    }
+    vec3 ink = edge > 0.0 ? uInk : uInkSoft;
+    float a = max(edge, soft * 0.9);
+    vec3 rgb = mix(c.rgb, ink, a);                       // linear
+    rgb = mix(rgb * 12.92, 1.055 * pow(rgb, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, rgb));   // -> sRGB
+    gl_FragColor = vec4(rgb, 1.0);
+  }`;
+
+// ---------------------------------------------------------------- renderer
+const SS = 2;                         // supersampling
+let renderer = null;
+function getRenderer(W, H) {
+  if (!renderer) {
+    renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, preserveDrawingBuffer: true });
+    renderer.localClippingEnabled = true;
+    document.body.appendChild(renderer.domElement);
+  }
+  renderer.setPixelRatio(1);
+  renderer.setSize(W, H);
+  return renderer;
+}
+
+function ropeGeometry(pts, r) {
+  const path = new THREE.CurvePath();
+  for (let i = 1; i < pts.length; i++) {
+    const a = new THREE.Vector3(...pts[i - 1]), b = new THREE.Vector3(...pts[i]);
+    if (a.distanceTo(b) > 1e-4) path.add(new THREE.LineCurve3(a, b));
+  }
+  const n = Math.min(4000, Math.max(16, pts.length * 3));
+  return new THREE.TubeGeometry(path, n, r, 10, false);
+}
+
+function fitCamera(cam, box, dir, up, margin, W, H) {
+  // orthographic: frame the 8 corners of box seen along dir
+  const target = box.getCenter(new THREE.Vector3());
+  const d = dir.clone().normalize();
+  const size = box.getSize(new THREE.Vector3()).length();
+  cam.position.copy(target).addScaledVector(d, size * 3 + 2000);
+  cam.up.copy(up);
+  cam.lookAt(target);
+  cam.updateMatrixWorld();
+  const inv = cam.matrixWorldInverse;
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+    const p = new THREE.Vector3(x, y, z).applyMatrix4(inv);
+    x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
+  }
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  let w = (x1 - x0), h = (y1 - y0);
+  const asp = W / H;
+  if (w / h > asp) h = w / asp; else w = h * asp;
+  w *= 1 + margin; h *= 1 + margin;
+  cam.left = cx - w / 2; cam.right = cx + w / 2; cam.top = cy + h / 2; cam.bottom = cy - h / 2;
+  cam.near = 1; cam.far = size * 6 + 4000;
+  cam.updateProjectionMatrix();
+}
+
+window.renderFigure = async (spec) => {
+  const W = spec.w, H = spec.h, RW = W * SS, RH = H * SS;
+  const r = getRenderer(RW, RH);
+  const scene = new THREE.Scene();
+  const pose = spec.pose || {};
+  const moves = spec.move || [];
+  const clip = (spec.clip || []).map(c => new THREE.Plane(new THREE.Vector3(...c.n).normalize(), c.d));
+  const clipSel = spec.clipSel || 'all';
+
+  // --- objects
+  const entries = [];                 // {obj, i, style, color, opacity, M}
+  SCENE.objects.forEach((o, i) => {
+    let st = null;
+    for (const s of spec.show || []) if (matches(o, s.sel)) st = s;
+    if (!st || st.style === 'hide') return;
+    const M = memberMatrix(o.member, pose);
+    for (const mv of moves) if (matches(o, mv.sel)) M.premultiply(new THREE.Matrix4().makeTranslation(...mv.d));
+    entries.push({ o, i, st, M });
+  });
+
+  const idScene = new THREE.Scene();
+  const fitBox = new THREE.Box3();
+  let idCount = 0;
+  const pickables = [];
+  for (const e of entries) {
+    const g = geometry(e.i);
+    const style = e.st.style || 'focus';
+    let col = e.st.color || COLORS[e.o.color] || '#cccccc';
+    if (style === 'context') col = e.st.color || (e.o.kind === 'wood' ? COLORS.context_wood : COLORS.context);
+    const ghost = style === 'ghost';
+    const mat = new THREE.MeshLambertMaterial({
+      color: new THREE.Color(col), side: THREE.DoubleSide, transparent: ghost, opacity: ghost ? (e.st.opacity ?? 0.22) : 1,
+      depthWrite: !ghost, clippingPlanes: (e.st.noclip ? [] : (matches(e.o, clipSel) ? clip : [])),
+    });
+    const m = new THREE.Mesh(g, mat);
+    m.matrixAutoUpdate = false; m.matrix.copy(e.M); m.matrixWorldNeedsUpdate = true;
+    m.userData = e;
+    if (ghost) m.renderOrder = 10;
+    scene.add(m);
+    if (!ghost) {
+      idCount += 1;
+      const im = new THREE.Mesh(g, idMaterial(((idCount * 37) % 251 + 2) / 255, style === 'context' ? 0.5 : 1.0));
+      im.material.clippingPlanes = mat.clippingPlanes;
+      im.matrixAutoUpdate = false; im.matrix.copy(e.M); im.matrixWorldNeedsUpdate = true;
+      idScene.add(im);
+      pickables.push(m);
+    } else {
+      const eg = new THREE.EdgesGeometry(g, 40);
+      const lm = new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: e.st.line || 0x8a939c, transparent: true,
+        opacity: e.st.lineOpacity ?? 0.55, clippingPlanes: mat.clippingPlanes }));
+      lm.matrixAutoUpdate = false; lm.matrix.copy(e.M); lm.matrixWorldNeedsUpdate = true; lm.renderOrder = 11;
+      scene.add(lm);
+    }
+    if (e.st.fit !== false && style !== 'ghost' && (!spec.fitSel || matches(e.o, spec.fitSel))) {
+      const b = g.boundingBox.clone().applyMatrix4(e.M);
+      fitBox.union(b);
+    }
+  }
+
+  // --- ropes and PTFE
+  const rs = spec.ropes;
+  if (rs) {
+    for (const rope of SCENE.ropes) {
+      if (rs.circuits && !rs.circuits.includes(rope.circuit)) continue;
+      if (rs.names && !rs.names.includes(rope.name)) continue;
+      const rr = SCENE.rope_d / 2 * (rs.scale || 1.5);
+      const g = ropeGeometry(rope.pts, rr);
+      const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: COLORS[rope.circuit], clippingPlanes: rs.clip ? clip : [] }));
+      scene.add(m);
+      idCount += 1;
+      const im = new THREE.Mesh(g, idMaterial(((idCount * 37) % 251 + 2) / 255, 1.0));
+      im.material.clippingPlanes = m.material.clippingPlanes;
+      idScene.add(im);
+      if (rs.ptfe !== false) for (const seg of rope.ptfe) {
+        const tg = ropeGeometry(seg, SCENE.ptfe_od / 2 * (rs.ptfeScale || 1.0));
+        const tm = new THREE.Mesh(tg, new THREE.MeshLambertMaterial({ color: '#ffffff', transparent: true, opacity: rs.ptfeOpacity ?? 0.35,
+          depthWrite: false, clippingPlanes: rs.clip ? clip : [] }));
+        tm.renderOrder = 12;
+        scene.add(tm);
+      }
+    }
+  }
+
+  // --- extra primitives (e.g. a highlighted point marker)
+  for (const p of spec.markers || []) {
+    const g = new THREE.SphereGeometry(p.r || 3, 24, 16);
+    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: p.color || COLORS.highlight }));
+    m.position.set(...p.at); scene.add(m);
+    const im = new THREE.Mesh(g, idMaterial(0.99, 1.0)); im.position.set(...p.at); idScene.add(im);
+  }
+
+  // --- camera
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 10);
+  const up = new THREE.Vector3(...(spec.cam.up || [0, 0, 1]));
+  let box = fitBox;
+  if (spec.cam.box) box = new THREE.Box3(new THREE.Vector3(...spec.cam.box[0]), new THREE.Vector3(...spec.cam.box[1]));
+  fitCamera(cam, box, new THREE.Vector3(...spec.cam.dir), up, spec.cam.margin ?? 0.08, W, H);
+  if (spec.cam.zoom) { cam.zoom = spec.cam.zoom; cam.updateProjectionMatrix(); }
+  if (spec.cam.pan) {         // pan in view units (fractions of the view width / height)
+    const w = cam.right - cam.left, h = cam.top - cam.bottom;
+    cam.left += spec.cam.pan[0] * w; cam.right += spec.cam.pan[0] * w;
+    cam.top += spec.cam.pan[1] * h; cam.bottom += spec.cam.pan[1] * h;
+    cam.updateProjectionMatrix();
+  }
+
+  // --- lights (attached to the camera)
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb8bec6, 1.9));
+  const key = new THREE.DirectionalLight(0xffffff, 1.25);
+  key.position.set(-0.5, 0.9, 1.0); cam.add(key); key.target.position.set(0, 0, -1); cam.add(key.target);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+  fill.position.set(0.8, -0.3, 0.6); cam.add(fill); fill.target.position.set(0, 0, -1); cam.add(fill.target);
+  scene.add(cam);
+
+  // --- passes
+  const colorRT = new THREE.WebGLRenderTarget(RW, RH, { samples: 4, type: THREE.UnsignedByteType });
+  const idRT = new THREE.WebGLRenderTarget(RW, RH, { type: THREE.UnsignedByteType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+  idRT.depthTexture = new THREE.DepthTexture(RW, RH);
+  idRT.depthTexture.type = THREE.UnsignedIntType;
+  r.setClearColor(0xffffff, 1);
+  r.setRenderTarget(colorRT); r.clear(); r.render(scene, cam);
+  r.setClearColor(0x000000, 0);
+  r.setRenderTarget(idRT); r.clear(); r.render(idScene, cam);
+  const span = Math.max(cam.right - cam.left, cam.top - cam.bottom);
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+    vertexShader: compVS, fragmentShader: compFS, transparent: true,
+    uniforms: {
+      tColor: { value: colorRT.texture }, tId: { value: idRT.texture }, tDepth: { value: idRT.depthTexture },
+      uTexel: { value: new THREE.Vector2(1 / RW, 1 / RH) }, uNear: { value: cam.near }, uFar: { value: cam.far },
+      uOrtho: { value: 1 }, uDepthTol: { value: spec.depthTol ?? Math.max(1.2, span * 0.006) },
+      uCrease: { value: Math.cos(THREE.MathUtils.degToRad(spec.crease ?? 38)) }, uWidth: { value: spec.line ?? 1.6 },
+      uInk: { value: new THREE.Color('#1d232b') }, uInkSoft: { value: new THREE.Color('#a9b0b8') },
+    } }));
+  const qs = new THREE.Scene(); qs.add(quad);
+  const qc = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  r.setRenderTarget(null); r.setClearColor(0xffffff, 1); r.clear(); r.render(qs, qc);
+
+  // downsample to the output size
+  const out = document.createElement('canvas'); out.width = W; out.height = H;
+  const ctx = out.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(r.domElement, 0, 0, W, H);
+  const png = out.toDataURL('image/png');
+
+  // --- annotation geometry (output pixels)
+  const project = (p) => { const v = p.clone().project(cam); return [(v.x + 1) / 2 * W, (1 - v.y) / 2 * H]; };
+  const ray = new THREE.Raycaster();
+  const visibleOn = (pt, entry) => {           // is the 3D point the first hit along the view ray?
+    const ndc = pt.clone().project(cam);
+    ray.setFromCamera(new THREE.Vector2(ndc.x, ndc.y), cam);
+    const hits = ray.intersectObjects(pickables, false).filter(h => !clipped(h.point, h.object));
+    return hits.length && (!entry || hits[0].object.userData === entry) && hits[0].point.distanceTo(pt) < span * 0.01;
+  };
+  const clipped = (p, obj) => (obj.material.clippingPlanes || []).some(pl => pl.distanceToPoint(p) < 0);
+  function anchorPoint(a) {
+    if (a.at) return new THREE.Vector3(...a.at);
+    const ents = entries.filter(e => matches(e.o, a.sel) && (e.st.style || 'focus') !== 'ghost');
+    if (!ents.length) throw new Error('anchor selects nothing: ' + JSON.stringify(a));
+    const b = new THREE.Box3();
+    for (const e of ents) b.union(geometry(e.i).boundingBox.clone().applyMatrix4(e.M));
+    const c = b.getCenter(new THREE.Vector3());
+    if (a.offset) c.add(new THREE.Vector3(...a.offset));
+    // first try: the view ray through the projected centre hits one of these objects
+    const ndc = c.clone().project(cam);
+    ray.setFromCamera(new THREE.Vector2(ndc.x, ndc.y), cam);
+    const meshes = pickables.filter(m => ents.includes(m.userData));
+    const all = ray.intersectObjects(pickables, false).filter(h => !clipped(h.point, h.object));
+    if (all.length && meshes.includes(all[0].object)) return all[0].point;
+    // otherwise the visible vertex closest (on screen) to the centre
+    const cs = project(c);
+    let best = null, bd = 1e18;
+    for (const e of ents) {
+      const pos = geometry(e.i).attributes.position;
+      const step = Math.max(1, Math.floor(pos.count / 1500));
+      for (let k = 0; k < pos.count; k += step) {
+        const p = new THREE.Vector3().fromBufferAttribute(pos, k).applyMatrix4(e.M);
+        const s = project(p); const d = (s[0] - cs[0]) ** 2 + (s[1] - cs[1]) ** 2;
+        if (d < bd && visibleOn(p, e)) { bd = d; best = p; }
+      }
+    }
+    return best || c;
+  }
+
+  const callouts = (spec.labels || []).map(l => {
+    const p = anchorPoint(l.anchor);
+    const s = project(p);
+    return { ...l, anchor2d: s };
+  });
+  const arrows = (spec.arrows || []).map(a => {
+    if (a.kind === 'rotate') {
+      const c = new THREE.Vector3(...a.center), ax = new THREE.Vector3(...a.axis).normalize();
+      const e1 = new THREE.Vector3(...(a.ref || [1, 0, 0])); e1.addScaledVector(ax, -e1.dot(ax)).normalize();
+      const e2 = new THREE.Vector3().crossVectors(ax, e1);
+      const pts = [];
+      for (let k = 0; k <= 40; k++) {
+        const t = THREE.MathUtils.degToRad(a.a0 + (a.a1 - a.a0) * k / 40);
+        pts.push(project(c.clone().addScaledVector(e1, a.r * Math.cos(t)).addScaledVector(e2, a.r * Math.sin(t))));
+      }
+      return { ...a, pts };
+    }
+    let from, to;
+    if (a.sel) {                       // from the exploded position back to the installed one
+      const ents = entries.filter(e => matches(e.o, a.sel));
+      const b = new THREE.Box3();
+      for (const e of ents) b.union(geometry(e.i).boundingBox.clone().applyMatrix4(e.M));
+      const c = b.getCenter(new THREE.Vector3());
+      const d = new THREE.Vector3(...a.d);
+      from = c.clone().addScaledVector(d, a.startFrac ?? 0.0);
+      to = c.clone().addScaledVector(d, -(a.endFrac ?? 0.75));
+      if (a.at) { from = new THREE.Vector3(...a.at); to = from.clone().addScaledVector(d, -(a.endFrac ?? 0.75)); }
+    } else { from = new THREE.Vector3(...a.from); to = new THREE.Vector3(...a.to); }
+    return { ...a, pts: [project(from), project(to)] };
+  });
+  const points = {};
+  for (const [k, v] of Object.entries(spec.points || {})) points[k] = project(new THREE.Vector3(...v));
+  // scale bar: mm per output pixel
+  const mmPerPx = (cam.right - cam.left) / cam.zoom / W;
+  colorRT.dispose(); idRT.dispose();
+  scene.traverse(o => { if (o.material && !GEOM_MAT_KEEP) o.material.dispose?.(); });
+  return { png, w: W, h: H, callouts, arrows, points, mmPerPx };
+};
+const GEOM_MAT_KEEP = false;
+window.READY = true;
+</script>
+</body>
+</html>
