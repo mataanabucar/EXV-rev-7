@@ -224,8 +224,8 @@ def sheet_svg(strips, sheet, idcol, width_in=7.3):
         if y2 + KERF < SW:
             s.append(f'<line x1="-6" y1="{(y2 + KERF / 2) * sc:.1f}" x2="{W + 6:.1f}" y2="{(y2 + KERF / 2) * sc:.1f}" stroke="#e8590c" stroke-width="0.9" stroke-dasharray="4,3"/>')
         y = y2 + KERF
-    s.append(f'<text x="{W / 2:.1f}" y="-8" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5562">96″</text>')
-    s.append(f'<text x="{W + 8:.1f}" y="{H / 2:.1f}" font-size="9" font-weight="700" fill="#4a5562" transform="rotate(90 {W + 8:.1f} {H / 2:.1f})" text-anchor="middle">48″</text>')
+    s.append(f'<text x="{W / 2:.1f}" y="-8" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5562">{inch(SL)}</text>')
+    s.append(f'<text x="{W + 8:.1f}" y="{H / 2:.1f}" font-size="9" font-weight="700" fill="#4a5562" transform="rotate(90 {W + 8:.1f} {H / 2:.1f})" text-anchor="middle">{inch(SW)}</text>')
     s.append("</svg>")
     return "".join(s)
 
