@@ -249,16 +249,29 @@ Notes:
 - the 7/16in OSB shelf rests on its cleats about 0.9 mm lower than the 12 mm shelf of the design,
   so the PEX bushing sits that much lower (it still guides the tube; nothing else moves).
 - the drum key screws of the stick drum overlap as in the design (manual Open item 1).
+- arm halves: the converter rebuilds every build modification as CAD booleans. Three halves did not
+  read back from STEP as one valid solid at first and were repaired with
+  2026-10-29-repair-step-roundtrip.py: stick-half-right used as written (it only missed the 1 mm3
+  volume check), stick-half-left with four faces rebuilt as NURBS, boom-half-left with two small
+  blend faces (about 2 mm2 together) replaced by filled patches.
+- stick halves differ from the print STL by up to about 4 mm at internal spots near the split face
+  (stop bulkhead clipped to one convex hull, solid nose as one cylinder); outside surfaces match.
 
 Rebuild: MINIMAL_SRC=$(python 2026-10-11-make-minimal-source.py WORK) \\
          python 2026-10-11-minimal-manual/source/2026-10-29-minimal-solid-assembly.py WORK
          (after converting the parts into WORK/parts with Source/2026-09-28-mesh-to-brep.py and
-         2026-09-28-arm-halves-cad.py; CadQuery 2.x, trimesh, manifold3d, shapely)
+         2026-09-28-arm-halves-cad.py, and repairing failed halves with
+         2026-10-29-repair-step-roundtrip.py; CadQuery 2.8, trimesh, manifold3d, shapely)
+         --zip-only repackages WORK (assembly STEP + checks.json) without rebuilding
 """
 
 
 def main():
     work = Path(sys.argv[1])
+    if "--zip-only" in sys.argv:
+        write_zip(work, json.loads((work / "checks.json").read_text()))
+        print(f"written {ZIP_PATH} ({ZIP_PATH.stat().st_size / 1e6:.1f} MB)")
+        return
     t = time.time()
     print("1. EX-MA parts", flush=True)
     part_rep = check_parts(work)
@@ -280,11 +293,18 @@ def main():
     checks = dict(assembly=asm_rep, parts=part_rep, groups=dict(counts), shift=sa.SHIFT.round(3).tolist(),
                   components=sorted(f"{g}/{n}" for g, n, s, c in items))
     (work / "checks.json").write_text(json.dumps(checks, indent=1))
+    write_zip(work, checks)
+    print(f"written {ZIP_PATH} ({ZIP_PATH.stat().st_size / 1e6:.1f} MB, {time.time() - t:.0f}s)", flush=True)
+
+
+def write_zip(work, checks):
+    step = work / ASSEMBLY_NAME
+    part_rep, asm_rep, counts = checks["parts"], checks["assembly"], checks["groups"]
     groups = "\n".join(f"  {g}: {k}" for g, k in sorted(counts.items()))
     prt = "\n".join(f"  {n}: {r['source']}; valid {r['valid']}, {r['faces']} faces, deviation p99 {r['dev_p99']} mm / "
                     f"max {r['dev_max']} mm" for n, r in part_rep.items())
     bb = asm_rep["bbox"]
-    readme = README.format(step=ASSEMBLY_NAME, groups=groups, n=len(items), parts=prt,
+    readme = README.format(step=ASSEMBLY_NAME, groups=groups, n=asm_rep["components"], parts=prt,
                            box="8-7/16 x 15 x 6-1/8in",
                            asm=f"{asm_rep['solids']} solids for {asm_rep['components']} components, {asm_rep['invalid']} invalid, "
                                f"size {bb[3] - bb[0]:.1f} x {bb[4] - bb[1]:.1f} x {bb[5] - bb[2]:.1f} mm "
@@ -298,7 +318,6 @@ def main():
         z.write(elbow, "parts/elbow-support-base-plate-cut-off.step")
         z.writestr("checks.json", json.dumps(checks, indent=1))
         z.writestr("README.txt", readme)
-    print(f"written {ZIP_PATH} ({ZIP_PATH.stat().st_size / 1e6:.1f} MB, {time.time() - t:.0f}s)", flush=True)
 
 
 if __name__ == "__main__":
