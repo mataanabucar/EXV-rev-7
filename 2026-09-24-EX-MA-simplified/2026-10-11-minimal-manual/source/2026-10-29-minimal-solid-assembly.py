@@ -195,11 +195,44 @@ def hardware_items():
     return items
 
 
+def build(items):
+    """Nested cq.Assembly, one component per part. Built bottom-up: CadQuery 2.8 copies a sub-assembly
+    when it is added to its parent, so every group is filled before it is added."""
+    from collections import defaultdict
+    parts = defaultdict(list)
+    for grp, name, shp, col in items:
+        parts[grp].append((name, shp, col))
+    paths = set()
+    for grp in parts:
+        bits = grp.split("/")
+        for k in range(1, len(bits) + 1):
+            paths.add("/".join(bits[:k]))
+
+    def make(path):
+        a = cq.Assembly(name=sa.safe(path.split("/")[-1]))
+        used = set()
+        for name, shp, col in parts.get(path, []):
+            nm, k = sa.safe(name), 2
+            while nm in used:
+                nm, k = f"{sa.safe(name)} {k}", k + 1
+            used.add(nm)
+            a.add(shp.translate(V(*sa.SHIFT)), name=nm, color=cq.Color(*sa.COLOURS[col]))
+        for child in sorted(p for p in paths if p.rsplit("/", 1)[0] == path and "/" in p):
+            a.add(make(child), name=sa.safe(child.split("/")[-1]))
+        return a
+
+    root = cq.Assembly(name="EX-MA minimal build")
+    for top in sorted(p for p in paths if "/" not in p):
+        root.add(make(top), name=sa.safe(top))
+    return root
+
+
 # ---------------------------------------------------------------- checks
 def check_parts(work):
     rep = {}
     for name, (_, stl, _, _) in EXMA.items():
         s = one_solid(exma_step(name, work))
+        valid = bool(s.isValid())                      # before tessellating (tessellation can upset BRepCheck)
         m = trimesh.load(STL_DIR / f"{stl}.stl", force="mesh")
         vs, ts = s.tessellate(0.05, 0.2)
         rm = trimesh.Trimesh(np.array([(p.x, p.y, p.z) for p in vs]), np.array(ts))
@@ -208,7 +241,7 @@ def check_parts(work):
         d = np.r_[trimesh.proximity.closest_point(m, a)[1], trimesh.proximity.closest_point(rm, b)[1]]
         n_tri, share = sa.triangle_faces(s)
         rep[name] = dict(source=exma_step(name, work).name if EXMA[name][0] != "parts" else "converted from the print STL",
-                         valid=bool(s.isValid()), faces=len(s.Faces()), triangle_faces=n_tri,
+                         valid=valid, faces=len(s.Faces()), triangle_faces=n_tri,
                          triangle_area_percent=round(share, 1), volume=round(s.Volume(), 1), stl_volume=round(float(m.volume), 1),
                          dev_p99=round(float(np.percentile(d, 99)), 3), dev_max=round(float(d.max()), 3))
         print(f"  {name}: {rep[name]}", flush=True)
@@ -285,7 +318,8 @@ def main():
     print(f"   {len(items)} components", flush=True)
     print(f"3. assembly ({time.time() - t:.0f}s)", flush=True)
     step = work / ASSEMBLY_NAME
-    sa.build(items).export(str(step))
+    build(items).export(str(step))
+    assert step.stat().st_size > 1e6, "assembly STEP is empty"
     print(f"4. checks ({time.time() - t:.0f}s)", flush=True)
     asm_rep = sa.check_assembly(step, len(items))
     print(f"   {asm_rep}", flush=True)
