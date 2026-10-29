@@ -282,6 +282,9 @@ Notes:
 - the 7/16in OSB shelf rests on its cleats about 0.9 mm lower than the 12 mm shelf of the design,
   so the PEX bushing sits that much lower (it still guides the tube; nothing else moves).
 - the drum key screws of the stick drum overlap as in the design (manual Open item 1).
+- the seven #6 x 3/4in screws through the spool riser (3) and the sleeve posts (4) are 2.3 mm (3/32in)
+  longer than printed flange + 7/16in OSB box floor: their tips show under the box floor. Use
+  #6 x 5/8in there, or file the tips flush.
 - arm halves: the converter rebuilds every build modification as CAD booleans. Three halves did not
   read back from STEP as one valid solid at first and were repaired with
   2026-10-29-repair-step-roundtrip.py: stick-half-right used as written (it only missed the 1 mm3
